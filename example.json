@@ -1,0 +1,16 @@
+{
+    "name"      : "Jacob Smith",
+    "age"       : 19,
+    "height"    : 1.775,
+    "interests" : [
+        "Computer science",
+        "Organic chemistry",
+        "Mathematics",
+        "Computer games"
+    ],
+    "dog"       : {
+        "name"  : "Eddie",
+        "type"  : "Dog",
+        "breed" : "Terrier"
+    }
+}
