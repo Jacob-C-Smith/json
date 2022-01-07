@@ -39,7 +39,7 @@ int main ( int argc, const char* argv[])
     JSONValue_t* tokens;                        // JSON tokens
 
     // Initialized data
-    FILE*  f     = fopen("example.json", "rb"); // File
+    FILE*  f     = fopen("example.json", "r"); // File
     size_t len   = 0,                           // File length
            count = 0;                           // Number of tokens
     char*  data  = 0;                           // File contents
