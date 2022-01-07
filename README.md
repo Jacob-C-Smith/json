@@ -1,7 +1,6 @@
-# GXJSON
+# JSON
 ###### Disclaimer: This is a hobby project. This code may not meet commercial expectations for efficiency, safety, or features. This piece of software is currently incomplete
-
-GXJSON is a low memory footprint JSON parser written for [G10](https://github.com/Jacob-C-Smith/G10)
+A low memory footprint JSON parser written for [G10](https://github.com/Jacob-C-Smith/G10)
 
 ## Example Code
 
