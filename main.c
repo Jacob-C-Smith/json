@@ -18,27 +18,29 @@ int main ( int argc, const char* argv[])
 
 
     // Load the file 
-	{
+    {
         if ( argc > 1 )
-            f = fopen(argv[1], "r");  // File
+            f = fopen(argv[1], "r");
 
-		// Find file size
-		fseek(f, 0, SEEK_END);
-		len = ftell(f);
-		fseek(f, 0, SEEK_SET);
+	// Find file size
+	fseek(f, 0, SEEK_END);
+	len = ftell(f);
+	fseek(f, 0, SEEK_SET);
 
-		// Allocate data and read file into memory
-		data = malloc(len);
+	// Allocate data
+	data = malloc(len);
 
-		// Read to data
-		fread(data, 1, len, f);
+	// Read the file into data
+	fread(data, 1, len, f);
 
-		// We no longer need the file
-		fclose(f);
-	}
+	// Close the file handle
+	fclose(f);
+    }
 
-    // Figure out how much memory we need to allocate, and allocate it
+    // Figure out how much memory is required to store all the tokens
     count  = parse_json(data, len, 0, (void*)0);
+	
+    // Allocate for the tokens
     tokens = calloc(count, sizeof(JSONToken_t));
 
     // Parse the JSON data
