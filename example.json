@@ -4,13 +4,15 @@
     "height"    : 1.775,
     "dog"       : {
         "name"  : "Eddie",
-        "type"  : "Dog",
+        "sex"   : "Male",
         "breed" : "Terrier"
     },
     "interests" : [
         "Computer science",
+        "3D modeling",
         "Organic chemistry",
         "Mathematics",
-        "Computer games"
+        "Computer games",
+        "Epistemology"
     ]
 }
