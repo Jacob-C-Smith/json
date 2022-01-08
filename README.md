@@ -1,5 +1,5 @@
 # JSON
-A low memory footprint JSON parser written for [G10](https://github.com/Jacob-C-Smith/G10)
+A memory efficient JSON parser written for [G10](https://github.com/Jacob-C-Smith/G10)
 
 ## Build instructions, example code, output
 
@@ -24,17 +24,19 @@ Windows: Use Visual Studio to build the static library
     "name"      : "Jacob Smith",
     "age"       : 19,
     "height"    : 1.775,
-    "interests" : [
-        "Computer science",
-        "Organic chemistry",
-        "Mathematics",
-        "Computer games"
-    ],
     "dog"       : {
         "name"  : "Eddie",
-        "type"  : "Dog",
+        "sex"   : "Male",
         "breed" : "Terrier"
-    }
+    },
+    "interests" : [
+        "Computer science",
+        "3D modeling",
+        "Organic chemistry",
+        "Mathematics",
+        "Computer games",
+        "Epistemology"
+    ]
 }
 ```
 [main.c](main.c)
@@ -124,7 +126,7 @@ gcc main.c -L [path/to/static/lib/] -ljson -o main -I [path/to/include/]
 Terminal output
 
 ```
-Key:    "name" 
+Key:    "name"
 Value:  "Jacob Smith"
 
 Key:    "age"
@@ -136,16 +138,18 @@ Value:  "1.775"
 Key:    "dog"
 Value:  "{
         "name"  : "Eddie",
-        "type"  : "Dog",
+        "sex"   : "Male",
         "breed" : "Terrier"
     }"
 
 Key:    "interests"
 Values:
         "Computer science"
+        "3D modeling"
         "Organic chemistry"
         "Mathematics"
         "Computer games"
+        "Epistemology"
 
 ```
 
