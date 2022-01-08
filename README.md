@@ -113,6 +113,13 @@ Value:  "19"
 Key:    "height"
 Value:  "1.775"
 
+Key:    "dog"
+Value:  "{
+        "name"  : "Eddie",
+        "type"  : "Dog",
+        "breed" : "Terrier"
+    }"
+
 Key:    "interests"
 Values:
         "Computer science"
@@ -120,12 +127,6 @@ Values:
         "Mathematics"
         "Computer games"
 
-Key:    "dog"
-Value:  "{
-        "name"  : "Eddie",
-        "type"  : "Dog",
-        "breed" : "Terrier"
-    }"
 ```
 
 
