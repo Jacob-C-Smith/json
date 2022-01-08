@@ -166,7 +166,7 @@ Values:
 
 ```
 
-## The problem solving process, commentary, and 
+## Problem solving process, investigation, and comentary 
 ### > Background
 I needed a parser for my game engine for loading textures, materials, meshes, and other game assets. I chose JSON as a metadata format because it is human readable, very simple, and, very popular. 
 
