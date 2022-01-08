@@ -64,7 +64,9 @@ int main ( int argc, const char* argv[])
     {
         if ( argc > 0 )
             f = fopen(argv[1], "r");
-
+        else
+            goto noFile;
+	    
 	// Find file size
 	fseek(f, 0, SEEK_END);
 	len = ftell(f);
@@ -118,6 +120,13 @@ int main ( int argc, const char* argv[])
     }
 
     return 0;
+	
+    // Error handling
+    {
+        noFile:
+	    printf("No file supplied!\nSpecify a file as an argument\n");
+	    return 0;
+    }
 }
 ```
 
