@@ -62,7 +62,7 @@ int main ( int argc, const char* argv[])
 
     // Load the file 
     {
-        if ( argc > 1 )
+        if ( argc > 0 )
             f = fopen(argv[1], "r");
 
 	// Find file size
