@@ -5,6 +5,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+#include <dict/dict.h>
+
 // Enumerations
 
 // Enumeration for the types of JSON objects
@@ -38,7 +40,17 @@ typedef union  JSONContent_u   JSONContent_t;
 typedef enum   JSONValueType_e JSONValueType_t;
 typedef struct JSONToken_s     JSONToken_t;
 
+static const char *token_types[] = {
+    "object", 
+    "array",
+    "string",
+    "primative"
+};
+
 // Function definitions
-int parse_json ( char *token_text, size_t len, size_t count, JSONToken_t *tokens ); // ✅ Parses a JSON file and places tokens at an array of JSONToken_t* tokens. 
-                                                                                    //     If the function is called when the tokens parameter is nullptr, the
-                                                                                    //     function will return the number of tokens that need to be allocated for.
+#define DLLEXPORT extern __declspec(dllexport)
+
+// Parse json into a dictionary
+DLLEXPORT int parse_json ( char *token_text, size_t len, dict   **dictionary );
+
+DLLEXPORT int encode_json ( FILE *buffer, size_t count, JSONToken_t* tokens );

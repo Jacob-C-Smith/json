@@ -2,8 +2,13 @@
 
 // TODO: Rewrite the JSON parser in assembly with SIMD string instructions.
 //       That ought to be a fun challenge.
-int parse_json ( char *token_text, size_t len, size_t count, JSONToken_t *tokens )
+
+// TODO: Rewrite the JSON parser in assembly with SIMD string instructions.
+//       That ought to be a fun challenge.
+
+DLLEXPORT int parse_json ( char* token_text, size_t len, dict** dictionary )
 {
+
     // Argument check
     {
         #ifndef NDEBUG
@@ -14,60 +19,65 @@ int parse_json ( char *token_text, size_t len, size_t count, JSONToken_t *tokens
             
         #endif
     }
+
     // Initialized data.
     size_t token_iterator = 0,
-           ret            = 0,
+           count          = 0,
            i              = 1;
+
+    dict  *i_dictionary   = 0;
 
     // This is the preparse branch. The code parses the JSON and counts how many key/value pairs there are in the token 
     {
-        if ( count == 0 )
+        // Walk through the file one character at a time
+        for(; i < len; i++)
         {
-            // Walk through the file one character at a time
-            for(; i < len; i++)
+            // Hitting a colon means that there is a key value pair around here
+            if ( token_text[i] == ':' )      
+                count++;
+
+            // Hitting a bracket means there is an object, and need it needs to be skipped over
+            else if ( token_text[i] == '{' ) 
             {
-                // Hitting a colon means that there is a key value pair around here
-                if ( token_text[i] == ':' )      
-                    ret++;
+                // The iterater just passed a bracket, so b_depth = 1.
+                size_t b_depth = 1; 
+                while ( b_depth )
+                {	
+                    // Keep iterating through the object until b_depth == 0 
+                    i++;
 
-                // Hitting a bracket means there is an object, and need it needs to be skipped over
-                else if ( token_text[i] == '{' ) 
-                {
-                    // The iterater just passed a bracket, so b_depth = 1.
-                    size_t b_depth = 1; 
-                    while ( b_depth )
-                    {	
-                        // Keep iterating through the object until b_depth == 0 
-                        i++;
-
-                        if ( token_text[i] == '{' )            // If the char is a '{', the iterator just passed into an object, so the counter is  incremented
-                            b_depth++;
-                        if ( token_text[i] == '}' )            // If the char is a '}', the iterator just passet out of an object, so the counter is decremented
-                            b_depth--;
-                        else if ( token_text[i] == '\"' )      // If the char is a '\"', the iterator skips to the next '\"'
-                            while ( token_text[i++] != '\"' ); 
+                    if ( token_text[i] == '{' )            // If the char is a '{', the iterator just passed into an object, so the counter is  incremented
+                        b_depth++;
+                    if ( token_text[i] == '}' )            // If the char is a '}', the iterator just passet out of an object, so the counter is decremented
+                        b_depth--;
+                    else if ( token_text[i] == '\"' )      // If the char is a '\"', the iterator skips to the next '\"'
+                        while ( token_text[i++] != '\"' ); 
                         
-                    }
                 }
-
-                // Hitting a '\"' means there is a string, and it needs to be skipped over
-                else if ( token_text[i] == '\"' )              
-                    while ( token_text[++i] != '\"' );
             }
-            
-            return ret; // Return the total count of key/value pairs.
+
+            // Hitting a '\"' means there is a string, and it needs to be skipped over
+            else if ( token_text[i] == '\"' )              
+                while ( token_text[++i] != '\"' );
         }
+            
     }
+
+    dict_construct(&i_dictionary, count*2);
 
     // This is the body of the parser. The code parses 'count' number of JSON tokens from 'token_text' into 'tokens'
     while ( *++token_text )
     {
+
         // Found a key.
         if ( *token_text == '\"' ) 
         {
+            // Allocate for a token
+            JSONToken_t* token = calloc(1, sizeof(JSONToken_t));
+
             // Parse the key name and update the token
             {
-                tokens[token_iterator].key = token_text + 1;  // Set the current tokens key pointer to the start of the key.
+                token->key = token_text + 1;  // Set the current tokens key pointer to the start of the key.
                 while (*++token_text != '\"');                // Go to the end of the string.
 
                 *token_text = 0;                              // Set a null terminator at the end of the string, overwriting the ending '\"' with a '\0'.
@@ -82,11 +92,11 @@ int parse_json ( char *token_text, size_t len, size_t count, JSONToken_t *tokens
                 if (*token_text == '\"')
                 {
                     // Format the value 
-                    tokens[token_iterator].value.n_where = token_text + 1; // Set the value pointer to the correct value
+                    token->value.n_where = token_text + 1; // Set the value pointer to the correct value
                     while (*++token_text != '\"');                        // Skip past all the contents of the string to the '\"'
                     *token_text = 0;                                      // Replace the closing quote with a null terminator
 
-                    tokens[token_iterator].type = JSONstring;             // Set the type as a string
+                    token->type = JSONstring;             // Set the type as a string
                 }
 
                 // Parse out a primative.
@@ -94,8 +104,8 @@ int parse_json ( char *token_text, size_t len, size_t count, JSONToken_t *tokens
                             *token_text == '.'                         ||
                             *token_text == '-' )
                 {
-                    tokens[token_iterator].value.n_where = token_text;       // Set the value pointer to the correct value
-                    tokens[token_iterator].type         = JSONprimative;    // Set the type as a primative    
+                    token->value.n_where = token_text;       // Set the value pointer to the correct value
+                    token->type          = JSONprimative;    // Set the type as a primative    
                     while ( (*++token_text >= '0' && *token_text <= '9') || // Skip past the number
                             *token_text == '.' );                          
 
@@ -107,8 +117,8 @@ int parse_json ( char *token_text, size_t len, size_t count, JSONToken_t *tokens
                     // Initialized data
                     size_t b_depth = 1;                               // b_depth again keeps track of the bracket depth
 
-                    tokens[token_iterator].value.n_where = token_text; // Set the value pointer to point to the current character, the start of the object
-                    tokens[token_iterator].type         = JSONobject; // Set the type as an object
+                    token->value.n_where = token_text; // Set the value pointer to point to the current character, the start of the object
+                    token->type          = JSONobject; // Set the type as an object
 
                     while (b_depth)                                   // Similar to the preparsing subroutine, skip past anything in the object that could trip up the parser,
                     {                                                 // and keep track of the bracket depth.
@@ -120,6 +130,7 @@ int parse_json ( char *token_text, size_t len, size_t count, JSONToken_t *tokens
                         else if (*token_text == '\"')
                             while (*++token_text != '\"');
                     }
+                    
                 }
 
                 // Parse out an array
@@ -132,7 +143,7 @@ int parse_json ( char *token_text, size_t len, size_t count, JSONToken_t *tokens
                            b_depth = 1, // This keeps track of square bracket depth.
                            c_depth = 0; // This keeps track of regular bracked depth.
 
-                    tokens[token_iterator].type = JSONarray; // Set the type.
+                    token->type = JSONarray; // Set the type.
 
                     while (b_depth)
                     {
@@ -154,7 +165,7 @@ int parse_json ( char *token_text, size_t len, size_t count, JSONToken_t *tokens
                     if (j > 1) // If there are any array elements at all, the counter is incremented to allocate for a null terminator
                         j++;
 
-                    tokens[token_iterator].value.a_where = calloc((j + 1), sizeof(void*)); // Allocate some space to start placing the pointers.
+                    token->value.a_where = calloc((j + 1), sizeof(void*)); // Allocate some space to start placing the pointers.
                     token_text++;                                                         // Skip past the '['.
 
                     b_depth = 1,                                                          // Reset square bracket depth, regular bracket depth, and the iterator.
@@ -167,7 +178,7 @@ int parse_json ( char *token_text, size_t len, size_t count, JSONToken_t *tokens
                         // Parse a string out of the array, like above
                         if (*token_text == '\"')                                          
                         {
-                            tokens[token_iterator].value.a_where[i] = ++token_text;
+                            token->value.a_where[i] = ++token_text;
                             while (*++token_text != '\"');
                             *token_text = '\0';
                             token_text++;
@@ -177,7 +188,7 @@ int parse_json ( char *token_text, size_t len, size_t count, JSONToken_t *tokens
                         // Parse an object out, just like key/value parsing 
                         else if (*token_text == '{')                                      
                         {
-                            tokens[token_iterator].value.a_where[i] = token_text;
+                            token->value.a_where[i] = token_text;
                             c_depth++;
                             while (c_depth)
                             {
@@ -198,13 +209,13 @@ int parse_json ( char *token_text, size_t len, size_t count, JSONToken_t *tokens
                         else if (*token_text == '[')										
                         {
                             // TODO: Finish
-                            tokens[token_iterator].value.a_where[i] = token_text;
+                            token->value.a_where[i] = token_text;
                         }
 
                         // Parse a primative, just like below.
                         else if ((*token_text >= '0' && *token_text <= '9') || *token_text == '-')                       
                         {
-                            tokens[token_iterator].value.a_where[i] = token_text;
+                            token->value.a_where[i] = token_text;
                             while ((*++token_text >= '0' && *token_text <= '9') || *token_text == '.' || *token_text == '-');
                             i++;
                             *token_text = '\0';
@@ -214,7 +225,7 @@ int parse_json ( char *token_text, size_t len, size_t count, JSONToken_t *tokens
                             b_depth--;
                         token_text++;
                     }
-                    tokens[token_iterator].value.a_where[i] = (void*)0;
+                    token->value.a_where[i] = (void*)0;
                 }
 
                 // Parse out true, false or null
@@ -222,14 +233,14 @@ int parse_json ( char *token_text, size_t len, size_t count, JSONToken_t *tokens
                 {
                     if (strncmp(token_text,"true",4) == 0)
                     {
-                        tokens[token_iterator].value.n_where = (void *) 1;
+                        token->value.n_where = (void *) 1;
                     }
 
                     else if (strncmp(token_text, "false", 5) == 0 || strncmp(token_text, "null", 4) == 0)
                     {
-                        tokens[token_iterator].value.n_where = 0;
+                        token->value.n_where = 0;
                     }
-
+                    token->type = JSONprimative;
                 }
 
                 // Smoething has gone very wrong
@@ -238,6 +249,8 @@ int parse_json ( char *token_text, size_t len, size_t count, JSONToken_t *tokens
             }
             token_iterator++;                                                                        // Increment the token index
 
+            dict_add(i_dictionary, token->key, token);
+
             // If all the tokens are accounted for, the code exits on the good branch
             if (token_iterator == (size_t)count)
                 goto exitAllParsed;
@@ -245,10 +258,18 @@ int parse_json ( char *token_text, size_t len, size_t count, JSONToken_t *tokens
             // Else, keep parsing tokens
             while (*token_text++ != ',');
             *--token_text = 0;
+
+            
+
         }
     }
-    exitAllParsed:
+exitAllParsed:
+    {
+        (char*)token_text++;
+        *(char*)token_text = '\0';
+        *dictionary = i_dictionary;
         return token_iterator;
+    }
 
     // Error handling
     {
@@ -274,4 +295,72 @@ int parse_json ( char *token_text, size_t len, size_t count, JSONToken_t *tokens
             #endif
             return ( -1 * token_iterator);
     }
+    return 1;
+
+}
+
+int encode_json(FILE* buffer, size_t count, JSONToken_t* tokens)
+{
+    // Argument check
+    {
+
+    }
+
+    // Format the beginning of the object
+    fputc('{', buffer);
+    fputc('\n', buffer);
+
+    // Iterate over tokens
+    for (size_t i = 0; i < count; i++)
+    {
+
+        // Write the key
+        {
+            fputc('\t', buffer);
+
+            fputc('\"', buffer);
+            fputs(tokens[i].key, buffer);
+            fputc('\"', buffer);
+        }
+
+        // Write the seperator
+        {
+            fputc(' ', buffer);
+            fputc(':', buffer);
+            fputc(' ', buffer);
+        }
+
+        // Write the object
+        {
+            switch (tokens[i].type)
+            {
+                case JSONstring:
+                    fprintf(buffer, "\"%s\"", tokens[i].value.n_where);
+                    break;
+                case JSONprimative:
+                    fprintf(buffer, "\"%s\"", tokens[i].value.n_where);
+                    break;
+
+                case JSONarray:
+                    break;
+
+                case JSONobject:
+
+                    break;
+            }
+        }
+
+        // Write a comma if not on the last element
+        {
+            if (i < count - 1)
+                fputc(',', buffer);
+        }
+        fputc('\n', buffer);
+
+    }
+
+    fputc('}', buffer);
+
+    fflush(buffer);
+    return 0;
 }
