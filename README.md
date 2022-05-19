@@ -46,81 +46,51 @@ Windows: Use Visual Studio to build the static library
 #include <string.h>
 #include <stdlib.h>
 
+#include <dict/dict.h>
 #include <JSON/JSON.h>
 
 int main ( int argc, const char* argv[])
 {
     // Uninitialized data
-    JSONToken_t *tokens;                              // JSON tokens
     FILE        *f;
 
     // Initialized data
     size_t       len   = 0,                           // File length
                  count = 0;                           // Number of tokens
     char*        data  = 0;                           // File contents
-
+    dict        *dictionary = 0;
 
     // Load the file 
     {
         if ( argc > 0 )
-            f = fopen(argv[1], "r");
+            f = fopen(argv[1], "rb");
         else
             goto noFile;
 	    
-	// Find file size
-	fseek(f, 0, SEEK_END);
-	len = ftell(f);
-	fseek(f, 0, SEEK_SET);
+	    // Find file size
+    	fseek(f, 0, SEEK_END);
+	    len = ftell(f);
+	    fseek(f, 0, SEEK_SET);
 
-	// Allocate data
-	data = malloc(len);
+	    // Allocate data
+	    data = malloc(len);
 
-	// Read the file into data
-	fread(data, 1, len, f);
+	    // Read the file into data
+	    fread(data, 1, len, f);
 
-	// Close the file handle
-	fclose(f);
+	    // Close the file handle
+	    fclose(f);
     }
-
-    // Figure out how much memory is required to store all the tokens
-    count  = parse_json(data, len, 0, (void*)0);
-	
-    // Allocate for the tokens
-    tokens = calloc(count, sizeof(JSONToken_t));
 
     // Parse the JSON data
-    parse_json(data,len,count,tokens);
+    parse_json(data,len,&dictionary);
 
-    // Dump the contents of the file to stdout
-    for (size_t i = 0; i < count; i++)
-    {
-        // Check for an array
-        if(tokens[i].type == JSONarray)
-        {
-            // Uninitialized data
-            size_t j = 0;
+    JSONToken_t *t = dict_get(dictionary, "dog");
 
-            // Print out the key and value formatting
-            printf("Key:    \"%s\"\nValues:\n", tokens[i].key);
-
-            // Print out all members of the double pointer
-            while (tokens[i].value.a_where[j])
-            {
-                printf("        \"%s\"\n", (char *)tokens[i].value.a_where[j]);
-                j++;
-            }
-            
-            putchar('\n');
-
-            continue;
-        }
-
-        // Print the token
-        printf("Key:    \"%s\" \nValue:  \"%s\"\n\n",tokens[i].key, (char *)tokens[i].value.n_where);
-    }
+    printf(t->value.n_where);
 
     return 0;
-	
+
     // Error handling
     {
         noFile:
@@ -139,33 +109,14 @@ gcc main.c -L [path/to/static/lib/] -ljson -o main -I [path/to/include/]
 Terminal output
 
 ```
-Key:    "name"
-Value:  "Jacob Smith"
-
-Key:    "age"
-Value:  "19"
-
-Key:    "height"
-Value:  "1.775"
-
-Key:    "dog"
-Value:  "{
+{
         "name"  : "Eddie",
         "sex"   : "Male",
         "breed" : "Terrier"
-    }"
-
-Key:    "interests"
-Values:
-        "Computer science"
-        "3D modeling"
-        "Organic chemistry"
-        "Mathematics"
-        "Computer games"
-        "Epistemology"
-
+    }
 ```
 
+# v1.0
 ## Problem solving process, investigation, and comentary 
 ### > Background
 I needed a parser for my game engine for loading textures, materials, meshes, and other game assets. I chose JSON as a metadata format because it is human readable, very simple, and, very popular. 
@@ -288,3 +239,82 @@ struct JSONToken_s
 ```type``` is the type of the value
 
 ```value``` is a union which can be either a regular pointer, or a double pointer.
+
+# v2.0
+### > Background
+The original JSON parser worked fine, but I did have some issues with it. Searching for the right item is slow, and would often result in ugly code.
+
+From [G10](https://github.com/Jacob-C-Smith/blob/main/G10.c)
+```c
+// Load the file
+g_load_file(path, token_text, false);
+
+token_text_len = strlen(token_text);
+
+// Preparse the JSON
+token_count = parse_json(token_text, token_text_len, 0, 0);
+tokens      = calloc(token_count, sizeof(JSONToken_t));
+parse_json(token_text, token_text_len, token_count, tokens);
+
+// Parse the JSON
+for (i = 0; i < token_count; i++)
+{
+    if (strcmp(tokens[i].key, "name")                 == 0)
+    ...
+    if (strcmp(tokens[i].key, "window width")         == 0)
+    ...
+    if (strcmp(tokens[i].key, "window height")        == 0)
+    ...
+    if (strcmp(tokens[i].key, "window title")         == 0)
+    ...
+    if (strcmp(tokens[i].key, "fullscreen")           == 0)
+    ...
+    if (strcmp(tokens[i].key, "input")                == 0)
+    ...
+    if (strcmp(tokens[i].key, "initial scene")        == 0)
+    ...
+    if (strcmp(tokens[i].key, "cache part count")     == 0)
+    ...
+    if (strcmp(tokens[i].key, "cache material count") == 0)
+    ...
+    if (strcmp(tokens[i].key, "cache shader count")   == 0)
+    ...
+}
+
+free(tokens);
+free(token_text);
+...
+```
+This was fine when my game engine was simple, and I only had to maintain a few loader functions. This is no longer the case. Hash tables present a much faster solution.
+
+### > The solution, design choices, and code commentary
+
+This was pretty damn straightforward. I changed the function signature to write to a dictionary. 
+```c
+DLLEXPORT int parse_json ( char* token_text, size_t len, dict** dictionary );
+```
+After counting JSON tokens, a hash table is constructed. I made the arbitrary choice to make the hash table twice as big as the item count. This was done in an effort to minimize collisions. 
+```c
+    // Initialized data.
+    ...
+    dict  *i_dictionary   = 0;
+    ...
+    dict_construct(dictionary, count*2);
+    i_dictionary = *dictionary;
+```
+The token parser allocates a new token after every iteration. After the token is populated, it is added to the dictionary.
+```c
+// Populate key, value, and type in token
+...
+
+token_iterator++;
+
+dict_add(i_dictionary, token->key, token);
+
+// Iterate or exit
+...
+```
+And in the exit branch, the dictionary is written to the double pointer parameter. It was really that simple. 
+
+### > The implementation
+Please see [JSON.c](JSON.c)

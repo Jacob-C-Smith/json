@@ -62,8 +62,9 @@ DLLEXPORT int parse_json ( char* token_text, size_t len, dict** dictionary )
         }
             
     }
-
-    dict_construct(&i_dictionary, count*2);
+    size_t tmpc = count;
+    dict_construct(dictionary, count*2);
+    i_dictionary = *dictionary;
 
     // This is the body of the parser. The code parses 'count' number of JSON tokens from 'token_text' into 'tokens'
     while ( *++token_text )
@@ -252,7 +253,7 @@ DLLEXPORT int parse_json ( char* token_text, size_t len, dict** dictionary )
             dict_add(i_dictionary, token->key, token);
 
             // If all the tokens are accounted for, the code exits on the good branch
-            if (token_iterator == (size_t)count)
+            if (token_iterator == tmpc)
                 goto exitAllParsed;
 
             // Else, keep parsing tokens
@@ -265,10 +266,10 @@ DLLEXPORT int parse_json ( char* token_text, size_t len, dict** dictionary )
     }
 exitAllParsed:
     {
-        (char*)token_text++;
+        while(*token_text++!='}');
         *(char*)token_text = '\0';
         *dictionary = i_dictionary;
-        return token_iterator;
+        return tmpc;
     }
 
     // Error handling
@@ -291,7 +292,7 @@ exitAllParsed:
         // If the code exits on this branch, something has gone very wrong.
         exitNotAllParsed:
             #ifndef NDEBUG
-                printf("[JSON] Not all JSON tokens were parsed. Only %ld out of %ld were parsed", token_iterator, count);
+                printf("[JSON] Not all JSON tokens were parsed. Only %ld out of %ld were parsed", token_iterator, tmpc);
             #endif
             return ( -1 * token_iterator);
     }

@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include <dict/dict.h>
 #include <JSON/JSON.h>
 
 int main ( int argc, const char* argv[])
@@ -41,9 +42,8 @@ int main ( int argc, const char* argv[])
     // Parse the JSON data
     parse_json(data,len,&dictionary);
 
-    dict_item *item = dict_get(dictionary, "dog");
+    JSONToken_t *t = dict_get(dictionary, "dog");
 
-    JSONToken_t* t = (JSONToken_t * )item->value;
     printf(t->value.n_where);
 
     return 0;
