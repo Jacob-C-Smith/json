@@ -244,7 +244,7 @@ struct JSONToken_s
 ### > Background
 The original JSON parser worked fine, but I did have some issues with it. Searching for the right item is slow, and would often result in ugly code.
 
-From [G10](https://github.com/Jacob-C-Smith/blob/main/G10.c)
+From [G10](https://github.com/Jacob-C-Smith/G10/blob/main/G10.c)
 ```c
 // Load the file
 g_load_file(path, token_text, false);
