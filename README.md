@@ -119,9 +119,7 @@ Terminal output
 # v1.0
 ## Problem solving process, investigation, and comentary 
 ### > Background
-I needed a parser for my game engine for loading textures, materials, meshes, and other game assets. I chose JSON as a metadata format because it is human readable, very simple, and, very popular. 
-
-JSON is also advantageous to XML because JSON lacks end tags. This choice was made in an effort to save memory and proceessing time.
+I needed a JSON parser for my game engine. 
 
 ### > The problem
 I wanted to parse a JSON file into something that I could interface with using C code.
@@ -302,7 +300,7 @@ After counting JSON tokens, a hash table is constructed. I made the arbitrary ch
     dict_construct(dictionary, count*2);
     i_dictionary = *dictionary;
 ```
-The token parser allocates a new token after every iteration. After the token is populated, it is added to the dictionary.
+The parser allocates a new token after every iteration. After the token is populated, it is added to the dictionary.
 ```c
 // Populate key, value, and type in token
 ...
