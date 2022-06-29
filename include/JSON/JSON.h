@@ -7,6 +7,9 @@
 
 #include <dict/dict.h>
 
+// Calling this macro will return the value of the JSON token, if the token is not a null pointer and if the type matches the parameter 't'
+#define JSON_VALUE( token, t ) (token) ? (token->type==t) ? token->value.n_where : 0 : 0;
+
 // Enumerations
 
 // Enumeration for the types of JSON objects

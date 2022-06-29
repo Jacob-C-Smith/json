@@ -166,7 +166,7 @@ DLLEXPORT int parse_json ( char* token_text, size_t len, dict** dictionary )
                     if (j > 1) // If there are any array elements at all, the counter is incremented to allocate for a null terminator
                         j++;
 
-                    token->value.a_where = calloc((j + 1), sizeof(void*)); // Allocate some space to start placing the pointers.
+                    token->value.a_where = calloc((j + 2), sizeof(void*)); // Allocate some space to start placing the pointers.
                     token_text++;                                                         // Skip past the '['.
 
                     b_depth = 1,                                                          // Reset square bracket depth, regular bracket depth, and the iterator.
