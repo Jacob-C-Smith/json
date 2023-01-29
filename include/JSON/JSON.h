@@ -51,7 +51,11 @@ static const char *token_types[] = {
 };
 
 // Function definitions
+#ifdef _WIN64
 #define DLLEXPORT extern __declspec(dllexport)
+#else
+#define DLLEXPORT
+#endif
 
 // Parse json into a dictionary
 DLLEXPORT int parse_json ( char *token_text, size_t len, dict   **dictionary );

@@ -1,6 +1,6 @@
 INCLUDES=-I./include -I/usr/local/include -I./dict/include
 CC=gcc
-CFLAGS=-g -fdeclspec -fms-extensions -w
+CFLAGS=-g -w
 OBJECT_DIR=./object
 AS=nasm
 SRCS:=$(wildcard *.c)
