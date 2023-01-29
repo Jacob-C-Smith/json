@@ -22,7 +22,7 @@ RUNARGS=example.json
 all: $(TARGET) submodules libs
 
 $(TARGET): submodules $(OBJS)
-	$(CC) $(CFLAGS) $(INCLUDES) -o $(TARGET) $(OBJS) $(LDIRS) $(LIBS)
+	$(CC) $(CFLAGS) $(INCLUDES) -o $(TARGET) $(OBJS) $(LDIRS) $(LIBS) -Wl,-rpath,./
 
 submodules: $(SUBMODULES)
 	$(MAKE) libs -C $^
