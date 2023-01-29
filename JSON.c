@@ -3,9 +3,6 @@
 // TODO: Rewrite the JSON parser in assembly with SIMD string instructions.
 //       That ought to be a fun challenge.
 
-// TODO: Rewrite the JSON parser in assembly with SIMD string instructions.
-//       That ought to be a fun challenge.
-
 DLLEXPORT int parse_json ( char* token_text, size_t len, dict** dictionary )
 {
 
