@@ -3,3 +3,10 @@
 lib
 x64/
 .DS_Store
+build/
+CMakeFiles/
+cmake_install.cmake
+Makefile
+include/dict
+Debug/
+CMakeCache.txt

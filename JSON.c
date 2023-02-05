@@ -81,7 +81,7 @@ DLLEXPORT int parse_json ( char* token_text, size_t len, dict** dictionary )
                 *token_text = 0;                              // Set a null terminator at the end of the string, overwriting the ending '\"' with a '\0'.
                 token_text++;                                 // Iterate past the null terminator
                 while (*token_text++ != ':');                 // Till the ':'.
-                while (*++token_text == ' ');                 // and past any whitespaces.
+                while (isspace(*++token_text)) ;    // and past any whitespaces.
             }
 
             // Parse the value into a token and update the token
