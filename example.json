@@ -2,13 +2,7 @@
     "name"      : "Jacob Smith",
     "age"       : 19,
     "height"    : 1.775,
-    "dog"       :
-
-
-
-
-
-                    {
+    "dog"       : {
         "name"  : "Eddie",
         "sex"   : "Male",
         "breed" : "Terrier"

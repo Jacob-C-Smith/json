@@ -10,3 +10,5 @@ Makefile
 include/dict
 Debug/
 CMakeCache.txt
+json_example
+dict_example

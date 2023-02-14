@@ -1,8 +1,17 @@
 #include <JSON/JSON.h>
 
+// Type definitions
+typedef union  JSONContent_u   JSONContent_t;
+typedef enum   JSONValueType_e JSONValueType_t;
+
+static const char *token_types[] = {
+    "object", 
+    "array",
+    "string",
+    "primative"
+};
 // TODO: Rewrite the JSON parser in assembly with SIMD string instructions.
 //       That ought to be a fun challenge.
-
 DLLEXPORT int parse_json ( char* token_text, size_t len, dict** dictionary )
 {
 
@@ -261,6 +270,7 @@ DLLEXPORT int parse_json ( char* token_text, size_t len, dict** dictionary )
 
         }
     }
+    
 exitAllParsed:
     {
         while(*token_text++!='}');
@@ -293,72 +303,12 @@ exitAllParsed:
             #endif
             return ( -1 * token_iterator);
     }
-    return 1;
-
 }
 
-int encode_json(FILE* buffer, size_t count, JSONToken_t* tokens)
+void free_token (void *ptr)
 {
-    // Argument check
-    {
-
-    }
-
-    // Format the beginning of the object
-    fputc('{', buffer);
-    fputc('\n', buffer);
-
-    // Iterate over tokens
-    for (size_t i = 0; i < count; i++)
-    {
-
-        // Write the key
-        {
-            fputc('\t', buffer);
-
-            fputc('\"', buffer);
-            fputs(tokens[i].key, buffer);
-            fputc('\"', buffer);
-        }
-
-        // Write the seperator
-        {
-            fputc(' ', buffer);
-            fputc(':', buffer);
-            fputc(' ', buffer);
-        }
-
-        // Write the object
-        {
-            switch (tokens[i].type)
-            {
-                case JSONstring:
-                    fprintf(buffer, "\"%s\"", tokens[i].value.n_where);
-                    break;
-                case JSONprimative:
-                    fprintf(buffer, "\"%s\"", tokens[i].value.n_where);
-                    break;
-
-                case JSONarray:
-                    break;
-
-                case JSONobject:
-
-                    break;
-            }
-        }
-
-        // Write a comma if not on the last element
-        {
-            if (i < count - 1)
-                fputc(',', buffer);
-        }
-        fputc('\n', buffer);
-
-    }
-
-    fputc('}', buffer);
-
-    fflush(buffer);
-    return 0;
+    if ( ((JSONToken_t *)ptr)->type == JSONarray )
+        free(((JSONToken_t *)ptr)->value.a_where);
+    
+    free(ptr);
 }
