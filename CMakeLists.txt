@@ -15,10 +15,10 @@ endif()
 
 
 # Add source to this project's executable.
-add_executable (json_example "json.c" "main.c")
+add_executable (json_example "JSON.c" "main.c")
 
 # Add source to this project's library
-add_library    (json SHARED "json.c")
+add_library    (json SHARED "JSON.c")
 
 target_link_libraries(json_example PUBLIC dict)
 target_link_libraries(json PUBLIC dict)
