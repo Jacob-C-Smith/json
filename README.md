@@ -1,5 +1,5 @@
 # JSON
- A JSON parser written in C. 
+ A JSON object parser written in C. 
  
  > 1 [Download](#download)
  >
