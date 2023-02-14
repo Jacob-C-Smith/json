@@ -85,6 +85,10 @@ interests:
 
  ```
  [Source](main.c)
+ 
+ ## Limitations
+ This parser can not parse arrays of arrays just yet. I'm still working on that one. 
+ 
  ## Definitions
  
  ### Type definitions
