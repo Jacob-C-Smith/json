@@ -14,7 +14,7 @@ int main ( int argc, const char* argv[] )
 {
 
     // Check for valid argument
-    if ( argc < 1 )
+    if ( argc == 1 )
         goto no_argument;
 
     // Iterate over command line arguments
