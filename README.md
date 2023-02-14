@@ -24,7 +24,7 @@
  ## Download
  To download JSON, execute the following command
  ```bash
- $ git clone https://github.com/Jacob-C-Smith/JSON
+ $ git clone https://github.com/Jacob-C-Smith/JSON --recurse-submodules
  ```
  ## Build
  To build on UNIX like machines, execute the following commands in the same directory
