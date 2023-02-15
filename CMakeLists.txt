@@ -1,18 +1,11 @@
 cmake_minimum_required (VERSION 3.8)
 
 project ("json")
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR})
 
-add_subdirectory(${CMAKE_SOURCE_DIR}/dict)
-find_library(dict NAMES dict HINTS ${CMAKE_SOURCE_DIR}/dict/build/Debug/*)
-
-if(dict)
-  message("Found dict")
-else()
-  message("${CMAKE_SOURCE_DIR}/dict/build/Debug/")
-endif()
-
+add_subdirectory(${PROJECT_SOURCE_DIR}/dict)
+find_library(dict NAMES dict HINTS ${PROJECT_SOURCE_DIR}/dict/build/Debug/*)
 
 # Add source to this project's executable.
 add_executable (json_example "JSON.c" "main.c")
