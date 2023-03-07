@@ -19,6 +19,9 @@
 // Dictionary submodule
 #include <dict/dict.h>
 
+// Queue submodule
+#include <queue/queue.h>
+
 // Forward declared functions
 void free_token ( void *ptr );
 
@@ -38,25 +41,34 @@ void free_token ( void *ptr );
 // Enumerations
 enum JSONValueType_e
 {
-    JSONobject,   // Anything within a "{ ... }"
-    JSONarray,    // Any array
-    JSONstring,   // Any string
-    JSONprimative // Numbers, true, false, null
+    JSONobject,
+    JSONarray,
+    JSONstring,
+    JSONboolean,
+    JSONinteger,
+    JSONfloat
 };
 
 // Structures
-struct JSONToken_s
+struct JSONValue_s
 {
-    char                *key;   // The key
     union {
-        void  *n_where; // Pointer to object
-        void **a_where; // Double pointer array of objects
-    }                    value;
-    enum JSONValueType_e type;  // The type.
+        char   *string;
+        signed  integer;
+        double  floating;
+        dict   *object;
+        queue  *array;
+        bool    boolean;
+    };
+    enum JSONValueType_e type;  // Type
 };
 
 // Type definitions
-typedef struct JSONToken_s JSONToken_t;
+typedef struct JSONValue_s JSONValue_t;
+
+int parse_whitespace ( char *pointer, char **return_pointer );
+int parse_string     ( char *pointer, char **return_pointer );
+int parse_object     ( char *pointer, char **return_pointer );
 
 // Parser
 /** !
@@ -68,4 +80,4 @@ typedef struct JSONToken_s JSONToken_t;
  *
  * @return Number of tokens parsed on success, 0 on error
  */
-DLLEXPORT int parse_json ( char *object_text, size_t len, dict   **pp_dict );
+DLLEXPORT int parse_json ( char *object_text, size_t len, JSONValue_t **pp_token );

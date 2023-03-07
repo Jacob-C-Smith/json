@@ -3,15 +3,18 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <wchar.h>
+#include <locale.h>
 
-#include <dict/dict.h>
-#include <JSON/JSON.h>
+#include <json/json.h>
 
 int    print_json_file ( const char *path );
 size_t load_file       ( const char *path, void *buffer, bool binary_mode );
 
 int main ( int argc, const char* argv[] )
-{
+{    
+    setlocale(LC_ALL, "");
+    print_json_file("test cases/pass/object/object_empty.json");
 
     // Check for valid argument
     if ( argc == 1 )
@@ -67,6 +70,14 @@ int    print_json_file ( const char *path )
         load_file(path, file_buf, false);
     }
 
+    char *end=0;
+
+    if ( parse_object(file_buf, &end) == 0 )
+        printf("ERROR");
+    else
+        printf("PASS");
+
+    /*
     // Parse the JSON into a dict
     if ( parse_json(file_buf, file_len, &p_json) == 0 )
         goto failed_to_parse_json;
@@ -121,6 +132,7 @@ int    print_json_file ( const char *path )
         FREE_JSON_DICT(p_json);
         free(file_buf);
     }
+    */
     
     // Success
     return 1;
