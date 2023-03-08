@@ -72,11 +72,6 @@ int    print_json_file ( const char *path )
 
     char *end=0;
 
-    if ( parse_object(file_buf, &end) == 0 )
-        printf("ERROR");
-    else
-        printf("PASS");
-
     /*
     // Parse the JSON into a dict
     if ( parse_json(file_buf, file_len, &p_json) == 0 )

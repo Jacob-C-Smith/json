@@ -13,6 +13,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <float.h>
 #include <errno.h>
 #include <ctype.h>
 
@@ -53,31 +54,20 @@ enum JSONValueType_e
 struct JSONValue_s
 {
     union {
-        char   *string;
-        signed  integer;
-        double  floating;
-        dict   *object;
-        queue  *array;
-        bool    boolean;
+        char             *string;
+        signed long long  integer;
+        double            floating;
+        dict             *object;
+        queue            *array;
+        bool              boolean;
     };
     enum JSONValueType_e type;  // Type
 };
 
 // Type definitions
 typedef struct JSONValue_s JSONValue_t;
-
-int parse_whitespace ( char *pointer, char **return_pointer );
-int parse_string     ( char *pointer, char **return_pointer );
-int parse_object     ( char *pointer, char **return_pointer );
-
-// Parser
-/** !
- *  Parse a JSON object into a dictionary
- *
- * @param object_text JSON object text
- * @param len         length of JSON object text in bytes
- * @param pp_dict     return
- *
- * @return Number of tokens parsed on success, 0 on error
- */
-DLLEXPORT int parse_json ( char *object_text, size_t len, JSONValue_t **pp_token );
+int parse_json_whitespace ( char *pointer, char **return_pointer );
+int parse_json_object     ( char *pointer, char **return_pointer);
+int parse_json_array      ( char *pointer, char **return_pointer );
+int parse_json_value      ( char *text, size_t len, JSONValue_t **pp_value );
+void free_value           ( JSONValue_t **pp_value );

@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <limits.h>
+#include <errno.h>
 #include <float.h>
 
 #include <json/json.h>
@@ -35,12 +36,14 @@ int  run_tests                 ( void );
 int  print_final_summary       ( void );
 int  print_test                ( const char  *scenario_name, const char *test_name, bool passed );
 
-int  test_null  ( char *name );
-int  test_bool  ( char *name );
-int  test_int   ( char *name );
-int  test_float ( char *name );
+int  test_null   ( char *name );
+int  test_bool   ( char *name );
+int  test_int    ( char *name );
+int  test_float  ( char *name );
+int  test_string ( char *name );
 
 bool test_parse_json ( char *test_file, int(*expected_value_constructor) (JSONValue_t **), result_t expected );
+
 result_t load_json ( JSONValue_t **pp_value, char *test_file );
 
 result_t value_equals (JSONValue_t *a, JSONValue_t *b);
@@ -79,11 +82,22 @@ int run_tests                 ( void )
 {
 
     // Test the parser
+
+    // Test parsing valid and invalid null
     test_null("parse_null");
+
+    // Test parsing valid and invalid booleans
     test_bool("parse_bool");
+
+    // Test parsing valid, invalid, and over/underflowed integers
     test_int("parse_int");
+
+    // Test parsing valid, invalid, and over/underflowed floating point numbers
     test_float("parse_float");
     
+    // Test parsing valid, invalid, and unicode strings
+    test_string("parse_string");
+
     // Success
     return 1;
 }
@@ -104,7 +118,7 @@ result_t load_json ( JSONValue_t **pp_value, char *test_file )
     }
 
     // Parse JSON
-    r = parse_json(file_buf, file_len, pp_value);
+    r = parse_json_value(file_buf, file_len, pp_value);
 
     // Success
     return r;
@@ -172,6 +186,9 @@ int construct_bool_false ( JSONValue_t **pp_value )
     // Value
     p_value->boolean = false;
 
+    // Return
+    *pp_value = p_value;
+
     // Success
     return 1;
 }
@@ -188,6 +205,9 @@ int construct_bool_true ( JSONValue_t **pp_value )
     // Value
     p_value->boolean = true;
 
+    // Return
+    *pp_value = p_value;
+
     // Success
     return 1;
 }
@@ -202,6 +222,9 @@ int construct_int_minus_one ( JSONValue_t **pp_value )
 
     // Value
     p_value->integer = -1;
+
+    // Return
+    *pp_value = p_value;
 
     // Success
     return 1;
@@ -218,6 +241,9 @@ int construct_int_zero ( JSONValue_t **pp_value )
     // Value
     p_value->integer = 0;
 
+    // Return
+    *pp_value = p_value;
+
     // Success
     return 1;
 }
@@ -232,6 +258,9 @@ int construct_int_one ( JSONValue_t **pp_value )
 
     // Value
     p_value->integer = 1;
+
+    // Return
+    *pp_value = p_value;
 
     // Success
     return 1;
@@ -248,6 +277,9 @@ int construct_int_max ( JSONValue_t **pp_value )
     // Value
     p_value->integer = INT64_MAX;
 
+    // Return
+    *pp_value = p_value;
+
     // Success
     return 1;
 }
@@ -262,6 +294,9 @@ int construct_int_min ( JSONValue_t **pp_value )
 
     // Value
     p_value->integer = INT64_MIN;
+
+    // Return
+    *pp_value = p_value;
 
     // Success
     return 1;
@@ -278,6 +313,9 @@ int construct_float_minus_one ( JSONValue_t **pp_value )
     // Value
     p_value->floating = -1.0;
 
+    // Return
+    *pp_value = p_value;
+
     // Success
     return 1;
 }
@@ -292,6 +330,9 @@ int construct_float_zero ( JSONValue_t **pp_value )
 
     // Value
     p_value->floating = 0.0;
+
+    // Return
+    *pp_value = p_value;
 
     // Success
     return 1;
@@ -308,6 +349,9 @@ int construct_float_one ( JSONValue_t **pp_value )
     // Value
     p_value->floating = 1.0;
 
+    // Return
+    *pp_value = p_value;
+
     // Success
     return 1;
 }
@@ -323,6 +367,9 @@ int construct_float_max ( JSONValue_t **pp_value )
     // Value
     p_value->floating = DBL_MAX;
 
+    // Return
+    *pp_value = p_value;
+
     // Success
     return 1;
 }
@@ -336,7 +383,10 @@ int construct_float_min ( JSONValue_t **pp_value )
     p_value->type    = JSONfloat;
 
     // Value
-    p_value->floating = DBL_MIN;
+    p_value->floating = -DBL_MAX;
+
+    // Return
+    *pp_value = p_value;
 
     // Success
     return 1;
@@ -353,6 +403,9 @@ int construct_string_empty ( JSONValue_t **pp_value )
     // Value
     p_value->string = "";
 
+    // Return
+    *pp_value = p_value;
+
     // Success
     return 1;
 }
@@ -367,6 +420,9 @@ int construct_string_a ( JSONValue_t **pp_value )
 
     // Value
     p_value->string = "a";
+
+    // Return
+    *pp_value = p_value;
 
     // Success
     return 1;
@@ -383,6 +439,9 @@ int construct_string_abc ( JSONValue_t **pp_value )
     // Value
     p_value->string = "abc";
 
+    // Return
+    *pp_value = p_value;
+
     // Success
     return 1;
 }
@@ -398,6 +457,9 @@ int construct_string_quote_abc_quote ( JSONValue_t **pp_value )
     // Value
     p_value->string = "\"abc\"";
 
+    // Return
+    *pp_value = p_value;
+
     // Success
     return 1;
 }
@@ -412,6 +474,9 @@ int construct_object_empty ( JSONValue_t **pp_value )
 
     // Value
     dict_construct(&p_value->object, 1);
+
+    // Return
+    *pp_value = p_value;
 
     // Success
     return 1;
@@ -431,6 +496,9 @@ int construct_object_string ( JSONValue_t **pp_value )
     // Value
     dict_construct(&p_value->object, 1);
 
+    // Return
+    *pp_value = p_value;
+
     // Success
     return 1;
 }
@@ -449,6 +517,9 @@ int construct_object_int ( JSONValue_t **pp_value )
     // Construct the object
     dict_construct(&p_value->object, 1);
     dict_add(p_value->object, "abc", p_abc_value);
+
+    // Return
+    *pp_value = p_value;
 
     // Success
     return 1;
@@ -474,6 +545,9 @@ int construct_object_object ( JSONValue_t **pp_value )
     dict_add(p_value->object, "abc", p_abc_value);
     dict_add(p_abc_value->object, "def", p_abc_value);
 
+    // Return
+    *pp_value = p_value;
+
     // Success
     return 1;
 }
@@ -495,8 +569,7 @@ bool test_parse_json ( char *test_file, int(*expected_value_constructor) (JSONVa
     result = load_json ( &p_return_value, test_file );
 
     // Success
-    return (expected == value_equals(p_return_value, p_expected_value));
-
+    return (result == expected && value_equals(p_return_value, p_expected_value));
 }
 
 int test_null ( char *name )
@@ -508,6 +581,7 @@ int test_null ( char *name )
     printf("Scenario: %s\n", name);
 
     print_test(name, "null", test_parse_json("test cases/pass/null.json", (void *) 0, one));
+    print_test(name, "nul" , test_parse_json("test cases/fail/null.json", (void *) 0, zero));
 
     print_final_summary();
 
@@ -524,7 +598,9 @@ int test_bool ( char *name )
     printf("Scenario: %s\n", name);
 
     print_test(name, "false", test_parse_json("test cases/pass/bool/bool_false.json", construct_bool_false, one));
-    print_test(name, "true" , test_parse_json("test cases/pass/bool/bool_true.json", construct_bool_true, one));
+    print_test(name, "true" , test_parse_json("test cases/pass/bool/bool_true.json" , construct_bool_true , one));
+    print_test(name, "fals" , test_parse_json("test cases/fail/bool/bool_false.json", (void *) 0          , zero));
+    print_test(name, "tru"  , test_parse_json("test cases/fail/bool/bool_true.json" , (void *) 0          , zero));
 
     print_final_summary();
 
@@ -540,11 +616,13 @@ int test_int ( char *name )
 
     printf("Scenario: %s\n", name);
 
-    print_test(name, "int_-1" , test_parse_json("test cases/pass/int/int_-1.json" , construct_int_minus_one, one));
-    print_test(name, "int_0"  , test_parse_json("test cases/pass/int/int_0.json"  , construct_int_zero     , one));
-    print_test(name, "int_1"  , test_parse_json("test cases/pass/int/int_1.json"  , construct_int_one      , one));
-    print_test(name, "int_max", test_parse_json("test cases/pass/int/int_max.json", construct_int_minus_one, one));
-    print_test(name, "int_min", test_parse_json("test cases/pass/int/int_min.json", construct_int_zero     , one));
+    print_test(name, "int_-1"    , test_parse_json("test cases/pass/int/int_-1.json" , construct_int_minus_one, one));
+    print_test(name, "int_0"     , test_parse_json("test cases/pass/int/int_0.json"  , construct_int_zero     , one));
+    print_test(name, "int_1"     , test_parse_json("test cases/pass/int/int_1.json"  , construct_int_one      , one));
+    print_test(name, "int_max"   , test_parse_json("test cases/pass/int/int_max.json", construct_int_max      , one));
+    print_test(name, "int_min"   , test_parse_json("test cases/pass/int/int_min.json", construct_int_min      , one));
+    print_test(name, "int_max_+1", test_parse_json("test cases/fail/int/int_max.json", (void *)0              , zero));
+    print_test(name, "int_min_-1", test_parse_json("test cases/fail/int/int_min.json", (void *)0              , zero));
 
     print_final_summary();
 
@@ -559,11 +637,13 @@ int test_float ( char *name )
 
     printf("Scenario: %s\n", name);
 
-    print_test(name, "float_-1" , test_parse_json("test cases/pass/float/float_-1.json" , construct_float_minus_one, one));
-    print_test(name, "float_0"  , test_parse_json("test cases/pass/float/float_0.json"  , construct_float_zero     , one));
-    print_test(name, "float_1"  , test_parse_json("test cases/pass/float/float_1.json"  , construct_float_one      , one));
-    print_test(name, "float_max", test_parse_json("test cases/pass/float/float_max.json", construct_float_minus_one, one));
-    print_test(name, "float_min", test_parse_json("test cases/pass/float/float_min.json", construct_float_zero     , one));
+    print_test(name, "float_-1"    , test_parse_json("test cases/pass/float/float_-1.json" , construct_float_minus_one, one));
+    print_test(name, "float_0"     , test_parse_json("test cases/pass/float/float_0.json"  , construct_float_zero     , one));
+    print_test(name, "float_1"     , test_parse_json("test cases/pass/float/float_1.json"  , construct_float_one      , one));
+    print_test(name, "float_max"   , test_parse_json("test cases/pass/float/float_max.json", construct_float_max      , one));
+    print_test(name, "float_min"   , test_parse_json("test cases/pass/float/float_min.json", construct_float_min      , one));
+    print_test(name, "float_max_+1", test_parse_json("test cases/fail/float/float_max.json", (void *)0                , zero));
+    print_test(name, "float_min_-1", test_parse_json("test cases/fail/float/float_min.json", (void *)0                , zero));
 
     print_final_summary();
 
@@ -578,11 +658,11 @@ int test_string ( char *name )
 
     printf("Scenario: %s\n", name);
     
-    print_test(name, "string \"a\""      , test_parse_json("test cases/pass/string/string_a.json"              , /* TODO */ 0, one));
-    print_test(name, "string \"abc\""    , test_parse_json("test cases/pass/string/string_abc.json"            , /* TODO */ 0, one));
-    print_test(name, "string \"\""       , test_parse_json("test cases/pass/string/string_empty.json"          , /* TODO */ 0, one));
-    print_test(name, "string \"\"abc\"\"", test_parse_json("test cases/pass/string/string_quote_abc_quote.json", /* TODO */ 0, one));
-    print_test(name, "string \"    abc\"", test_parse_json("test cases/pass/string/string_whitespaces_abc.json", /* TODO */ 0, one));
+    print_test(name, "string \"\""       , test_parse_json("test cases/pass/string/string_empty.json"          , construct_string_empty, one));
+    print_test(name, "string \"a\""      , test_parse_json("test cases/pass/string/string_a.json"              , construct_string_a    , one));
+    print_test(name, "string \"abc\""    , test_parse_json("test cases/pass/string/string_abc.json"            , construct_string_abc, one));
+    print_test(name, "string \"\"abc\"\"", test_parse_json("test cases/pass/string/string_quote_abc_quote.json", construct_string_quote_abc_quote, one));
+    //print_test(name, "string     \"abc\"", test_parse_json("test cases/pass/string/string_whitespaces_abc.json", construct_string_, one));
 
 
     print_final_summary();
