@@ -67,7 +67,7 @@ struct JSONValue_s
 // Type definitions
 typedef struct JSONValue_s JSONValue_t;
 int parse_json_whitespace ( char *pointer, char **return_pointer );
-int parse_json_object     ( char *pointer, char **return_pointer);
+int parse_json_object     ( char *pointer, char **return_pointer, dict **pp_dict );
 int parse_json_array      ( char *pointer, char **return_pointer );
-int parse_json_value      ( char *text, size_t len, JSONValue_t **pp_value );
+int parse_json_value      ( char *text   , char **return_pointer, JSONValue_t **pp_value );
 void free_value           ( JSONValue_t **pp_value );

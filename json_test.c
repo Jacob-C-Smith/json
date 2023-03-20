@@ -41,6 +41,7 @@ int  test_bool   ( char *name );
 int  test_int    ( char *name );
 int  test_float  ( char *name );
 int  test_string ( char *name );
+int  test_object ( char *name );
 
 bool test_parse_json ( char *test_file, int(*expected_value_constructor) (JSONValue_t **), result_t expected );
 
@@ -98,6 +99,9 @@ int run_tests                 ( void )
     // Test parsing valid, invalid, and unicode strings
     test_string("parse_string");
 
+    // Test parsing valid, invalid, and unicode strings
+    test_object("parse_object");
+
     // Success
     return 1;
 }
@@ -118,7 +122,7 @@ result_t load_json ( JSONValue_t **pp_value, char *test_file )
     }
 
     // Parse JSON
-    r = parse_json_value(file_buf, file_len, pp_value);
+    r = parse_json_value(file_buf, 0, pp_value);
 
     // Success
     return r;
@@ -162,6 +166,57 @@ result_t value_equals (JSONValue_t *a, JSONValue_t *b)
     if ( a->type == JSONstring )
         if ( strcmp(a->string, b->string) )
             result = 0;
+
+    if ( a->type == JSONobject )
+    {
+        dict   *a_dict       = a->object,
+               *b_dict       = b->object;
+        size_t  a_properties = dict_values(a_dict, 0),
+                b_properties = dict_values(b_dict, 0);
+        char  **a_keys       = 0,
+              **b_keys       = 0;
+        void  **a_values     = 0,
+              **b_values     = 0;
+               
+        if (a_properties != b_properties)
+        {
+            result = 0;
+        }
+
+        a_keys   = calloc(a_properties+1, sizeof(char *)),
+        b_keys   = calloc(a_properties+1, sizeof(char *)),
+        a_values = calloc(b_properties+1, sizeof(JSONValue_t *)),
+        b_values = calloc(b_properties+1, sizeof(JSONValue_t *));
+        
+        dict_keys(a_dict, a_keys);
+        dict_keys(b_dict, b_keys);
+        dict_values(a_dict, a_values);
+        dict_values(b_dict, b_values);
+        
+        for (size_t i = 0; i < a_properties; i++)
+        {
+            bool has_key   = false,
+                 has_value = false;
+                 
+            for (size_t j = 0; j < b_properties; j++)
+            {
+                if (strcmp(a_keys[i], b_keys[j])==0)
+                {
+                    has_key = true;
+                }
+                if ( value_equals(a_values[i], b_values[j]) )
+                {
+                    has_value = true;
+                }
+            }
+
+            if( ( has_key && has_value ) == 0 )
+            {
+                result = 0;
+            }
+        }
+    }
+
 
     return result;
 }
@@ -464,6 +519,186 @@ int construct_string_quote_abc_quote ( JSONValue_t **pp_value )
     return 1;
 }
 
+int construct_string_quote ( JSONValue_t **pp_value )
+{
+    // Initialized data
+    JSONValue_t *p_value = calloc(1, sizeof(JSONValue_t));
+    
+    // Type
+    p_value->type    = JSONstring;
+
+    // Value
+    p_value->string = "\"";
+
+    // Return
+    *pp_value = p_value;
+
+    // Success
+    return 1;
+}
+
+int construct_string_quote_quote ( JSONValue_t **pp_value )
+{
+    // Initialized data
+    JSONValue_t *p_value = calloc(1, sizeof(JSONValue_t));
+    
+    // Type
+    p_value->type    = JSONstring;
+
+    // Value
+    p_value->string = "\"\"";
+
+    // Return
+    *pp_value = p_value;
+
+    // Success
+    return 1;
+}
+
+int construct_string_whitespaces_abc ( JSONValue_t **pp_value )
+{
+    // Initialized data
+    JSONValue_t *p_value = calloc(1, sizeof(JSONValue_t));
+    
+    // Type
+    p_value->type    = JSONstring;
+
+    // Value
+    p_value->string = "abc";
+
+    // Return
+    *pp_value = p_value;
+
+    // Success
+    return 1;
+}
+
+int construct_string_reverse_solidus ( JSONValue_t **pp_value )
+{
+    // Initialized data
+    JSONValue_t *p_value = calloc(1, sizeof(JSONValue_t));
+    
+    // Type
+    p_value->type    = JSONstring;
+
+    // Value
+    p_value->string = "\\";
+
+    // Return
+    *pp_value = p_value;
+
+    // Success
+    return 1;
+}
+
+int construct_string_solidus ( JSONValue_t **pp_value )
+{
+    // Initialized data
+    JSONValue_t *p_value = calloc(1, sizeof(JSONValue_t));
+    
+    // Type
+    p_value->type    = JSONstring;
+
+    // Value
+    p_value->string = "\/";
+
+    // Return
+    *pp_value = p_value;
+
+    // Success
+    return 1;
+}
+
+int construct_string_backspace ( JSONValue_t **pp_value )
+{
+    // Initialized data
+    JSONValue_t *p_value = calloc(1, sizeof(JSONValue_t));
+    
+    // Type
+    p_value->type    = JSONstring;
+
+    // Value
+    p_value->string = "\b";
+
+    // Return
+    *pp_value = p_value;
+
+    // Success
+    return 1;
+}
+
+int construct_string_formfeed ( JSONValue_t **pp_value )
+{
+    // Initialized data
+    JSONValue_t *p_value = calloc(1, sizeof(JSONValue_t));
+    
+    // Type
+    p_value->type    = JSONstring;
+
+    // Value
+    p_value->string = "\f";
+
+    // Return
+    *pp_value = p_value;
+
+    // Success
+    return 1;
+}
+
+int construct_string_linefeed ( JSONValue_t **pp_value )
+{
+    // Initialized data
+    JSONValue_t *p_value = calloc(1, sizeof(JSONValue_t));
+    
+    // Type
+    p_value->type    = JSONstring;
+
+    // Value
+    p_value->string = "\n";
+
+    // Return
+    *pp_value = p_value;
+
+    // Success
+    return 1;
+}
+
+int construct_string_carriage_return ( JSONValue_t **pp_value )
+{
+    // Initialized data
+    JSONValue_t *p_value = calloc(1, sizeof(JSONValue_t));
+    
+    // Type
+    p_value->type    = JSONstring;
+
+    // Value
+    p_value->string = "\r";
+
+    // Return
+    *pp_value = p_value;
+
+    // Success
+    return 1;
+}
+
+int construct_string_horizontal_tab ( JSONValue_t **pp_value )
+{
+    // Initialized data
+    JSONValue_t *p_value = calloc(1, sizeof(JSONValue_t));
+    
+    // Type
+    p_value->type    = JSONstring;
+
+    // Value
+    p_value->string = "\t";
+
+    // Return
+    *pp_value = p_value;
+
+    // Success
+    return 1;
+}
+
 int construct_object_empty ( JSONValue_t **pp_value )
 {
     // Initialized data
@@ -495,6 +730,7 @@ int construct_object_string ( JSONValue_t **pp_value )
     
     // Value
     dict_construct(&p_value->object, 1);
+    dict_add(p_value->object, "abc", p_abc_value);
 
     // Return
     *pp_value = p_value;
@@ -503,20 +739,72 @@ int construct_object_string ( JSONValue_t **pp_value )
     return 1;
 }
 
-int construct_object_int ( JSONValue_t **pp_value )
+int construct_object_int  ( JSONValue_t **pp_value )
 {
     // Initialized data
     JSONValue_t *p_value     = calloc(1, sizeof(JSONValue_t)),
                 *p_abc_value = calloc(1, sizeof(JSONValue_t));
     
     // Type
-    p_value->type        = JSONobject;
-    p_abc_value->type    = JSONinteger;
+    p_value->type = JSONobject;
+    p_abc_value->type = JSONinteger;
     p_abc_value->integer = 123;
-
-    // Construct the object
+    
+    // Value
     dict_construct(&p_value->object, 1);
     dict_add(p_value->object, "abc", p_abc_value);
+
+    // Return
+    *pp_value = p_value;
+
+    // Success
+    return 1;
+}
+
+int construct_object_float  ( JSONValue_t **pp_value )
+{
+    // Initialized data
+    JSONValue_t *p_value     = calloc(1, sizeof(JSONValue_t)),
+                *p_abc_value = calloc(1, sizeof(JSONValue_t));
+    
+    // Type
+    p_value->type = JSONobject;
+    p_abc_value->type = JSONfloat;
+    p_abc_value->floating = 3.14;
+    
+    // Value
+    dict_construct(&p_value->object, 1);
+    dict_add(p_value->object, "pi", p_abc_value);
+
+    // Return
+    *pp_value = p_value;
+
+    // Success
+    return 1;
+}
+
+int construct_object_strings ( JSONValue_t **pp_value )
+{
+    // Initialized data
+    JSONValue_t *p_value     = calloc(1, sizeof(JSONValue_t)),
+                *p_abc_value = calloc(1, sizeof(JSONValue_t)),
+                *p_ghi_value = calloc(1, sizeof(JSONValue_t)),
+                *p_mno_value = calloc(1, sizeof(JSONValue_t));
+    
+    // Type
+    p_value->type = JSONobject;
+    p_abc_value->type = JSONstring;
+    p_abc_value->string = "def";
+    p_ghi_value->type = JSONstring;
+    p_ghi_value->string = "jkl";
+    p_mno_value->type = JSONstring;
+    p_mno_value->string = "pqr";
+    
+    // Value
+    dict_construct(&p_value->object, 1);
+    dict_add(p_value->object, "abc", p_abc_value);
+    dict_add(p_value->object, "ghi", p_ghi_value);
+    dict_add(p_value->object, "mno", p_mno_value);
 
     // Return
     *pp_value = p_value;
@@ -658,11 +946,40 @@ int test_string ( char *name )
 
     printf("Scenario: %s\n", name);
     
-    print_test(name, "string \"\""       , test_parse_json("test cases/pass/string/string_empty.json"          , construct_string_empty, one));
-    print_test(name, "string \"a\""      , test_parse_json("test cases/pass/string/string_a.json"              , construct_string_a    , one));
-    print_test(name, "string \"abc\""    , test_parse_json("test cases/pass/string/string_abc.json"            , construct_string_abc, one));
+    print_test(name, "string \"\""       , test_parse_json("test cases/pass/string/string_empty.json"          , construct_string_empty          , one));
+    print_test(name, "string \"a\""      , test_parse_json("test cases/pass/string/string_a.json"              , construct_string_a              , one));
+    print_test(name, "string \"abc\""    , test_parse_json("test cases/pass/string/string_abc.json"            , construct_string_abc            , one));
     print_test(name, "string \"\"abc\"\"", test_parse_json("test cases/pass/string/string_quote_abc_quote.json", construct_string_quote_abc_quote, one));
-    //print_test(name, "string     \"abc\"", test_parse_json("test cases/pass/string/string_whitespaces_abc.json", construct_string_, one));
+    print_test(name, "string \"\"\"\""   , test_parse_json("test cases/pass/string/string_quote_quote.json"    , construct_string_quote_quote    , one));
+    print_test(name, "string     \"abc\"", test_parse_json("test cases/pass/string/string_whitespaces_abc.json", construct_string_whitespaces_abc, one));
+    print_test(name, "string \"\"\""     , test_parse_json("test cases/pass/string/string_quote.json"          , construct_string_quote          , one));
+    print_test(name, "string \"\\\\\""   , test_parse_json("test cases/pass/string/string_reverse_solidus.json", construct_string_reverse_solidus, one));
+    print_test(name, "string \"\\/\""    , test_parse_json("test cases/pass/string/string_solidus.json"        , construct_string_solidus        , one));
+    print_test(name, "string \"\\b\""    , test_parse_json("test cases/pass/string/string_backspace.json"      , construct_string_backspace      , one));
+    print_test(name, "string \"\\f\""    , test_parse_json("test cases/pass/string/string_formfeed.json"       , construct_string_formfeed       , one));
+    print_test(name, "string \"\\n\""    , test_parse_json("test cases/pass/string/string_linefeed.json"       , construct_string_linefeed       , one));
+    print_test(name, "string \"\\r\""    , test_parse_json("test cases/pass/string/string_carriage_return.json", construct_string_carriage_return, one));
+    print_test(name, "string \"\\t\""    , test_parse_json("test cases/pass/string/string_horizontal_tab.json" , construct_string_horizontal_tab , one));
+    //print_test(name, "string \"\u1234\"" , test_parse_json("test cases/pass/string/string_escape.json"         , construct_string_escape         , one));
+
+    print_final_summary();
+
+    return 1;
+}
+
+int test_object ( char *name )
+{
+
+    // Initialized data
+    JSONValue_t *p_value = 0;
+
+    printf("Scenario: %s\n", name);
+    
+    print_test(name, "object {}"                                               , test_parse_json("test cases/pass/object/object_empty.json"  , construct_object_empty  , one));
+    print_test(name, "object {\"abc\":\"def\"}"                                , test_parse_json("test cases/pass/object/object_string.json" , construct_object_string , one));
+    print_test(name, "object {\"abc\":123}"                                    , test_parse_json("test cases/pass/object/object_int.json"    , construct_object_int    , one));
+    print_test(name, "object {\"pi\":3.14}"                                    , test_parse_json("test cases/pass/object/object_float.json"  , construct_object_float  , one));
+    print_test(name, "object {\"abc\":\"def\",\"ghi\":\"jkl\",\"mno\":\"pqr\"}", test_parse_json("test cases/pass/object/object_strings.json", construct_object_strings, one));
 
 
     print_final_summary();
@@ -674,7 +991,7 @@ int print_test ( const char *scenario_name, const char *test_name, bool passed )
 {
 
     // Initialized data
-    printf("%s_test_%-17s %s\n",scenario_name, test_name, (passed) ? "PASS" : "FAIL");
+    printf("%s_test_%-75s %s\n",scenario_name, test_name, (passed) ? "PASS" : "FAIL");
 
     // Increment the counters
     {

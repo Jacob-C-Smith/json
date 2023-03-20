@@ -38,87 +38,89 @@ int parse_json_string     ( char *pointer, char **return_pointer )
     // TODO: FIX ESCAPE SEQUENCES
     // Initialized data
     size_t i = 0,
-           j = 0;
+           j = 1,
+           k = 0;
 
     // Check for correct start
     if ( pointer[i] != '\"' )
 
         // Fail
         return 0;
-
-    i++,j++;
-    
-    while (pointer[i])
+    if(pointer[0]==0)
+        goto exit;
+    while (pointer[j])
     {
-
-        if (pointer[i]=='\"')
+        if (pointer[j]=='\"')
+        {   
             goto exit;
-        else if (pointer[i]=='\\')
+        }
+        else if (pointer[j]=='\\')
         {
-            switch (pointer[i+1])
+            
+            switch (pointer[j+1])
             {
                 case '\"':
-                    pointer[i]=='\"';
-                    j++;
+                    pointer[i]='\"';
                     break;
                 case '\\':
-                    pointer[i]=='\\';
-                    j++;
+                    pointer[i]='\\';
                     break;
                 case '/':
-                    pointer[i]=='/';
-                    j++;
+                    pointer[i]='/';
                     break;
                 case 'b':
-                    pointer[i]=='\b';
-                    j++;
+                    pointer[i]='\b';
                     break;
                 case 'f':
-                    pointer[i]=='\f';
-                    j++;
+                    pointer[i]='\f';
                     break;
                 case 'n':
-                    pointer[i]=='\n';
-                    j++;
+                    pointer[i]='\n';
                     break;
                 case 'r':
-                    pointer[i]=='\r';
-                    j++;
+                    pointer[i]='\r';
                     break;
                 case 't':
-                    pointer[i]=='\t';
-                    j++;
+                    pointer[i]='\t';
                     break;
                 case 'u':
-                    j+=5;
                     break;
                 default:
                     return 0;
             }
             j++;
         }
+        else
+        {
+            pointer[i]=pointer[j];
+        }
+        
         i++;
-        pointer[i]=pointer[j];
         j++;
-
 
     }
     
     exit:
+
     pointer[i]='\0';
 
     // Return the new pointer
-    *return_pointer = &pointer[i];
+    *return_pointer = &pointer[j];
 
     // Success
     return 1;
 }
 
-int parse_json_object     ( char *pointer, char **return_pointer)
+int parse_json_object     ( char *pointer, char **return_pointer, dict **pp_dict )
 {
     
     // Initialized data
-    size_t i = 0;
+    size_t  i              = 0,
+            property_count = 0;
+    char   *last_pointer   = pointer;
+    dict   *p_dict         = 0;
+
+    dict_construct(&p_dict, 32+1);
 
     // Check for correct start
     if ( pointer[i] != '{' )
@@ -128,33 +130,48 @@ int parse_json_object     ( char *pointer, char **return_pointer)
 
     i++;
 
+    parse_property:
     // Parse whitespaces
     parse_json_whitespace(pointer, &pointer);
 
     if ( pointer[i] == '\"' )
     {
-        char *key = 0;
+        char *key = &pointer[i];
+        JSONValue_t *value = 0;
 
-        parse_json_string(pointer, &key);
+        parse_json_string(&pointer[i], &pointer);
         parse_json_whitespace(pointer, &pointer);
 
         if ( pointer[i] == ':' )
+        {
             i++;
-        //parse_value()
-        if ( pointer[i] == ',' )
-            i++;
+        }
+
+        parse_json_value(&pointer[i],&pointer,&value);
+        dict_add(p_dict, key, value);
+
+        if ( pointer[1] == ',' )
+        {
+            property_count++;
+            goto parse_property;
+        }
+        else if (pointer[1]=='}')
+        {
+            property_count++;
+        }
+
+        i++;
     }
     
-    
-    exit:
-    
     // Check for correct end
-    if ( pointer[i] != '}' )
+    if ( pointer[1] != '}' )
 
         // Fail
         return 0;
 
     i++;
+    
+    *pp_dict = p_dict;
 
     // Success
     return 1;
@@ -170,7 +187,7 @@ int parse_json_array      ( char *pointer, char **return_pointer )
     return 1;
 }
 
-int parse_json_value      ( char *text, size_t len, JSONValue_t **pp_value )
+int parse_json_value      ( char *text, char **return_pointer, JSONValue_t **pp_value )
 {
 
     JSONValue_t *p_value = calloc(1, sizeof(JSONValue_t));
@@ -183,15 +200,20 @@ int parse_json_value      ( char *text, size_t len, JSONValue_t **pp_value )
             {
                 char *last_text = text;
                 parse_json_string(text, &text);
-                size_t string_len = text - last_text;
+                size_t string_len = strlen(last_text);
                 p_value->string = calloc(string_len+1, sizeof(char));
-                strncpy(p_value->string, last_text+1, string_len);
+                strncpy(p_value->string, last_text, string_len);
                 ret = 1;
                 p_value->type = JSONstring;
             }
             break;
         case '{':
-            parse_json_object(text, &text);
+            {
+                char *last_text = text;
+                parse_json_object(text, &text, &p_value->object);
+                ret = 1;
+                p_value->type = JSONobject;
+            }
             break;
         case '[':
             parse_json_array(text, &text);
@@ -243,7 +265,8 @@ int parse_json_value      ( char *text, size_t len, JSONValue_t **pp_value )
     if ( text[0] == '-' || (text[0] >= '0' && text[0] <= '9') ) 
     {
         // Initialized data
-        size_t i = 0;
+        size_t i = 0,
+               d = 0;
         bool   f = false;
         bool   n = false;
         double dret = 0.0;
@@ -261,7 +284,8 @@ int parse_json_value      ( char *text, size_t len, JSONValue_t **pp_value )
             {
                 f = true;
             }
-            i++;
+            
+            i++, d++;
         };
 
         errno = 0;
@@ -287,12 +311,18 @@ int parse_json_value      ( char *text, size_t len, JSONValue_t **pp_value )
             }
         }
 
+        d--;
+        text+=d;
         ret = 1;
     }
 
     parse_json_whitespace(text, &text);
 
-    *pp_value = p_value;
+    if(pp_value)
+        *pp_value = p_value;
+    if(return_pointer)
+        *return_pointer = text;
+
     return ret;
 }
 
