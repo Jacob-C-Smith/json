@@ -1,3 +1,5 @@
+# Version 3 is still in development. This notice will be removed when version 3 releases are posted. 
+
 # JSON
  A JSON object parser written in C. 
  
