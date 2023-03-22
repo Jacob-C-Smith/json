@@ -8,9 +8,9 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR})
 add_subdirectory(${PROJECT_SOURCE_DIR}/dict)
 find_library(dict NAMES dict HINTS ${PROJECT_SOURCE_DIR}/dict/build/Debug/*)
 
-# Add the queue submodule
-add_subdirectory(${PROJECT_SOURCE_DIR}/queue)
-find_library(queue NAMES queue HINTS ${PROJECT_SOURCE_DIR}/queue/build/Debug/*)
+# Add the array submodule
+add_subdirectory(${PROJECT_SOURCE_DIR}/array)
+find_library(array NAMES array HINTS ${PROJECT_SOURCE_DIR}/array/build/Debug/*)
 
 
 # Add source to this project's executable.
@@ -22,17 +22,11 @@ add_executable (json_test "json.c" "json_test.c")
 # Add source to this project's library
 add_library    (json SHARED "json.c")
 
-target_link_libraries(json_example PUBLIC dict queue)
-target_link_libraries(json_test PUBLIC dict queue)
-target_link_libraries(json PUBLIC dict queue)
+target_link_libraries(json_example PUBLIC dict array)
+target_link_libraries(json_test PUBLIC dict array)
+target_link_libraries(json PUBLIC dict array)
 
 # Define targets
 target_include_directories(json_example PUBLIC "include/")
 target_include_directories(json_test PUBLIC "include/")
 target_include_directories(json PUBLIC "include/")
-
-if (CMAKE_VERSION VERSION_GREATER 3.12)
-  set_property(TARGET json PROPERTY CXX_STANDARD 20)
-endif()
-
-# TODO: Add tests and install targets if needed.

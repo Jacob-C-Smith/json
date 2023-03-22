@@ -10,6 +10,7 @@
 
 // Standard library
 #include <stdio.h>
+#include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -20,8 +21,10 @@
 // Dictionary submodule
 #include <dict/dict.h>
 
-// Queue submodule
-#include <queue/queue.h>
+// Array submodule
+#include <array/array.h>
+
+#define DICT_SIZE 0
 
 // Forward declared functions
 void free_token ( void *ptr );
@@ -37,7 +40,7 @@ void free_token ( void *ptr );
 #define FREE_JSON_DICT( dict ) dict_free_clear(dict, free_token); dict_destroy(dict);
 
 // Calling this macro evaluates to the value of the JSON property, if the property is not a null pointer and if the type matches the parameter 't'
-#define JSON_VALUE( property, t ) (property) ? (property->type==t) ? property->value.n_where : 0 : 0;
+#define JSON_VALUE( property, t ) (property) ? (property->type==t) ? property->integer : 0 : 0;
 
 // Enumerations
 enum JSONValueType_e
@@ -58,7 +61,7 @@ struct JSONValue_s
         signed long long  integer;
         double            floating;
         dict             *object;
-        queue            *array;
+        array            *list;
         bool              boolean;
     };
     enum JSONValueType_e type;  // Type
@@ -66,8 +69,9 @@ struct JSONValue_s
 
 // Type definitions
 typedef struct JSONValue_s JSONValue_t;
+
 int parse_json_whitespace ( char *pointer, char **return_pointer );
 int parse_json_object     ( char *pointer, char **return_pointer, dict **pp_dict );
-int parse_json_array      ( char *pointer, char **return_pointer );
+int parse_json_array      ( char *pointer, char **return_pointer, array **pp_array );
 int parse_json_value      ( char *text   , char **return_pointer, JSONValue_t **pp_value );
 void free_value           ( JSONValue_t **pp_value );

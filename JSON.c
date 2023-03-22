@@ -120,7 +120,7 @@ int parse_json_object     ( char *pointer, char **return_pointer, dict **pp_dict
     char   *last_pointer   = pointer;
     dict   *p_dict         = 0;
 
-    dict_construct(&p_dict, 32+1);
+    dict_construct(&p_dict, DICT_SIZE+1);
 
     // Check for correct start
     if ( pointer[i] != '{' )
@@ -173,15 +173,66 @@ int parse_json_object     ( char *pointer, char **return_pointer, dict **pp_dict
     
     *pp_dict = p_dict;
 
+    if(return_pointer)
+        *return_pointer = &pointer[1];
+
     // Success
     return 1;
 }
 
-int parse_json_array      ( char *pointer, char **return_pointer )
+int parse_json_array      ( char *pointer, char **return_pointer, array **pp_array )
 {
 
     // Initialized data
-    size_t i = 0;
+    size_t  i              = 0,
+            property_count = 0;
+    char   *last_pointer   = pointer;
+    array  *p_array        = 0;
+
+    array_construct(&p_array,32);
+
+    // Check for correct start
+    if ( pointer[i] != '[' )
+
+        // Fail
+        return 0;
+
+    i++;
+
+    parse_property:
+    // Parse whitespaces
+    parse_json_whitespace(pointer, &pointer);
+
+    if ( pointer[i] != ']' )
+    {
+        JSONValue_t *value = 0;
+
+        parse_json_value(&pointer[i],&pointer,&value);
+        array_add(p_array, value);
+        
+
+        if ( pointer[1] == ',' )
+        {
+            property_count++;
+            pointer++;
+            goto parse_property;
+        }
+        else if (pointer[1]==']')
+        {
+            property_count++;
+        }
+        else
+        {
+            return 0;
+        }
+
+        
+    }
+
+    *pp_array = p_array;
+
+    if(return_pointer)
+        *return_pointer = &pointer[1];
 
     // Success
     return 1;
@@ -216,13 +267,19 @@ int parse_json_value      ( char *text, char **return_pointer, JSONValue_t **pp_
             }
             break;
         case '[':
-            parse_json_array(text, &text);
+            {
+                char *last_text = text;
+                parse_json_array(text, &text, &p_value->list);
+                ret = 1;
+                p_value->type = JSONarray;
+            }
             break;
         case 't':
             if ( strncmp(text, "true" , 4) == 0 )
             {
                 p_value->type    = JSONboolean;
                 p_value->boolean = true;
+                text+=3;
                 ret = 1;
             }
             else
@@ -236,6 +293,7 @@ int parse_json_value      ( char *text, char **return_pointer, JSONValue_t **pp_
             {
                 p_value->type = JSONboolean;
                 p_value->boolean = false;
+                text+=4;
                 ret = 1;
             }
             else
@@ -249,6 +307,7 @@ int parse_json_value      ( char *text, char **return_pointer, JSONValue_t **pp_
             {
                 free(p_value);
                 ret = 1;
+                text+=3;
                 p_value = 0;
             }
             else
@@ -336,6 +395,11 @@ void free_value           ( JSONValue_t **pp_value )
     if (p_value->type == JSONobject)
     {
         dict_free_clear(p_value->object, free_value);
+    }
+
+    if (p_value->type == JSONarray)
+    {
+        array_free_clear(p_value->list, free_value);
     }
 
     free(p_value);
