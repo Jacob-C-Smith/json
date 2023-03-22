@@ -225,8 +225,6 @@ int parse_json_array      ( char *pointer, char **return_pointer, array **pp_arr
         {
             return 0;
         }
-
-        
     }
 
     *pp_array = p_array;
@@ -383,6 +381,108 @@ int parse_json_value      ( char *text, char **return_pointer, JSONValue_t **pp_
         *return_pointer = text;
 
     return ret;
+}
+
+int print_value           ( JSONValue_t  *p_value, FILE *f )
+{
+    
+    if (p_value == 0)
+    {
+        fprintf(f,"null");
+    }
+    else
+    {
+        switch (p_value->type)
+        {
+        case JSONboolean:
+            fprintf(f,"%s",p_value->boolean ? "true" : "false");
+            break;
+        case JSONinteger:
+            fprintf(f,"%lld", p_value->integer);
+            break;
+        case JSONfloat:
+            fprintf(f,"%f", p_value->floating);
+            break;
+        case JSONstring:
+            fprintf(f,"\"%s\"", p_value->string);
+            break;
+        case JSONobject:
+            {
+                // Initialized data
+                size_t        property_count = dict_values(p_value->object, 0);
+                char        **keys           = 0;
+                JSONValue_t **values         = 0;
+
+                keys   = calloc(property_count, sizeof(char*));
+                values = calloc(property_count, sizeof(JSONValue_t*));
+                
+                dict_keys(p_value->object, keys);
+                dict_values(p_value->object, values);
+                fprintf(f,"{");
+                for (size_t i = 0; i < property_count-1; i++)
+                {
+                    fprintf(f,"\"%s\":",keys[i]);
+                    print_value(values[i],f);
+                    fprintf(f,",");
+                }
+                fprintf(f,"\"%s\":",keys[property_count-1]);
+                print_value(values[property_count-1],f);
+                fprintf(f,"}");
+            }
+            break;
+        case JSONarray:
+            {
+                // Initialized data
+                size_t        element_count = 0;
+                char         *keys          = 0;
+                JSONValue_t **elements      = 0;
+
+                array_get(p_value->list, 0,&element_count);
+
+                elements = calloc(element_count, sizeof(JSONValue_t*));
+                
+                if ( elements == (void *) 0 )
+                    goto no_mem;
+
+                array_get(p_value->list, elements, 0);
+                fprintf(f,"[");
+                for (size_t i = 0; i < element_count-1; i++)
+                {
+                    print_value(elements[i],f);
+                    fprintf(f,",");
+                }
+
+                free(elements);
+
+                print_value(elements[element_count-1],f);
+                fprintf(f,"]");
+            }
+            break;
+        
+        default:
+
+            // Error
+            return 0;
+        }
+    }
+
+    // Success
+    return 1;
+    
+    // Error handling
+    {
+        
+        // Argument check
+        {
+            no_mem:
+                #ifndef NDEBUG
+                    printf("[Standard Library] Failed to allocate memory in call to function \"%s\"\n",__FUNCTION__);
+                #endif
+
+                // Error
+                return 0;
+        }
+    }
 }
 
 void free_value           ( JSONValue_t **pp_value )

@@ -291,9 +291,8 @@ int test_object ( char *name )
     print_test(name, "object {\"name\":\"jake\",\"age\":20,\"height\":1.779}"  , test_parse_json("test cases/pass/object/object_mixed_values.json" , construct_object_mixed_values , one));
     print_test(name, "object {\"abc\":{\"def\":123}}"                          , test_parse_json("test cases/pass/object/object_object.json"       , construct_object_object       , one));
     print_test(name, "object {\"abc\":{\"def\":{\"ghi\":123}}}"                , test_parse_json("test cases/pass/object/object_object_object.json", construct_object_object_object, one));
-    // TODO
     print_test(name, "object {\"abc\":[1,2,3]}"                                , test_parse_json("test cases/pass/object/object_array.json"        , construct_object_array        , one));
-    print_test(name, "object {\"a\":[{\"a\":1},{\"b\":2},{\"c\":3}]}"          , test_parse_json("test cases/pass/object/object_array.json"        , construct_object_array_objects, one));
+    print_test(name, "object {\"a\":[{\"a\":1},{\"b\":2},{\"c\":3}]}"          , test_parse_json("test cases/pass/object/object_array_objects.json", construct_object_array_objects, one));
     print_test(name, "object {\"a\":[{\"a\":1}]}"                              , test_parse_json("test cases/pass/object/object_array_object.json" , construct_object_array_object , one));
 
     //print_test(name, "object {\"a\":[{\"b\":[ ... {\"y\":[{\"z\":[]}]}]}]}"    , test_parse_json("test cases/pass/object/object_array.json"        , //TODO        , one));
@@ -1267,27 +1266,34 @@ int construct_object_recursive       ( JSONValue_t **pp_value )
 int construct_object_array            ( JSONValue_t **pp_value )
 {
     // Initialized data
-    JSONValue_t *p_value     = calloc(1, sizeof(JSONValue_t)),
-                *p_abc_value = calloc(1, sizeof(JSONValue_t)),
-                *p_def_value = calloc(1, sizeof(JSONValue_t)),
-                *p_ghi_value = calloc(1, sizeof(JSONValue_t));
+    JSONValue_t *p_value       = calloc(1, sizeof(JSONValue_t)),
+                *p_array_value = calloc(1, sizeof(JSONValue_t)),
+                *p_int_value   = 0;
     
     // Type
     p_value->type        = JSONobject;
-    p_abc_value->type    = JSONobject;
-    p_def_value->type    = JSONobject;
-    p_ghi_value->type    = JSONinteger;
+    p_array_value->type  = JSONarray;
 
     // Construct the object
     dict_construct(&p_value->object, 1);
-    dict_construct(&p_abc_value->object, 1);
-    dict_construct(&p_def_value->object, 1);
+    array_construct(&p_array_value->list, 3);
 
-    p_ghi_value->integer = 123;
+    p_int_value          = calloc(1, sizeof(JSONValue_t));
+    p_int_value->type    = JSONinteger;
+    p_int_value->integer = 1;
+    array_add(p_array_value->list, p_int_value);
+
+    p_int_value          = calloc(1, sizeof(JSONValue_t));
+    p_int_value->type    = JSONinteger;
+    p_int_value->integer = 2;
+    array_add(p_array_value->list, p_int_value);
     
-    dict_add(p_def_value->object, "ghi", p_ghi_value);
-    dict_add(p_abc_value->object, "def", p_def_value);
-    dict_add(p_value->object, "abc", p_abc_value);
+    p_int_value          = calloc(1, sizeof(JSONValue_t));
+    p_int_value->type    = JSONinteger;
+    p_int_value->integer = 3;
+    array_add(p_array_value->list, p_int_value);
+
+    dict_add(p_value->object, "abc", p_array_value);
 
     // Return
     *pp_value = p_value;
@@ -1299,27 +1305,44 @@ int construct_object_array            ( JSONValue_t **pp_value )
 int construct_object_array_objects    ( JSONValue_t **pp_value )
 {
     // Initialized data
-    JSONValue_t *p_value     = calloc(1, sizeof(JSONValue_t)),
-                *p_abc_value = calloc(1, sizeof(JSONValue_t)),
-                *p_def_value = calloc(1, sizeof(JSONValue_t)),
-                *p_ghi_value = calloc(1, sizeof(JSONValue_t));
+    JSONValue_t *p_value       = calloc(1, sizeof(JSONValue_t)),
+                *p_array_value = calloc(1, sizeof(JSONValue_t)),
+                *p_dict_value  = 0,
+                *p_int_value   = 0;
     
     // Type
     p_value->type        = JSONobject;
-    p_abc_value->type    = JSONobject;
-    p_def_value->type    = JSONobject;
-    p_ghi_value->type    = JSONinteger;
+    p_array_value->type  = JSONarray;
 
     // Construct the object
     dict_construct(&p_value->object, 1);
-    dict_construct(&p_abc_value->object, 1);
-    dict_construct(&p_def_value->object, 1);
+    array_construct(&p_array_value->list, 3);
 
-    p_ghi_value->integer = 123;
+    p_int_value          = calloc(1, sizeof(JSONValue_t));
+    p_dict_value         = calloc(1, sizeof(JSONValue_t));
+    p_int_value->type    = JSONinteger;
+    p_int_value->integer = 1;
+    dict_construct(&p_dict_value->object, 1);
+    dict_add(p_dict_value->object,"a",p_int_value);
+    array_add(p_array_value->list, p_int_value);
+
+    p_int_value          = calloc(1, sizeof(JSONValue_t));
+    p_dict_value         = calloc(1, sizeof(JSONValue_t));
+    p_int_value->type    = JSONinteger;
+    p_int_value->integer = 2;
+    dict_construct(&p_dict_value->object, 1);
+    dict_add(p_dict_value->object,"b",p_int_value);
+    array_add(p_array_value->list, p_int_value);
     
-    dict_add(p_def_value->object, "ghi", p_ghi_value);
-    dict_add(p_abc_value->object, "def", p_def_value);
-    dict_add(p_value->object, "abc", p_abc_value);
+    p_int_value          = calloc(1, sizeof(JSONValue_t));
+    p_dict_value         = calloc(1, sizeof(JSONValue_t));
+    p_int_value->type    = JSONinteger;
+    p_int_value->integer = 3;
+    dict_construct(&p_dict_value->object, 1);
+    dict_add(p_dict_value->object,"c",p_int_value);
+    array_add(p_array_value->list, p_int_value);
+
+    dict_add(p_value->object, "a", p_array_value);
 
     // Return
     *pp_value = p_value;
@@ -1331,27 +1354,28 @@ int construct_object_array_objects    ( JSONValue_t **pp_value )
 int construct_object_array_object     ( JSONValue_t **pp_value )
 {
     // Initialized data
-    JSONValue_t *p_value     = calloc(1, sizeof(JSONValue_t)),
-                *p_abc_value = calloc(1, sizeof(JSONValue_t)),
-                *p_def_value = calloc(1, sizeof(JSONValue_t)),
-                *p_ghi_value = calloc(1, sizeof(JSONValue_t));
+    JSONValue_t *p_value       = calloc(1, sizeof(JSONValue_t)),
+                *p_array_value = calloc(1, sizeof(JSONValue_t)),
+                *p_dict_value  = 0,
+                *p_int_value   = 0;
     
     // Type
     p_value->type        = JSONobject;
-    p_abc_value->type    = JSONobject;
-    p_def_value->type    = JSONobject;
-    p_ghi_value->type    = JSONinteger;
+    p_array_value->type  = JSONarray;
 
     // Construct the object
     dict_construct(&p_value->object, 1);
-    dict_construct(&p_abc_value->object, 1);
-    dict_construct(&p_def_value->object, 1);
+    array_construct(&p_array_value->list, 3);
 
-    p_ghi_value->integer = 123;
-    
-    dict_add(p_def_value->object, "ghi", p_ghi_value);
-    dict_add(p_abc_value->object, "def", p_def_value);
-    dict_add(p_value->object, "abc", p_abc_value);
+    p_int_value          = calloc(1, sizeof(JSONValue_t));
+    p_dict_value         = calloc(1, sizeof(JSONValue_t));
+    p_int_value->type    = JSONinteger;
+    p_int_value->integer = 1;
+    dict_construct(&p_dict_value->object, 1);
+    dict_add(p_dict_value->object,"a",p_int_value);
+    array_add(p_array_value->list, p_int_value);
+
+    dict_add(p_value->object, "a", p_array_value);
 
     // Return
     *pp_value = p_value;
@@ -1848,8 +1872,80 @@ int construct_array_matrix ( JSONValue_t **pp_value )
 {
     // Initialized data
     JSONValue_t *p_value           = calloc(1, sizeof(JSONValue_t)),
-                *p_array           = 0,
+                *p_subarray        = 0,
                 *p_object_property = 0;
+
+    p_value->type = JSONarray;
+    array_construct(&p_value->list, 3);
+
+    {
+        p_subarray = calloc(1, sizeof(JSONValue_t));
+        p_subarray->type = JSONarray;
+        array_construct(&p_subarray->list, 3);
+
+        p_object_property = calloc(1, sizeof(JSONValue_t));
+        p_object_property->type = JSONinteger;
+        p_object_property->integer = 1;
+        array_add(p_subarray->list, p_object_property);
+
+        p_object_property = calloc(1, sizeof(JSONValue_t));
+        p_object_property->type = JSONinteger;
+        p_object_property->integer = 2;
+        array_add(p_subarray->list, p_object_property);
+
+        p_object_property = calloc(1, sizeof(JSONValue_t));
+        p_object_property->type = JSONinteger;
+        p_object_property->integer = 3;
+        array_add(p_subarray->list, p_object_property);
+
+        array_add(p_value->list, p_subarray);
+    }
+
+    {
+        p_subarray = calloc(1, sizeof(JSONValue_t));
+        p_subarray->type = JSONarray;
+        array_construct(&p_subarray->list, 3);
+    
+        p_object_property = calloc(1, sizeof(JSONValue_t));
+        p_object_property->type = JSONinteger;
+        p_object_property->integer = 4;
+        array_add(p_subarray->list, p_object_property);
+        
+        p_object_property = calloc(1, sizeof(JSONValue_t));
+        p_object_property->type = JSONinteger;
+        p_object_property->integer = 5;
+        array_add(p_subarray->list, p_object_property);
+    
+        p_object_property = calloc(1, sizeof(JSONValue_t));
+        p_object_property->type = JSONinteger;
+        p_object_property->integer = 6;
+        array_add(p_subarray->list, p_object_property);
+    
+        array_add(p_value->list, p_subarray);
+    }
+
+    {
+        p_subarray = calloc(1, sizeof(JSONValue_t));
+        p_subarray->type = JSONarray;
+        array_construct(&p_subarray->list, 3);
+    
+        p_object_property = calloc(1, sizeof(JSONValue_t));
+        p_object_property->type = JSONinteger;
+        p_object_property->integer = 7;
+        array_add(p_subarray->list, p_object_property);
+        
+        p_object_property = calloc(1, sizeof(JSONValue_t));
+        p_object_property->type = JSONinteger;
+        p_object_property->integer = 8;
+        array_add(p_subarray->list, p_object_property);
+    
+        p_object_property = calloc(1, sizeof(JSONValue_t));
+        p_object_property->type = JSONinteger;
+        p_object_property->integer = 9;
+        array_add(p_subarray->list, p_object_property);
+    
+        array_add(p_value->list, p_subarray);
+    }
 
     // Return
     *pp_value = p_value;
@@ -1860,6 +1956,108 @@ int construct_array_matrix ( JSONValue_t **pp_value )
 
 int construct_array_tensor ( JSONValue_t **pp_value )
 {
+    // Initialized data
+    JSONValue_t *p_value           = calloc(1, sizeof(JSONValue_t)),
+                *p_subarray        = 0,
+                *p_subsubarray     = 0,
+                *p_object_property = 0;
+
+    p_value->type = JSONarray;
+    array_construct(&p_value->list, 2);
+
+    {
+        p_subarray = calloc(1, sizeof(JSONValue_t));
+        p_subarray->type = JSONarray;
+        array_construct(&p_subarray->list, 2);
+
+
+        {
+            p_subsubarray = calloc(1, sizeof(JSONValue_t));
+            p_subsubarray->type = JSONarray;
+            array_construct(&p_subsubarray->list, 2);
+
+            p_object_property = calloc(1, sizeof(JSONValue_t));
+            p_object_property->type = JSONinteger;
+            p_object_property->integer = 1;
+            array_add(p_subsubarray->list, p_object_property);
+
+            p_object_property = calloc(1, sizeof(JSONValue_t));
+            p_object_property->type = JSONinteger;
+            p_object_property->integer = 2;
+            array_add(p_subsubarray->list, p_object_property);
+
+            array_add(p_subarray->list, p_subsubarray);
+        }
+
+        {
+            p_subsubarray = calloc(1, sizeof(JSONValue_t));
+            p_subsubarray->type = JSONarray;
+            array_construct(&p_subsubarray->list, 2);
+
+            p_object_property = calloc(1, sizeof(JSONValue_t));
+            p_object_property->type = JSONinteger;
+            p_object_property->integer = 3;
+            array_add(p_subsubarray->list, p_object_property);
+
+            p_object_property = calloc(1, sizeof(JSONValue_t));
+            p_object_property->type = JSONinteger;
+            p_object_property->integer = 4;
+            array_add(p_subsubarray->list, p_object_property);
+
+            array_add(p_subarray->list, p_subsubarray);
+        }
+
+        array_add(p_value->list, p_subarray);
+    }
+
+    {
+        p_subarray = calloc(1, sizeof(JSONValue_t));
+        p_subarray->type = JSONarray;
+        array_construct(&p_subarray->list, 2);
+
+
+        {
+            p_subsubarray = calloc(1, sizeof(JSONValue_t));
+            p_subsubarray->type = JSONarray;
+            array_construct(&p_subsubarray->list, 2);
+
+            p_object_property = calloc(1, sizeof(JSONValue_t));
+            p_object_property->type = JSONinteger;
+            p_object_property->integer = 5;
+            array_add(p_subsubarray->list, p_object_property);
+
+            p_object_property = calloc(1, sizeof(JSONValue_t));
+            p_object_property->type = JSONinteger;
+            p_object_property->integer = 6;
+            array_add(p_subsubarray->list, p_object_property);
+
+            array_add(p_subarray->list, p_subsubarray);
+        }
+
+        {
+            p_subsubarray = calloc(1, sizeof(JSONValue_t));
+            p_subsubarray->type = JSONarray;
+            array_construct(&p_subsubarray->list, 2);
+
+            p_object_property = calloc(1, sizeof(JSONValue_t));
+            p_object_property->type = JSONinteger;
+            p_object_property->integer = 7;
+            array_add(p_subsubarray->list, p_object_property);
+
+            p_object_property = calloc(1, sizeof(JSONValue_t));
+            p_object_property->type = JSONinteger;
+            p_object_property->integer = 8;
+            array_add(p_subsubarray->list, p_object_property);
+
+            array_add(p_subarray->list, p_subsubarray);
+        }
+
+        array_add(p_value->list, p_subarray);
+    }
+
+    // Return
+    *pp_value = p_value;
+
     // Success
     return 1;
 }

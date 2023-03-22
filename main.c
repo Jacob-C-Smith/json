@@ -39,7 +39,7 @@ int main ( int argc, const char* argv[] )
     return EXIT_SUCCESS;
 
     no_argument:
-        printf("Usage: json_example file1.json [file2.json ... fileN.json]\n");
+        //printf("Usage: json_example file1.json [file2.json ... fileN.json]\n");
         
         // Error
         return EXIT_FAILURE;
@@ -76,7 +76,9 @@ int    print_json_file ( const char *path )
     if ( parse_json_value(file_buf, 0, &p_json) == 0 )
         goto failed_to_parse_json;
 
-    print_value(p_json);
+    FILE *f = fopen("output.txt","w");
+
+    print_value ( p_json, f );
 
     // Success
     return 1;
@@ -109,75 +111,6 @@ int    print_json_file ( const char *path )
     }
 }
 
-int print_value ( JSONValue_t *p_value )
-{
-    if (p_value == 0)
-    {
-        printf("null");
-    }
-    else
-    {
-        switch (p_value->type)
-        {
-        case JSONboolean:
-            printf("%s",p_value->boolean ? "true" : "false");
-            break;
-        case JSONinteger:
-            printf("%lls", p_value->integer);
-            break;
-        case JSONfloat:
-            printf("%f", p_value->floating);
-            break;
-        case JSONstring:
-            printf("%s", p_value->string);
-            break;
-        case JSONobject:
-            {
-                // Initialized data
-                size_t        property_count = dict_values(p_value->object, 0);
-                char        **keys           = 0;
-                JSONValue_t **values         = 0;
-
-                keys   = calloc(property_count, sizeof(char*));
-                values = calloc(property_count, sizeof(JSONValue_t*));
-                
-                dict_keys(p_value->object, keys);
-                dict_values(p_value->object, values);
-
-                for (size_t i = 0; i < property_count; i++)
-                {
-                    printf("\"%s\":",keys[i]);
-                    print_value(&values[i]);
-                }
-            }
-            break;
-        case JSONarray:
-            {
-                // Initialized data
-                size_t        element_count = 0;
-                char         *keys          = 0;
-                JSONValue_t **elements      = 0;
-
-                array_get(p_value->list, 0,element_count);
-
-                elements = calloc(element_count, sizeof(JSONValue_t*));
-                
-                array_get(p_value->object, elements, 0);
-                
-                for (size_t i = 0; i < element_count; i++)
-                {
-                    printf("[%i] : ");
-                    print_value(elements[i]);
-                    printf("\n");
-                }
-            }
-            break;
-        
-        default:
-            break;
-        }
-    }
-}
 
 size_t load_file ( const char *path, void *buffer, bool binary_mode )
 {

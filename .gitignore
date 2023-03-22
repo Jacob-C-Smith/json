@@ -9,10 +9,12 @@ cmake_install.cmake
 Makefile
 include/dict
 Debug/
+Release/
 CMakeCache.txt
 json_example
 dict_example
 queue_example
+json_test
 dict_test
 queue_test
 test cases/expected behavior
