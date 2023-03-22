@@ -1,3 +1,9 @@
 [submodule "dict"]
 	path = dict
 	url = https://github.com/Jacob-C-Smith/dict
+[submodule "queue"]
+	path = queue
+	url = https://github.com/Jacob-C-Smith/queue
+[submodule "array"]
+	path = array
+	url = https://github.com/Jacob-C-Smith/array

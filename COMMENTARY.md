@@ -5,6 +5,8 @@ This file documents the improvements I make to this project over time. Major cha
 > 1 [v1.0](#v10)
 >
 > 2 [v2.0](#v20)
+>
+> 3 [v3.0](#v30)
 
 # v1.0
 ## Problem solving process, investigation, and comentary 

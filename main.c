@@ -3,15 +3,19 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <wchar.h>
+#include <locale.h>
 
-#include <dict/dict.h>
-#include <JSON/JSON.h>
+#include <json/json.h>
 
+int    print_value ( JSONValue_t *p_value );
 int    print_json_file ( const char *path );
 size_t load_file       ( const char *path, void *buffer, bool binary_mode );
 
 int main ( int argc, const char* argv[] )
-{
+{    
+    setlocale(LC_ALL, "");
+    print_json_file("example.json");
 
     // Check for valid argument
     if ( argc == 1 )
@@ -53,12 +57,13 @@ int    print_json_file ( const char *path )
     }
 
     // Initialized data
-    dict    *p_json         = 0;
-    size_t   file_len       = 0,
-             property_count = 0;
-    char    *file_buf       = 0,
-           **keys           = 0;
-    void   **values         = 0;
+    JSONValue_t  *p_json         = 0;
+    dict         *p_object       = 0;
+    size_t        file_len       = 0,
+                  property_count = 0;
+    char         *file_buf       = 0,
+                **keys           = 0;
+    void        **values         = 0;
 
     // Load the file
     {
@@ -67,61 +72,12 @@ int    print_json_file ( const char *path )
         load_file(path, file_buf, false);
     }
 
-    // Parse the JSON into a dict
-    if ( parse_json(file_buf, file_len, &p_json) == 0 )
+    // Parse the JSON into a value
+    if ( parse_json_value(file_buf, 0, &p_json) == 0 )
         goto failed_to_parse_json;
 
-    // Get the number of properties in the dictionary
-    property_count = dict_keys(p_json, 0);
+    print_value(p_json);
 
-    // Allocate memory for keys and values
-    keys   = calloc(property_count, sizeof(char *));
-    values = calloc(property_count, sizeof(void *));
-    
-    // Get the keys and values of the properties
-    dict_keys(p_json, keys);
-    dict_values(p_json, values);
-
-    // Print the contents of the file
-    for (size_t i = 0; i < property_count; i++)
-    {
-
-        // Initialized data
-        JSONToken_t *t = values[i];
-
-        // Write the property key
-        printf("%s: ", keys[i]);
-
-        // Write the property value
-        if (t->type == JSONarray)
-        {
-
-            // Initialzied data
-            char   **contents = JSON_VALUE(t, JSONarray);
-            size_t   j        = 0;
-
-            // Print all array contents
-            for (size_t j = 0; contents[j]; j++)
-            {
-                printf("\n\t[%llu] : %s", j, contents[j]);
-            }
-
-            putchar('\n');
-        }
-        else
-        {
-            printf("%s\n", (char *) t->value.n_where);
-        }
-    }
-
-    // Clean up
-    {
-        free(values);
-        free(keys);
-        FREE_JSON_DICT(p_json);
-        free(file_buf);
-    }
-    
     // Success
     return 1;
 
@@ -149,6 +105,76 @@ int    print_json_file ( const char *path )
 
             // Error
             return 0;
+        }
+    }
+}
+
+int print_value ( JSONValue_t *p_value )
+{
+    if (p_value == 0)
+    {
+        printf("null");
+    }
+    else
+    {
+        switch (p_value->type)
+        {
+        case JSONboolean:
+            printf("%s",p_value->boolean ? "true" : "false");
+            break;
+        case JSONinteger:
+            printf("%lls", p_value->integer);
+            break;
+        case JSONfloat:
+            printf("%f", p_value->floating);
+            break;
+        case JSONstring:
+            printf("%s", p_value->string);
+            break;
+        case JSONobject:
+            {
+                // Initialized data
+                size_t        property_count = dict_values(p_value->object, 0);
+                char        **keys           = 0;
+                JSONValue_t **values         = 0;
+
+                keys   = calloc(property_count, sizeof(char*));
+                values = calloc(property_count, sizeof(JSONValue_t*));
+                
+                dict_keys(p_value->object, keys);
+                dict_values(p_value->object, values);
+
+                for (size_t i = 0; i < property_count; i++)
+                {
+                    printf("\"%s\":",keys[i]);
+                    print_value(&values[i]);
+                }
+            }
+            break;
+        case JSONarray:
+            {
+                // Initialized data
+                size_t        element_count = 0;
+                char         *keys          = 0;
+                JSONValue_t **elements      = 0;
+
+                array_get(p_value->list, 0,element_count);
+
+                elements = calloc(element_count, sizeof(JSONValue_t*));
+                
+                array_get(p_value->object, elements, 0);
+                
+                for (size_t i = 0; i < element_count; i++)
+                {
+                    printf("[%i] : ");
+                    print_value(elements[i]);
+                    printf("\n");
+                }
+            }
+            break;
+        
+        default:
+            break;
         }
     }
 }

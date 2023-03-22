@@ -12,3 +12,7 @@ Debug/
 CMakeCache.txt
 json_example
 dict_example
+queue_example
+dict_test
+queue_test
+test cases/expected behavior

@@ -1,0 +1,23 @@
+Parser:
+    null
+    boolean:
+        true
+        false
+    int:
+        1
+        0
+        -1
+        MAX
+        MIN
+    float:
+        1.0
+        0.0
+        -1.0
+        DBL_MAX
+        DBL_MIN
+    string:
+
+    array:
+
+    object:
+
