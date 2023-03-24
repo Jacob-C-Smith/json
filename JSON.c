@@ -4,13 +4,6 @@
 typedef union  JSONContent_u   JSONContent_t;
 typedef enum   JSONValueType_e JSONValueType_t;
 
-static const char *token_types[] = {
-    "object", 
-    "array",
-    "string",
-    "primative"
-};
-
 int parse_json_whitespace ( char *pointer, char **return_pointer )
 {
 
@@ -84,6 +77,7 @@ int parse_json_string     ( char *pointer, char **return_pointer )
                     pointer[i]='\t';
                     break;
                 case 'u':
+                    // TODO:
                     break;
                 default:
                     return 0;
@@ -131,6 +125,7 @@ int parse_json_object     ( char *pointer, char **return_pointer, dict **pp_dict
     i++;
 
     parse_property:
+
     // Parse whitespaces
     parse_json_whitespace(pointer, &pointer);
 
@@ -200,6 +195,7 @@ int parse_json_array      ( char *pointer, char **return_pointer, array **pp_arr
     i++;
 
     parse_property:
+    
     // Parse whitespaces
     parse_json_whitespace(pointer, &pointer);
 
@@ -485,24 +481,23 @@ int print_value           ( JSONValue_t  *p_value, FILE *f )
     }
 }
 
-void free_value           ( JSONValue_t **pp_value )
+void free_value           ( JSONValue_t *p_value )
 {
-    if ( pp_value == (void *)0 )
+    if ( p_value == (void *)0 )
         return;
-
-    JSONValue_t *p_value = *pp_value;
 
     if (p_value->type == JSONobject)
     {
         dict_free_clear(p_value->object, free_value);
+        dict_destroy(&p_value->object);
     }
 
     if (p_value->type == JSONarray)
     {
         array_free_clear(p_value->list, free_value);
+        array_destroy(&p_value->list);
     }
 
     free(p_value);
-
-    *pp_value = 0;
+    
 }

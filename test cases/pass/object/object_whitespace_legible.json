@@ -1,0 +1,10 @@
+{
+    "NOTE" : "This file is not tested by the parser. It is a legible version of the illegible object_whitespace.json", 
+    "name" : "Jake",
+    "age"  : 20,
+    "dogs" : [
+        { "name" : "Eddy", "age" : 3 },
+        "Nami"
+    ],
+    "cat"  : { "name" : "Blossom", "color" : "Black" }
+}

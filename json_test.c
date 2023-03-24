@@ -328,8 +328,6 @@ int test_array ( char *name )
     print_test(name, "array [[{\"a\":1}, {\"b\":2}, {\"c\":3}]]" , test_parse_json("test cases/pass/array/array_objects.json"          , construct_array_objects          , one));
     print_test(name, "array [[]]"                                , test_parse_json("test cases/pass/array/array_array_empty.json"      , construct_array_array_empty      , one));
     print_test(name, "array [[[]]]"                              , test_parse_json("test cases/pass/array/array_array_array_empty.json", construct_array_array_array_empty, one));
-    
-    // TODO
     print_test(name, "array [[1, 2, 3],[4, 5, 6],[7, 8, 9]]"     , test_parse_json("test cases/pass/array/array_matrix.json"           , construct_array_matrix           , one));
     print_test(name, "array [[[1, 2], [3, 4]], [[5, 6], [7, 8]]]", test_parse_json("test cases/pass/array/array_tensor.json"           , construct_array_tensor           , one));
 
@@ -486,6 +484,9 @@ result_t value_equals (JSONValue_t *a, JSONValue_t *b)
                     has_value = true;
                 }
             }
+
+            if (has_value == false)
+                result = 0;
         }
 
         // Clean up
@@ -1222,7 +1223,7 @@ int construct_object_object_object ( JSONValue_t **pp_value )
     return 1;
 }
 
-int construct_object_recursive       ( JSONValue_t **pp_value )
+int construct_object_recursive ( JSONValue_t **pp_value )
 {
     // Initialized data
     JSONValue_t *p_value      = calloc(1, sizeof(JSONValue_t)),
@@ -1263,7 +1264,7 @@ int construct_object_recursive       ( JSONValue_t **pp_value )
     return 1;
 }
 
-int construct_object_array            ( JSONValue_t **pp_value )
+int construct_object_array ( JSONValue_t **pp_value )
 {
     // Initialized data
     JSONValue_t *p_value       = calloc(1, sizeof(JSONValue_t)),
@@ -1302,7 +1303,7 @@ int construct_object_array            ( JSONValue_t **pp_value )
     return 1;
 }
 
-int construct_object_array_objects    ( JSONValue_t **pp_value )
+int construct_object_array_objects ( JSONValue_t **pp_value )
 {
     // Initialized data
     JSONValue_t *p_value       = calloc(1, sizeof(JSONValue_t)),
@@ -1351,7 +1352,7 @@ int construct_object_array_objects    ( JSONValue_t **pp_value )
     return 1;
 }
 
-int construct_object_array_object     ( JSONValue_t **pp_value )
+int construct_object_array_object ( JSONValue_t **pp_value )
 {
     // Initialized data
     JSONValue_t *p_value       = calloc(1, sizeof(JSONValue_t)),
