@@ -36,8 +36,8 @@ void free_token ( void *ptr );
 #define DLLEXPORT
 #endif
 
-// This is how you should free values created with the 'parse_json_value' function, otherwise you will leak memory
-#define FREE_VALUE( dict ) dict_free_clear(dict, free_token); dict_destroy(dict);
+// This macro is used to free JSONValue_t *'s 
+#define FREE_VALUE( value ) free_json_value(value)
 
 // This macro will evaluate to the value of the JSON property, if the property is not a null pointer and if the type matches the parameter 't'
 #define JSON_VALUE( property, t ) (property) ? (property->type==t) ? property->integer : 0 : 0;
@@ -70,6 +70,32 @@ struct JSONValue_s
 // Type definitions
 typedef struct JSONValue_s JSONValue_t;
 
-int  parse_json_value      ( char         *text    , char **return_pointer, JSONValue_t **pp_value );
-int  print_json_value      ( JSONValue_t  *p_value , FILE *f );
-void free_json_value       ( JSONValue_t  *p_value );
+/* 
+ * Parse json text into a JSONValue
+ * 
+ * @param text pointer to JSON text
+ * @param return_pointer null or pointer to end of JSON value
+ * @param pp_value return
+ * 
+ * @return 1 on success, 0 on error
+ */
+int  parse_json_value      ( char *text, char **return_pointer, JSONValue_t **pp_value );
+
+/* 
+ * Serialize a JSONValue to a file
+ * 
+ * @param p_value pointer to JSONValue
+ * @param f the file to write to
+ * 
+ * @return 1 on success, 0 on error
+ */
+int  print_json_value      ( JSONValue_t *p_value , FILE *f );
+
+/* 
+ * Free a JSON value, and its contents
+ * 
+ * @param p_value pointer to JSONValue
+ *  
+ * @return void
+ */
+void free_json_value       ( JSONValue_t *p_value );

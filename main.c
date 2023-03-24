@@ -3,8 +3,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <wchar.h>
-#include <locale.h>
 
 #include <json/json.h>
 
@@ -74,9 +72,11 @@ int    print_json_file ( const char *path )
     if ( parse_json_value(file_buf, 0, &p_json) == 0 )
         goto failed_to_parse_json;
 
+    // Print the parsed contents to stdout
     print_json_value(p_json, stdout);
 
-    free_json_value(p_json);
+    // Free the JSON value
+    FREE_VALUE(p_json);
 
     // Success
     return 1;

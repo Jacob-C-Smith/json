@@ -1,7 +1,5 @@
-# Version 3 is still in development. This notice will be removed when version 3 releases are posted. 
-
-# JSON
- A JSON object parser written in C. 
+# json
+ A JSON parser / serializer written in C. 
  
  > 1 [Download](#download)
  >
@@ -13,7 +11,7 @@
  >>
  >> 3.2 [Example output](#example-output)
  >
- > 4 [Limitations](#limitations)
+ > 4 [Tester](#tester)
  >
  > 5 [Definitions](#definitions)
  >
@@ -24,22 +22,23 @@
  >> 5.3 [Macro definitions](#macro-definitinos)
 
  ## Download
- To download JSON, execute the following command
+ To download json, execute the following command
  ```bash
- $ git clone https://github.com/Jacob-C-Smith/JSON --recurse-submodules
+ $ git clone https://github.com/Jacob-C-Smith/json --recurse-submodules
  ```
  ## Build
  To build on UNIX like machines, execute the following commands in the same directory
  ```bash
- $ cd JSON
+ $ cd json
  $ cmake .
  $ make
  ```
   This will build the example program, and dynamic / shared libraries
 
-  To build JSON for Windows machines, open the base directory in Visual Studio, and build your desired target(s)
+  To build json for Windows machines, open the base directory in Visual Studio, and build your desired target(s)
  ## Example
- To run the example program, execute this command
+ **NOTE: If you are running the tester program on Windows, you may have to copy example files to the ```Debug``` or ```Release``` directories.**
+ The example program parses the input file, and writes the parsed tokens to stdout. To run the example program, execute this command.
  ```
  ./json_example file1.json [file2.json ... fileN.json]
  ```
@@ -69,48 +68,40 @@
  ### Example output
  ```
 --- example.json ---
-name: Jacob Smith
-age: 19
-height: 1.775
-dog: {
-        "name"  : "Eddie",
-        "sex"   : "Male",
-        "breed" : "Terrier"
-    }
-interests: 
-        [0] : Computer science
-        [1] : 3D modeling
-        [2] : Organic chemistry
-        [3] : Mathematics
-        [4] : Computer games
-        [5] : Epistemology
+{"name":"Jacob Smith","age":20,"height":1.775,"dog":{"name":"Eddie","sex":"Male","breed":"Terrier"},"interests":["Computer science","3D modeling","Organic chemistry","Mathematics","Computer games","Epistemology"]}
 
  ```
  [Source](main.c)
  
- ## Limitations
- This parser can not parse arrays of arrays just yet. I'm still working on that one. 
+ ## Tester
+ **NOTE: If you are running the tester program on Windows, you may have to copy the ```serial test cases``` and ```parse test cases``` directories to the ```Debug``` or ```Release``` directories.**
+
+ To run the tester program, execute this command after building
+ ```
+ $ ./json_test
+ ```
+ [Source](json_test.c)
  
+ [Tester output](test_output.txt)
  ## Definitions
  
  ### Type definitions
  ```c
- typedef enum   JSONValueType_e JSONValueType_t;
- typedef struct JSONToken_s     JSONToken_t;
+ typedef struct JSONValue_s JSONValue_t;
  ```
  ### Function definitions
 
  ```c 
- // Parser 
- int parse_json ( char* object_text, size_t len, dict **pp_dict )
+int  parse_json_value ( char *text, char **return_pointer, JSONValue_t **pp_value );
+int  print_json_value ( JSONValue_t *p_value, FILE *f );
+void free_json_value  ( JSONValue_t *p_value );
  ```
 
  ### Macro definitions
  ```c
+// This macro is used to free JSONValue_t *'s 
+#define FREE_VALUE( value ) free_json_value(value)
 
-// Evaluates to the value of the JSON property, if the property is not a null pointer and if the type matches the parameter 't'
- #define JSON_VALUE     ( token, t )
-
- // Use this macro to free dictionaries. Using dict_destroy will cause a memory leak. 
- #define FREE_JSON_DICT ( dict ) 
+// This macro will evaluate to the value of the JSON property, if the property is not a null pointer and if the type matches the parameter 't'
+#define JSON_VALUE( property, t ) (property) ? (property->type==t) ? property->integer : 0 : 0;
  ```

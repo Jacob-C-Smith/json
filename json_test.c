@@ -371,7 +371,7 @@ int test_serial_null ( char *name )
 
     printf("Scenario: %s\n", name);
 
-    print_test(name, "[]", test_serial_json("serial test cases/TESTER_null.json", construct_null, one));
+    print_test(name, "null", test_serial_json("serial test cases/TESTER_null.json", construct_null, one));
 
     print_final_summary();
 
@@ -423,11 +423,11 @@ int test_serial_float ( char *name )
 
     printf("Scenario: %s\n", name);
 
-    print_test(name, "-1.0"    , test_serial_json("serial test cases/float/float_-1.json" , construct_float_minus_one, one));
-    print_test(name, "0.0"     , test_serial_json("serial test cases/float/float_0.json"  , construct_float_zero     , one));
-    print_test(name, "1.0"     , test_serial_json("serial test cases/float/float_1.json"  , construct_float_one      , one));
-    print_test(name, "max"     , test_serial_json("serial test cases/float/float_max.json", construct_float_max      , one));
-    print_test(name, "min"     , test_serial_json("serial test cases/float/float_min.json", construct_float_min      , one));
+    print_test(name, "-1.0"    , test_serial_json("serial test cases/float/TESTER_float_-1.json" , construct_float_minus_one, one));
+    print_test(name, "0.0"     , test_serial_json("serial test cases/float/TESTER_float_0.json"  , construct_float_zero     , one));
+    print_test(name, "1.0"     , test_serial_json("serial test cases/float/TESTER_float_1.json"  , construct_float_one      , one));
+    print_test(name, "max"     , test_serial_json("serial test cases/float/TESTER_float_max.json", construct_float_max      , one));
+    print_test(name, "min"     , test_serial_json("serial test cases/float/TESTER_float_min.json", construct_float_min      , one));
 
     print_final_summary();
 
