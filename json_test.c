@@ -50,6 +50,21 @@ result_t save_json           ( char         *path         , JSONValue_t  *p_valu
 result_t value_equals        ( JSONValue_t  *a            , JSONValue_t  *b );
 size_t   load_file           ( const char   *path         , void         *buffer                                      , bool     binary_mode );
 
+int test_parse_null   (char *text);
+int test_parse_bool   (char *text);
+int test_parse_int    (char *text);
+int test_parse_float  (char *text);
+int test_parse_string (char *text);
+int test_parse_object (char *text);
+int test_parse_array  (char *text);
+int test_serial_null  (char *text);
+int test_serial_bool  (char *text);
+int test_serial_int   (char *text);
+int test_serial_float (char *text);
+int test_serial_string(char *text);
+int test_serial_object(char *text);
+int test_serial_array (char *text);
+
 // Scenario constructors
 int  construct_null                   ( JSONValue_t **pp_value );
 

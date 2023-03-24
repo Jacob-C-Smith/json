@@ -18,3 +18,13 @@ json_test
 dict_test
 queue_test
 test cases/expected behavior
+serial test cases/array/*.json
+serial test cases/bool/*.json
+serial test cases/float/*.json
+serial test cases/int/*.json
+serial test cases/object/*.json
+serial test cases/string/*.json
+serial test cases/*.json
+array_example
+array_test
+json_test
