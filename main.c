@@ -14,9 +14,6 @@ size_t load_file       ( const char *path, void *buffer, bool binary_mode );
 
 int main ( int argc, const char* argv[] )
 {    
-    setlocale(LC_ALL, "");
-    print_json_file("example.json");
-
     // Check for valid argument
     if ( argc == 1 )
         goto no_argument;
@@ -33,13 +30,14 @@ int main ( int argc, const char* argv[] )
 
         // Output formatting
         putchar('\n');
+        putchar('\n');
     }
 
     // Success
     return EXIT_SUCCESS;
 
     no_argument:
-        //printf("Usage: json_example file1.json [file2.json ... fileN.json]\n");
+        printf("Usage: json_example file1.json [file2.json ... fileN.json]\n");
         
         // Error
         return EXIT_FAILURE;
@@ -76,9 +74,9 @@ int    print_json_file ( const char *path )
     if ( parse_json_value(file_buf, 0, &p_json) == 0 )
         goto failed_to_parse_json;
 
-    FILE *f = fopen("output.txt","w");
+    print_json_value(p_json, stdout);
 
-    print_value ( p_json, f );
+    free_json_value(p_json);
 
     // Success
     return 1;

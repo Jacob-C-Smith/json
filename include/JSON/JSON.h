@@ -72,4 +72,4 @@ typedef struct JSONValue_s JSONValue_t;
 
 int  parse_json_value      ( char         *text    , char **return_pointer, JSONValue_t **pp_value );
 int  print_json_value      ( JSONValue_t  *p_value , FILE *f );
-void free_json_value       ( JSONValue_t **pp_value );
+void free_json_value       ( JSONValue_t  *p_value );

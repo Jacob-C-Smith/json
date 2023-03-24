@@ -11,16 +11,16 @@ int parse_json_whitespace ( char *pointer, char **return_pointer )
     size_t i = 0;
 
     // Skip past spaces, line feed, carriage return, horizontal tab
-    while(pointer[i] == ' ' || pointer[i] == '\n' || pointer[i] == '\r' || pointer[i] == '\t' || pointer[i] == '\0' ) { i++; };
+    while(*pointer == ' ' || *pointer == '\n' || *pointer == '\r' || *pointer == '\t' || *pointer == '\0' ) { pointer++; };
 
     // Check for null terminator
-    if ( pointer[i] == '\0' )
+    if ( *pointer == '\0' )
 
         // Fail
         return 0;
 
     // Return the new pointer
-    *return_pointer = &pointer[i];
+    *return_pointer = pointer;
 
     // Success
     return 1;
@@ -109,67 +109,69 @@ int parse_json_object     ( char *pointer, char **return_pointer, dict **pp_dict
 {
     
     // Initialized data
-    size_t  i              = 0,
-            property_count = 0;
+    size_t  property_count = 0;
     char   *last_pointer   = pointer;
     dict   *p_dict         = 0;
 
     dict_construct(&p_dict, DICT_SIZE+1);
 
     // Check for correct start
-    if ( pointer[i] != '{' )
+    if ( *pointer != '{' )
 
         // Fail
         return 0;
 
-    i++;
+    pointer++;
 
     parse_property:
 
     // Parse whitespaces
     parse_json_whitespace(pointer, &pointer);
 
-    if ( pointer[i] == '\"' )
+    if ( *pointer == '\"' )
     {
-        char *key = &pointer[i];
+        char *key = pointer;
         JSONValue_t *value = 0;
 
-        parse_json_string(&pointer[i], &pointer);
+        parse_json_string(pointer, &pointer);
+        pointer++;
         parse_json_whitespace(pointer, &pointer);
 
-        if ( pointer[i] == ':' )
+        if ( *pointer == ':' )
         {
-            i++;
+            pointer++;
         }
 
-        parse_json_value(&pointer[i],&pointer,&value);
-        dict_add(p_dict, key, value);
+        parse_json_value(pointer,&pointer,&value);
+        if(value)
+            dict_add(p_dict, key, value);
+        else
+            printf("FAILED TO PARSE VALUE\n");
 
-        if ( pointer[1] == ',' )
+        if ( *pointer == ',' )
         {
             property_count++;
+            pointer++;
             goto parse_property;
         }
-        else if (pointer[1]=='}')
+        else if ( *pointer == '}' )
         {
             property_count++;
         }
 
-        i++;
+        
     }
     
     // Check for correct end
-    if ( pointer[1] != '}' )
+    if ( *pointer != '}' )
 
         // Fail
         return 0;
-
-    i++;
-    
+    pointer++;
     *pp_dict = p_dict;
 
     if(return_pointer)
-        *return_pointer = &pointer[1];
+        *return_pointer = pointer;
 
     // Success
     return 1;
@@ -187,19 +189,19 @@ int parse_json_array      ( char *pointer, char **return_pointer, array **pp_arr
     array_construct(&p_array,32);
 
     // Check for correct start
-    if ( pointer[i] != '[' )
+    if ( pointer[0] != '[' )
 
         // Fail
         return 0;
 
-    i++;
+    pointer++;
 
     parse_property:
     
     // Parse whitespaces
     parse_json_whitespace(pointer, &pointer);
 
-    if ( pointer[i] != ']' )
+    if ( pointer[0] != ']' )
     {
         JSONValue_t *value = 0;
 
@@ -207,13 +209,13 @@ int parse_json_array      ( char *pointer, char **return_pointer, array **pp_arr
         array_add(p_array, value);
         
 
-        if ( pointer[1] == ',' )
+        if ( *pointer == ',' )
         {
             property_count++;
             pointer++;
             goto parse_property;
         }
-        else if (pointer[1]==']')
+        else if (*pointer==']')
         {
             property_count++;
         }
@@ -222,11 +224,19 @@ int parse_json_array      ( char *pointer, char **return_pointer, array **pp_arr
             return 0;
         }
     }
+    
+    // Check for correct end
+    if ( *pointer != ']' )
+
+        // Fail
+        return 0;
+        
+    pointer++;
 
     *pp_array = p_array;
 
     if(return_pointer)
-        *return_pointer = &pointer[1];
+        *return_pointer = pointer;
 
     // Success
     return 1;
@@ -239,16 +249,20 @@ int parse_json_value      ( char *text, char **return_pointer, JSONValue_t **pp_
     int ret = 0;
 
     parse_json_whitespace(text, &text);
-    switch (text[0])
+
+    switch (*text)
     {
         case '\"':
             {
                 char *last_text = text;
                 parse_json_string(text, &text);
+                text++;
                 size_t string_len = strlen(last_text);
                 p_value->string = calloc(string_len+1, sizeof(char));
                 strncpy(p_value->string, last_text, string_len);
+                
                 ret = 1;
+                
                 p_value->type = JSONstring;
             }
             break;
@@ -273,7 +287,7 @@ int parse_json_value      ( char *text, char **return_pointer, JSONValue_t **pp_
             {
                 p_value->type    = JSONboolean;
                 p_value->boolean = true;
-                text+=3;
+                text+=4;
                 ret = 1;
             }
             else
@@ -287,7 +301,7 @@ int parse_json_value      ( char *text, char **return_pointer, JSONValue_t **pp_
             {
                 p_value->type = JSONboolean;
                 p_value->boolean = false;
-                text+=4;
+                text+=5;
                 ret = 1;
             }
             else
@@ -301,7 +315,7 @@ int parse_json_value      ( char *text, char **return_pointer, JSONValue_t **pp_
             {
                 free(p_value);
                 ret = 1;
-                text+=3;
+                text+=4;
                 p_value = 0;
             }
             else
@@ -315,7 +329,7 @@ int parse_json_value      ( char *text, char **return_pointer, JSONValue_t **pp_
     }
 
     // Parse a number
-    if ( text[0] == '-' || (text[0] >= '0' && text[0] <= '9') ) 
+    if ( *text == '-' || (*text >= '0' && *text <= '9') ) 
     {
         // Initialized data
         size_t i = 0,
@@ -328,6 +342,7 @@ int parse_json_value      ( char *text, char **return_pointer, JSONValue_t **pp_
         if (text[0] == '-')
         {
             i++;
+            n=true;
         }
 
         // Skip 
@@ -366,6 +381,8 @@ int parse_json_value      ( char *text, char **return_pointer, JSONValue_t **pp_
 
         d--;
         text+=d;
+        text+=+1;
+        text+=n?1:0;
         ret = 1;
     }
 
@@ -379,7 +396,7 @@ int parse_json_value      ( char *text, char **return_pointer, JSONValue_t **pp_
     return ret;
 }
 
-int print_value           ( JSONValue_t  *p_value, FILE *f )
+int  print_json_value      ( JSONValue_t  *p_value , FILE *f )
 {
     
     if (p_value == 0)
@@ -397,37 +414,42 @@ int print_value           ( JSONValue_t  *p_value, FILE *f )
             fprintf(f,"%lld", p_value->integer);
             break;
         case JSONfloat:
-            fprintf(f,"%f", p_value->floating);
+            fprintf(f,"%g", p_value->floating);
             break;
         case JSONstring:
             fprintf(f,"\"%s\"", p_value->string);
             break;
         case JSONobject:
-            {
+            if(p_value->object){
                 // Initialized data
                 size_t        property_count = dict_values(p_value->object, 0);
                 char        **keys           = 0;
                 JSONValue_t **values         = 0;
 
+                fprintf(f,"{");
+
+                if(property_count==0)
+                    goto done;
                 keys   = calloc(property_count, sizeof(char*));
                 values = calloc(property_count, sizeof(JSONValue_t*));
                 
                 dict_keys(p_value->object, keys);
                 dict_values(p_value->object, values);
-                fprintf(f,"{");
                 for (size_t i = 0; i < property_count-1; i++)
                 {
                     fprintf(f,"\"%s\":",keys[i]);
-                    print_value(values[i],f);
+                    print_json_value(values[i],f);
                     fprintf(f,",");
                 }
                 fprintf(f,"\"%s\":",keys[property_count-1]);
-                print_value(values[property_count-1],f);
+                print_json_value(values[property_count-1],f);
+
+                done:
                 fprintf(f,"}");
             }
             break;
         case JSONarray:
-            {
+            if(p_value->list){
                 // Initialized data
                 size_t        element_count = 0;
                 char         *keys          = 0;
@@ -442,15 +464,20 @@ int print_value           ( JSONValue_t  *p_value, FILE *f )
 
                 array_get(p_value->list, elements, 0);
                 fprintf(f,"[");
-                for (size_t i = 0; i < element_count-1; i++)
+
+                if (element_count)
                 {
-                    print_value(elements[i],f);
+                    print_json_value(elements[0],f);
+        
+                }
+                for (size_t i = 1; i < element_count; i++)
+                {
                     fprintf(f,",");
+                    print_json_value(elements[i],f);
                 }
 
                 free(elements);
 
-                print_value(elements[element_count-1],f);
                 fprintf(f,"]");
             }
             break;
@@ -481,20 +508,20 @@ int print_value           ( JSONValue_t  *p_value, FILE *f )
     }
 }
 
-void free_value           ( JSONValue_t *p_value )
+void free_json_value           ( JSONValue_t *p_value )
 {
     if ( p_value == (void *)0 )
         return;
 
     if (p_value->type == JSONobject)
     {
-        dict_free_clear(p_value->object, free_value);
+        dict_free_clear(p_value->object, free_json_value);
         dict_destroy(&p_value->object);
     }
 
     if (p_value->type == JSONarray)
     {
-        array_free_clear(p_value->list, free_value);
+        array_free_clear(p_value->list, free_json_value);
         array_destroy(&p_value->list);
     }
 

@@ -44,18 +44,11 @@ int      run_tests           ( void );
 int      print_final_summary ( void );
 int      print_test          ( const char   *scenario_name, const char   *test_name,                                    bool     passed );
 bool     test_parse_json     ( char         *test_file    , int         (*expected_value_constructor) (JSONValue_t **), result_t expected );
+bool     test_serial_json    ( char         *test_file    , int         (*expected_value_constructor) (JSONValue_t **), result_t expected );
 result_t load_json           ( JSONValue_t **pp_value     , char         *test_file );
+result_t save_json           ( char         *path         , JSONValue_t  *p_value );
 result_t value_equals        ( JSONValue_t  *a            , JSONValue_t  *b );
 size_t   load_file           ( const char   *path         , void         *buffer                                      , bool     binary_mode );
-
-// Testing domains
-int  test_null   ( char *name );
-int  test_bool   ( char *name );
-int  test_int    ( char *name );
-int  test_float  ( char *name );
-int  test_string ( char *name );
-int  test_object ( char *name );
-int  test_array  ( char *name );
 
 // Scenario constructors
 int  construct_null                   ( JSONValue_t **pp_value );
@@ -142,31 +135,52 @@ int run_tests ( void )
     // Test the parser
 
     // Test parsing valid and invalid null
-    test_null("parse_null");
+    test_parse_null("parse_null");
 
     // Test parsing valid and invalid booleans
-    test_bool("parse_bool");
+    test_parse_bool("parse_bool");
 
     // Test parsing valid, invalid, and over/underflowed integers
-    test_int("parse_int");
+    test_parse_int("parse_int");
 
     // Test parsing valid, invalid, and over/underflowed floating point numbers
-    test_float("parse_float");
+    test_parse_float("parse_float");
     
     // Test parsing valid, invalid, and unicode strings
-    test_string("parse_string");
+    test_parse_string("parse_string");
 
     // Test parsing a variety of objects
-    test_object("parse_object");
+    test_parse_object("parse_object");
 
     // Test parsing a variety of arrays
-    test_array("parse_array");
+    test_parse_array("parse_array");
+
+    // Test serializing null
+    test_serial_null("serial_null");
+    
+    // Test serializing booleans
+    test_serial_bool("serial_bool");
+
+    // Test serializing integers
+    test_serial_int("serial_int");
+
+    // Test serializing floating point numbers
+    test_serial_float("serial_float");
+    
+    // Test serializing strings
+    test_serial_string("serial_string");
+
+    // Test serializing objects
+    test_serial_object("serial_object");
+
+    // Test serializing arrays
+    test_serial_array("serial_array");
 
     // Success
     return 1;
 }
 
-int test_null ( char *name )
+int test_parse_null ( char *name )
 {
 
     // Initialized data
@@ -174,8 +188,8 @@ int test_null ( char *name )
 
     printf("Scenario: %s\n", name);
 
-    print_test(name, "null", test_parse_json("test cases/pass/null.json", (void *) 0, one));
-    print_test(name, "nul" , test_parse_json("test cases/fail/null.json", (void *) 0, zero));
+    print_test(name, "null", test_parse_json("parse test cases/pass/null.json", (void *) 0, one));
+    print_test(name, "nul" , test_parse_json("parse test cases/fail/null.json", (void *) 0, zero));
 
     print_final_summary();
 
@@ -183,7 +197,7 @@ int test_null ( char *name )
 
 }
 
-int test_bool ( char *name )
+int test_parse_bool ( char *name )
 {
 
     // Initialized data
@@ -191,10 +205,10 @@ int test_bool ( char *name )
 
     printf("Scenario: %s\n", name);
 
-    print_test(name, "false", test_parse_json("test cases/pass/bool/bool_false.json", construct_bool_false, one));
-    print_test(name, "true" , test_parse_json("test cases/pass/bool/bool_true.json" , construct_bool_true , one));
-    print_test(name, "fals" , test_parse_json("test cases/fail/bool/bool_false.json", (void *) 0          , zero));
-    print_test(name, "tru"  , test_parse_json("test cases/fail/bool/bool_true.json" , (void *) 0          , zero));
+    print_test(name, "false", test_parse_json("parse test cases/pass/bool/bool_false.json", construct_bool_false, one));
+    print_test(name, "true" , test_parse_json("parse test cases/pass/bool/bool_true.json" , construct_bool_true , one));
+    print_test(name, "fals" , test_parse_json("parse test cases/fail/bool/bool_false.json", (void *) 0          , zero));
+    print_test(name, "tru"  , test_parse_json("parse test cases/fail/bool/bool_true.json" , (void *) 0          , zero));
 
     print_final_summary();
 
@@ -202,7 +216,7 @@ int test_bool ( char *name )
 
 }
 
-int test_int ( char *name )
+int test_parse_int ( char *name )
 {
 
     // Initialized data
@@ -210,20 +224,20 @@ int test_int ( char *name )
 
     printf("Scenario: %s\n", name);
 
-    print_test(name, "int_-1"    , test_parse_json("test cases/pass/int/int_-1.json" , construct_int_minus_one, one));
-    print_test(name, "int_0"     , test_parse_json("test cases/pass/int/int_0.json"  , construct_int_zero     , one));
-    print_test(name, "int_1"     , test_parse_json("test cases/pass/int/int_1.json"  , construct_int_one      , one));
-    print_test(name, "int_max"   , test_parse_json("test cases/pass/int/int_max.json", construct_int_max      , one));
-    print_test(name, "int_min"   , test_parse_json("test cases/pass/int/int_min.json", construct_int_min      , one));
-    print_test(name, "int_max_+1", test_parse_json("test cases/fail/int/int_max.json", (void *)0              , zero));
-    print_test(name, "int_min_-1", test_parse_json("test cases/fail/int/int_min.json", (void *)0              , zero));
+    print_test(name, "-1"    , test_parse_json("parse test cases/pass/int/int_-1.json" , construct_int_minus_one, one));
+    print_test(name, "0"     , test_parse_json("parse test cases/pass/int/int_0.json"  , construct_int_zero     , one));
+    print_test(name, "1"     , test_parse_json("parse test cases/pass/int/int_1.json"  , construct_int_one      , one));
+    print_test(name, "max"   , test_parse_json("parse test cases/pass/int/int_max.json", construct_int_max      , one));
+    print_test(name, "min"   , test_parse_json("parse test cases/pass/int/int_min.json", construct_int_min      , one));
+    print_test(name, "max +1", test_parse_json("parse test cases/fail/int/int_max.json", (void *)0              , zero));
+    print_test(name, "min -1", test_parse_json("parse test cases/fail/int/int_min.json", (void *)0              , zero));
 
     print_final_summary();
 
     return 1;
 }
 
-int test_float ( char *name )
+int test_parse_float ( char *name )
 {
 
     // Initialized data
@@ -231,20 +245,20 @@ int test_float ( char *name )
 
     printf("Scenario: %s\n", name);
 
-    print_test(name, "float_-1"    , test_parse_json("test cases/pass/float/float_-1.json" , construct_float_minus_one, one));
-    print_test(name, "float_0"     , test_parse_json("test cases/pass/float/float_0.json"  , construct_float_zero     , one));
-    print_test(name, "float_1"     , test_parse_json("test cases/pass/float/float_1.json"  , construct_float_one      , one));
-    print_test(name, "float_max"   , test_parse_json("test cases/pass/float/float_max.json", construct_float_max      , one));
-    print_test(name, "float_min"   , test_parse_json("test cases/pass/float/float_min.json", construct_float_min      , one));
-    print_test(name, "float_max_+1", test_parse_json("test cases/fail/float/float_max.json", (void *)0                , zero));
-    print_test(name, "float_min_-1", test_parse_json("test cases/fail/float/float_min.json", (void *)0                , zero));
+    print_test(name, "-1.0"    , test_parse_json("parse test cases/pass/float/float_-1.json" , construct_float_minus_one, one));
+    print_test(name, "0.0"     , test_parse_json("parse test cases/pass/float/float_0.json"  , construct_float_zero     , one));
+    print_test(name, "1.0"     , test_parse_json("parse test cases/pass/float/float_1.json"  , construct_float_one      , one));
+    print_test(name, "max"   , test_parse_json("parse test cases/pass/float/float_max.json", construct_float_max      , one));
+    print_test(name, "min"   , test_parse_json("parse test cases/pass/float/float_min.json", construct_float_min      , one));
+    print_test(name, "max + 1.0", test_parse_json("parse test cases/fail/float/float_max.json", (void *)0                , zero));
+    print_test(name, "min - 1.0", test_parse_json("parse test cases/fail/float/float_min.json", (void *)0                , zero));
 
     print_final_summary();
 
     return 1;
 }
 
-int test_string ( char *name )
+int test_parse_string ( char *name )
 {
 
     // Initialized data
@@ -252,28 +266,28 @@ int test_string ( char *name )
 
     printf("Scenario: %s\n", name);
     
-    print_test(name, "string \"\""       , test_parse_json("test cases/pass/string/string_empty.json"          , construct_string_empty          , one));
-    print_test(name, "string \"a\""      , test_parse_json("test cases/pass/string/string_a.json"              , construct_string_a              , one));
-    print_test(name, "string \"abc\""    , test_parse_json("test cases/pass/string/string_abc.json"            , construct_string_abc            , one));
-    print_test(name, "string \"\"abc\"\"", test_parse_json("test cases/pass/string/string_quote_abc_quote.json", construct_string_quote_abc_quote, one));
-    print_test(name, "string \"\"\"\""   , test_parse_json("test cases/pass/string/string_quote_quote.json"    , construct_string_quote_quote    , one));
-    print_test(name, "string     \"abc\"", test_parse_json("test cases/pass/string/string_whitespaces_abc.json", construct_string_whitespaces_abc, one));
-    print_test(name, "string \"\"\""     , test_parse_json("test cases/pass/string/string_quote.json"          , construct_string_quote          , one));
-    print_test(name, "string \"\\\\\""   , test_parse_json("test cases/pass/string/string_reverse_solidus.json", construct_string_reverse_solidus, one));
-    print_test(name, "string \"\\/\""    , test_parse_json("test cases/pass/string/string_solidus.json"        , construct_string_solidus        , one));
-    print_test(name, "string \"\\b\""    , test_parse_json("test cases/pass/string/string_backspace.json"      , construct_string_backspace      , one));
-    print_test(name, "string \"\\f\""    , test_parse_json("test cases/pass/string/string_formfeed.json"       , construct_string_formfeed       , one));
-    print_test(name, "string \"\\n\""    , test_parse_json("test cases/pass/string/string_linefeed.json"       , construct_string_linefeed       , one));
-    print_test(name, "string \"\\r\""    , test_parse_json("test cases/pass/string/string_carriage_return.json", construct_string_carriage_return, one));
-    print_test(name, "string \"\\t\""    , test_parse_json("test cases/pass/string/string_horizontal_tab.json" , construct_string_horizontal_tab , one));
-    //print_test(name, "string \"\u1234\"" , test_parse_json("test cases/pass/string/string_escape.json"         , construct_string_escape         , one));
+    print_test(name, "\"\""       , test_parse_json("parse test cases/pass/string/string_empty.json"          , construct_string_empty          , one));
+    print_test(name, "\"a\""      , test_parse_json("parse test cases/pass/string/string_a.json"              , construct_string_a              , one));
+    print_test(name, "\"abc\""    , test_parse_json("parse test cases/pass/string/string_abc.json"            , construct_string_abc            , one));
+    print_test(name, "\"\"abc\"\"", test_parse_json("parse test cases/pass/string/string_quote_abc_quote.json", construct_string_quote_abc_quote, one));
+    print_test(name, "\"\"\"\""   , test_parse_json("parse test cases/pass/string/string_quote_quote.json"    , construct_string_quote_quote    , one));
+    print_test(name, "    \"abc\"", test_parse_json("parse test cases/pass/string/string_whitespaces_abc.json", construct_string_whitespaces_abc, one));
+    print_test(name, "\"\"\""     , test_parse_json("parse test cases/pass/string/string_quote.json"          , construct_string_quote          , one));
+    print_test(name, "\"\\\\\""   , test_parse_json("parse test cases/pass/string/string_reverse_solidus.json", construct_string_reverse_solidus, one));
+    print_test(name, "\"\\/\""    , test_parse_json("parse test cases/pass/string/string_solidus.json"        , construct_string_solidus        , one));
+    print_test(name, "\"\\b\""    , test_parse_json("parse test cases/pass/string/string_backspace.json"      , construct_string_backspace      , one));
+    print_test(name, "\"\\f\""    , test_parse_json("parse test cases/pass/string/string_formfeed.json"       , construct_string_formfeed       , one));
+    print_test(name, "\"\\n\""    , test_parse_json("parse test cases/pass/string/string_linefeed.json"       , construct_string_linefeed       , one));
+    print_test(name, "\"\\r\""    , test_parse_json("parse test cases/pass/string/string_carriage_return.json", construct_string_carriage_return, one));
+    print_test(name, "\"\\t\""    , test_parse_json("parse test cases/pass/string/string_horizontal_tab.json" , construct_string_horizontal_tab , one));
+    //print_test(name, "string \"\u1234\"" , test_parse_json("parse test cases/pass/string/string_escape.json"         , construct_string_escape         , one));
 
     print_final_summary();
 
     return 1;
 }
 
-int test_object ( char *name )
+int test_parse_object ( char *name )
 {
 
     // Initialized data
@@ -281,29 +295,27 @@ int test_object ( char *name )
 
     printf("Scenario: %s\n", name);
     
-    print_test(name, "object {}"                                               , test_parse_json("test cases/pass/object/object_empty.json"        , construct_object_empty        , one));
-    print_test(name, "object {\"abc\":\"def\"}"                                , test_parse_json("test cases/pass/object/object_string.json"       , construct_object_string       , one));
-    print_test(name, "object {\"abc\":123}"                                    , test_parse_json("test cases/pass/object/object_int.json"          , construct_object_int          , one));
-    print_test(name, "object {\"pi\":3.14}"                                    , test_parse_json("test cases/pass/object/object_float.json"        , construct_object_float        , one));
-    print_test(name, "object {\"abc\":false}"                                  , test_parse_json("test cases/pass/object/object_false.json"        , construct_object_false        , one));
-    print_test(name, "object {\"abc\":true}"                                   , test_parse_json("test cases/pass/object/object_true.json"         , construct_object_true         , one));
-    print_test(name, "object {\"abc\":\"def\",\"ghi\":\"jkl\",\"mno\":\"pqr\"}", test_parse_json("test cases/pass/object/object_strings.json"      , construct_object_strings      , one));
-    print_test(name, "object {\"name\":\"jake\",\"age\":20,\"height\":1.779}"  , test_parse_json("test cases/pass/object/object_mixed_values.json" , construct_object_mixed_values , one));
-    print_test(name, "object {\"abc\":{\"def\":123}}"                          , test_parse_json("test cases/pass/object/object_object.json"       , construct_object_object       , one));
-    print_test(name, "object {\"abc\":{\"def\":{\"ghi\":123}}}"                , test_parse_json("test cases/pass/object/object_object_object.json", construct_object_object_object, one));
-    print_test(name, "object {\"abc\":[1,2,3]}"                                , test_parse_json("test cases/pass/object/object_array.json"        , construct_object_array        , one));
-    print_test(name, "object {\"a\":[{\"a\":1},{\"b\":2},{\"c\":3}]}"          , test_parse_json("test cases/pass/object/object_array_objects.json", construct_object_array_objects, one));
-    print_test(name, "object {\"a\":[{\"a\":1}]}"                              , test_parse_json("test cases/pass/object/object_array_object.json" , construct_object_array_object , one));
-
-    //print_test(name, "object {\"a\":[{\"b\":[ ... {\"y\":[{\"z\":[]}]}]}]}"    , test_parse_json("test cases/pass/object/object_array.json"        , //TODO        , one));
-    //print_test(name, "object {\"a\":{\"b\":{\"c\":{\"d\":{...{\"z\":{ }...}"   , test_parse_json("test cases/pass/object/object_recursive.json"    , construct_object_recursive    , one));
+    print_test(name, "{}"                                               , test_parse_json("parse test cases/pass/object/object_empty.json"        , construct_object_empty        , one));
+    print_test(name, "{\"abc\":\"def\"}"                                , test_parse_json("parse test cases/pass/object/object_string.json"       , construct_object_string       , one));
+    print_test(name, "{\"abc\":123}"                                    , test_parse_json("parse test cases/pass/object/object_int.json"          , construct_object_int          , one));
+    print_test(name, "{\"pi\":3.14}"                                    , test_parse_json("parse test cases/pass/object/object_float.json"        , construct_object_float        , one));
+    print_test(name, "{\"abc\":false}"                                  , test_parse_json("parse test cases/pass/object/object_false.json"        , construct_object_false        , one));
+    print_test(name, "{\"abc\":true}"                                   , test_parse_json("parse test cases/pass/object/object_true.json"         , construct_object_true         , one));
+    print_test(name, "{\"abc\":\"def\",\"ghi\":\"jkl\",\"mno\":\"pqr\"}", test_parse_json("parse test cases/pass/object/object_strings.json"      , construct_object_strings      , one));
+    print_test(name, "{\"name\":\"jake\",\"age\":20,\"height\":1.779}"  , test_parse_json("parse test cases/pass/object/object_mixed_values.json" , construct_object_mixed_values , one));
+    print_test(name, "{\"abc\":{\"def\":123}}"                          , test_parse_json("parse test cases/pass/object/object_object.json"       , construct_object_object       , one));
+    print_test(name, "{\"abc\":{\"def\":{\"ghi\":123}}}"                , test_parse_json("parse test cases/pass/object/object_object_object.json", construct_object_object_object, one));
+    print_test(name, "{\"abc\":[1,2,3]}"                                , test_parse_json("parse test cases/pass/object/object_array.json"        , construct_object_array        , one));
+    print_test(name, "{\"a\":[{\"a\":1},{\"b\":2},{\"c\":3}]}"          , test_parse_json("parse test cases/pass/object/object_array_objects.json", construct_object_array_objects, one));
+    print_test(name, "{\"a\":[{\"a\":1}]}"                              , test_parse_json("parse test cases/pass/object/object_array_object.json" , construct_object_array_object , one));
+    print_test(name, "{\"a\":{\"b\":{\"c\":{\"d\":{...{\"z\":{ }...}"   , test_parse_json("parse test cases/pass/object/object_recursive.json"    , construct_object_recursive    , one));
 
     print_final_summary();
 
     return 1;
 }
 
-int test_array ( char *name )
+int test_parse_array ( char *name )
 {
 
     // Initialized data
@@ -311,25 +323,185 @@ int test_array ( char *name )
 
     printf("Scenario: %s\n", name);
     
-    print_test(name, "array []"                                  , test_parse_json("test cases/pass/array/array_empty.json"            , construct_array_empty            , one));
-    print_test(name, "array [null]"                              , test_parse_json("test cases/pass/array/array_null.json"             , construct_array_null             , one));
-    print_test(name, "array [null, null, null]"                  , test_parse_json("test cases/pass/array/array_nulls.json"            , construct_array_nulls            , one));
-    print_test(name, "array [true]"                              , test_parse_json("test cases/pass/array/array_bool.json"             , construct_array_bool             , one));
-    print_test(name, "array [true, false, true]"                 , test_parse_json("test cases/pass/array/array_bools.json"            , construct_array_bools            , one));
-    print_test(name, "array [1]"                                 , test_parse_json("test cases/pass/array/array_int.json"              , construct_array_int              , one));
-    print_test(name, "array [1, 2, 3]"                           , test_parse_json("test cases/pass/array/array_ints.json"             , construct_array_ints             , one));
-    print_test(name, "array [3.141]"                             , test_parse_json("test cases/pass/array/array_float.json"            , construct_array_float            , one));
-    print_test(name, "array [1.2, 3.4, 5.6]"                     , test_parse_json("test cases/pass/array/array_floats.json"           , construct_array_floats           , one));
-    print_test(name, "array [\"\"]"                              , test_parse_json("test cases/pass/array/array_string_empty.json"     , construct_array_string_empty     , one));
-    print_test(name, "array [\"abc\"]"                           , test_parse_json("test cases/pass/array/array_string.json"           , construct_array_string           , one));
-    print_test(name, "array [\"abc\", \"def\", \"ghi\"]"         , test_parse_json("test cases/pass/array/array_strings.json"          , construct_array_strings          , one));
-    print_test(name, "array [{}]"                                , test_parse_json("test cases/pass/array/array_object_empty.json"     , construct_array_object_empty     , one));
-    print_test(name, "array [{\"a\":1}]"                         , test_parse_json("test cases/pass/array/array_object.json"           , construct_array_object           , one));
-    print_test(name, "array [[{\"a\":1}, {\"b\":2}, {\"c\":3}]]" , test_parse_json("test cases/pass/array/array_objects.json"          , construct_array_objects          , one));
-    print_test(name, "array [[]]"                                , test_parse_json("test cases/pass/array/array_array_empty.json"      , construct_array_array_empty      , one));
-    print_test(name, "array [[[]]]"                              , test_parse_json("test cases/pass/array/array_array_array_empty.json", construct_array_array_array_empty, one));
-    print_test(name, "array [[1, 2, 3],[4, 5, 6],[7, 8, 9]]"     , test_parse_json("test cases/pass/array/array_matrix.json"           , construct_array_matrix           , one));
-    print_test(name, "array [[[1, 2], [3, 4]], [[5, 6], [7, 8]]]", test_parse_json("test cases/pass/array/array_tensor.json"           , construct_array_tensor           , one));
+    print_test(name, "[]"                                  , test_parse_json("parse test cases/pass/array/array_empty.json"            , construct_array_empty            , one));
+    print_test(name, "[null]"                              , test_parse_json("parse test cases/pass/array/array_null.json"             , construct_array_null             , one));
+    print_test(name, "[null, null, null]"                  , test_parse_json("parse test cases/pass/array/array_nulls.json"            , construct_array_nulls            , one));
+    print_test(name, "[true]"                              , test_parse_json("parse test cases/pass/array/array_bool.json"             , construct_array_bool             , one));
+    print_test(name, "[true, false, true]"                 , test_parse_json("parse test cases/pass/array/array_bools.json"            , construct_array_bools            , one));
+    print_test(name, "[1]"                                 , test_parse_json("parse test cases/pass/array/array_int.json"              , construct_array_int              , one));
+    print_test(name, "[1, 2, 3]"                           , test_parse_json("parse test cases/pass/array/array_ints.json"             , construct_array_ints             , one));
+    print_test(name, "[3.14]"                              , test_parse_json("parse test cases/pass/array/array_float.json"            , construct_array_float            , one));
+    print_test(name, "[1.2, 3.4, 5.6]"                     , test_parse_json("parse test cases/pass/array/array_floats.json"           , construct_array_floats           , one));
+    print_test(name, "[\"\"]"                              , test_parse_json("parse test cases/pass/array/array_string_empty.json"     , construct_array_string_empty     , one));
+    print_test(name, "[\"abc\"]"                           , test_parse_json("parse test cases/pass/array/array_string.json"           , construct_array_string           , one));
+    print_test(name, "[\"abc\", \"def\", \"ghi\"]"         , test_parse_json("parse test cases/pass/array/array_strings.json"          , construct_array_strings          , one));
+    print_test(name, "[{}]"                                , test_parse_json("parse test cases/pass/array/array_object_empty.json"     , construct_array_object_empty     , one));
+    print_test(name, "[{\"a\":1}]"                         , test_parse_json("parse test cases/pass/array/array_object.json"           , construct_array_object           , one));
+    print_test(name, "[[{\"a\":1}, {\"b\":2}, {\"c\":3}]]" , test_parse_json("parse test cases/pass/array/array_objects.json"          , construct_array_objects          , one));
+    print_test(name, "[[]]"                                , test_parse_json("parse test cases/pass/array/array_array_empty.json"      , construct_array_array_empty      , one));
+    print_test(name, "[[[]]]"                              , test_parse_json("parse test cases/pass/array/array_array_array_empty.json", construct_array_array_array_empty, one));
+    print_test(name, "[[1, 2, 3],[4, 5, 6],[7, 8, 9]]"     , test_parse_json("parse test cases/pass/array/array_matrix.json"           , construct_array_matrix           , one));
+    print_test(name, "[[[1, 2], [3, 4]], [[5, 6], [7, 8]]]", test_parse_json("parse test cases/pass/array/array_tensor.json"           , construct_array_tensor           , one));
+
+    print_final_summary();
+
+    return 1;
+}
+
+int test_serial_null ( char *name )
+{
+
+    // Initialized data
+    JSONValue_t *p_value = 0;
+
+    printf("Scenario: %s\n", name);
+
+    print_test(name, "[]", test_serial_json("serial test cases/TESTER_null.json", construct_null, one));
+
+    print_final_summary();
+
+    return 1;
+
+}
+
+int test_serial_bool ( char *name )
+{
+
+    // Initialized data
+    JSONValue_t *p_value = 0;
+
+    printf("Scenario: %s\n", name);
+
+    print_test(name, "false", test_serial_json("serial test cases/bool/TESTER_bool_false.json", construct_bool_false, one));
+    print_test(name, "true" , test_serial_json("serial test cases/bool/TESTER_bool_true.json" , construct_bool_true , one));
+
+    print_final_summary();
+
+    return 1;
+
+}
+
+int test_serial_int ( char *name )
+{
+
+    // Initialized data
+    JSONValue_t *p_value = 0;
+
+    printf("Scenario: %s\n", name);
+
+    print_test(name, "-1"    , test_serial_json("serial test cases/int/TESTER_int_-1.json" , construct_int_minus_one, one));
+    print_test(name, "0"     , test_serial_json("serial test cases/int/TESTER_int_0.json"  , construct_int_zero     , one));
+    print_test(name, "1"     , test_serial_json("serial test cases/int/TESTER_int_1.json"  , construct_int_one      , one));
+    print_test(name, "max"   , test_serial_json("serial test cases/int/TESTER_int_max.json", construct_int_max      , one));
+    print_test(name, "min"   , test_serial_json("serial test cases/int/TESTER_int_min.json", construct_int_min      , one));
+
+    print_final_summary();
+
+    return 1;
+}
+
+int test_serial_float ( char *name )
+{
+
+    // Initialized data
+    JSONValue_t *p_value = 0;
+
+    printf("Scenario: %s\n", name);
+
+    print_test(name, "-1.0"    , test_serial_json("serial test cases/float/float_-1.json" , construct_float_minus_one, one));
+    print_test(name, "0.0"     , test_serial_json("serial test cases/float/float_0.json"  , construct_float_zero     , one));
+    print_test(name, "1.0"     , test_serial_json("serial test cases/float/float_1.json"  , construct_float_one      , one));
+    print_test(name, "max"     , test_serial_json("serial test cases/float/float_max.json", construct_float_max      , one));
+    print_test(name, "min"     , test_serial_json("serial test cases/float/float_min.json", construct_float_min      , one));
+
+    print_final_summary();
+
+    return 1;
+}
+
+int test_serial_string ( char *name )
+{
+
+    // Initialized data
+    JSONValue_t *p_value = 0;
+
+    printf("Scenario: %s\n", name);
+    
+    print_test(name, "\"\""       , test_serial_json("serial test cases/string/TESTER_string_empty.json"          , construct_string_empty          , one));
+    print_test(name, "\"a\""      , test_serial_json("serial test cases/string/TESTER_string_a.json"              , construct_string_a              , one));
+    print_test(name, "\"abc\""    , test_serial_json("serial test cases/string/TESTER_string_abc.json"            , construct_string_abc            , one));
+    print_test(name, "\"\"abc\"\"", test_serial_json("serial test cases/string/TESTER_string_quote_abc_quote.json", construct_string_quote_abc_quote, one));
+    print_test(name, "\"\"\"\""   , test_serial_json("serial test cases/string/TESTER_string_quote_quote.json"    , construct_string_quote_quote    , one));
+    print_test(name, "    \"abc\"", test_serial_json("serial test cases/string/TESTER_string_whitespaces_abc.json", construct_string_whitespaces_abc, one));
+    print_test(name, "\"\"\""     , test_serial_json("serial test cases/string/TESTER_string_quote.json"          , construct_string_quote          , one));
+    print_test(name, "\"\\\\\""   , test_serial_json("serial test cases/string/TESTER_string_reverse_solidus.json", construct_string_reverse_solidus, one));
+    print_test(name, "\"\\/\""    , test_serial_json("serial test cases/string/TESTER_string_solidus.json"        , construct_string_solidus        , one));
+    print_test(name, "\"\\b\""    , test_serial_json("serial test cases/string/TESTER_string_backspace.json"      , construct_string_backspace      , one));
+    print_test(name, "\"\\f\""    , test_serial_json("serial test cases/string/TESTER_string_formfeed.json"       , construct_string_formfeed       , one));
+    print_test(name, "\"\\n\""    , test_serial_json("serial test cases/string/TESTER_string_linefeed.json"       , construct_string_linefeed       , one));
+    print_test(name, "\"\\r\""    , test_serial_json("serial test cases/string/TESTER_string_carriage_return.json", construct_string_carriage_return, one));
+    print_test(name, "\"\\t\""    , test_serial_json("serial test cases/string/TESTER_string_horizontal_tab.json" , construct_string_horizontal_tab , one));
+
+    print_final_summary();
+
+    return 1;
+}
+
+int test_serial_object ( char *name )
+{
+
+    // Initialized data
+    JSONValue_t *p_value = 0;
+
+    printf("Scenario: %s\n", name);
+    
+    print_test(name, "{}"                                               , test_serial_json("serial test cases/object/TESTER_object_empty.json"        , construct_object_empty        , one));
+    print_test(name, "{\"abc\":\"def\"}"                                , test_serial_json("serial test cases/object/TESTER_object_string.json"       , construct_object_string       , one));
+    print_test(name, "{\"abc\":123}"                                    , test_serial_json("serial test cases/object/TESTER_object_int.json"          , construct_object_int          , one));
+    print_test(name, "{\"pi\":3.14}"                                    , test_serial_json("serial test cases/object/TESTER_object_float.json"        , construct_object_float        , one));
+    print_test(name, "{\"abc\":false}"                                  , test_serial_json("serial test cases/object/TESTER_object_false.json"        , construct_object_false        , one));
+    print_test(name, "{\"abc\":true}"                                   , test_serial_json("serial test cases/object/TESTER_object_true.json"         , construct_object_true         , one));
+    print_test(name, "{\"abc\":\"def\",\"ghi\":\"jkl\",\"mno\":\"pqr\"}", test_serial_json("serial test cases/object/TESTER_object_strings.json"      , construct_object_strings      , one));
+    print_test(name, "{\"name\":\"jake\",\"age\":20,\"height\":1.779}"  , test_serial_json("serial test cases/object/TESTER_object_mixed_values.json" , construct_object_mixed_values , one));
+    print_test(name, "{\"abc\":{\"def\":123}}"                          , test_serial_json("serial test cases/object/TESTER_object_object.json"       , construct_object_object       , one));
+    print_test(name, "{\"abc\":{\"def\":{\"ghi\":123}}}"                , test_serial_json("serial test cases/object/TESTER_object_object_object.json", construct_object_object_object, one));
+    print_test(name, "{\"abc\":[1,2,3]}"                                , test_serial_json("serial test cases/object/TESTER_object_array.json"        , construct_object_array        , one));
+    print_test(name, "{\"a\":[{\"a\":1},{\"b\":2},{\"c\":3}]}"          , test_serial_json("serial test cases/object/TESTER_object_array_objects.json", construct_object_array_objects, one));
+    print_test(name, "{\"a\":[{\"a\":1}]}"                              , test_serial_json("serial test cases/object/TESTER_object_array_object.json" , construct_object_array_object , one));
+    print_test(name, "{\"a\":{\"b\":{\"c\":{\"d\":{...{\"z\":{ }...}"   , test_serial_json("serial test cases/object/TESTER_object_recursive.json"    , construct_object_recursive    , one));
+
+    print_final_summary();
+
+    return 1;
+}
+
+int test_serial_array ( char *name )
+{
+
+    // Initialized data
+    JSONValue_t *p_value = 0;
+
+    printf("Scenario: %s\n", name);
+    
+    print_test(name, "[]"                                  , test_serial_json("serial test cases/array/TESTER_array_empty.json"            , construct_array_empty            , one));
+    print_test(name, "[null]"                              , test_serial_json("serial test cases/array/TESTER_array_null.json"             , construct_array_null             , one));
+    print_test(name, "[null, null, null]"                  , test_serial_json("serial test cases/array/TESTER_array_nulls.json"            , construct_array_nulls            , one));
+    print_test(name, "[true]"                              , test_serial_json("serial test cases/array/TESTER_array_bool.json"             , construct_array_bool             , one));
+    print_test(name, "[true, false, true]"                 , test_serial_json("serial test cases/array/TESTER_array_bools.json"            , construct_array_bools            , one));
+    print_test(name, "[1]"                                 , test_serial_json("serial test cases/array/TESTER_array_int.json"              , construct_array_int              , one));
+    print_test(name, "[1, 2, 3]"                           , test_serial_json("serial test cases/array/TESTER_array_ints.json"             , construct_array_ints             , one));
+    print_test(name, "[3.14]"                              , test_serial_json("serial test cases/array/TESTER_array_float.json"            , construct_array_float            , one));
+    print_test(name, "[1.2, 3.4, 5.6]"                     , test_serial_json("serial test cases/array/TESTER_array_floats.json"           , construct_array_floats           , one));
+    print_test(name, "[\"\"]"                              , test_serial_json("serial test cases/array/TESTER_array_string_empty.json"     , construct_array_string_empty     , one));
+    print_test(name, "[\"abc\"]"                           , test_serial_json("serial test cases/array/TESTER_array_string.json"           , construct_array_string           , one));
+    print_test(name, "[\"abc\", \"def\", \"ghi\"]"         , test_serial_json("serial test cases/array/TESTER_array_strings.json"          , construct_array_strings          , one));
+    print_test(name, "[{}]"                                , test_serial_json("serial test cases/array/TESTER_array_object_empty.json"     , construct_array_object_empty     , one));
+    print_test(name, "[{\"a\":1}]"                         , test_serial_json("serial test cases/array/TESTER_array_object.json"           , construct_array_object           , one));
+    print_test(name, "[[{\"a\":1}, {\"b\":2}, {\"c\":3}]]" , test_serial_json("serial test cases/array/TESTER_array_objects.json"          , construct_array_objects          , one));
+    print_test(name, "[[]]"                                , test_serial_json("serial test cases/array/TESTER_array_array_empty.json"      , construct_array_array_empty      , one));
+    print_test(name, "[[[]]]"                              , test_serial_json("serial test cases/array/TESTER_array_array_array_empty.json", construct_array_array_array_empty, one));
+    print_test(name, "[[1, 2, 3],[4, 5, 6],[7, 8, 9]]"     , test_serial_json("serial test cases/array/TESTER_array_matrix.json"           , construct_array_matrix           , one));
+    print_test(name, "[[[1, 2], [3, 4]], [[5, 6], [7, 8]]]", test_serial_json("serial test cases/array/TESTER_array_tensor.json"           , construct_array_tensor           , one));
 
     print_final_summary();
 
@@ -389,9 +561,13 @@ result_t value_equals (JSONValue_t *a, JSONValue_t *b)
             result = 0;
     
     if ( a->type == JSONfloat )
-        if ( a->floating != b->floating )
+
+        // Set the last bit of each float's mantissa to zero. 
+        // This averts rounding errors
+        if ( *((signed *)((&a->floating))) & 0xfffffffffffffffe ==
+             *((signed *)((&b->floating))) & 0xfffffffffffffffe)
             result = 0;
-    
+
     if ( a->type == JSONinteger )
         if ( a->integer != b->integer )
             result = 0;
@@ -1229,7 +1405,9 @@ int construct_object_recursive ( JSONValue_t **pp_value )
     JSONValue_t *p_value      = calloc(1, sizeof(JSONValue_t)),
                 *p_iter_value = calloc(1, sizeof(JSONValue_t)),
                 *p_last_value = calloc(1, sizeof(JSONValue_t));
-    
+    // Initialized data
+    char *iter_key = 0;
+
 
     p_iter_value->type = JSONobject;
 
@@ -1245,8 +1423,9 @@ int construct_object_recursive ( JSONValue_t **pp_value )
     for (size_t i = 'z'; i > 'a'-1; i--)
     {
 
-        // Initialized data
-        char iter_key[2] = { (char) i, 0x0 };
+        iter_key = calloc(2, sizeof(char));
+        iter_key[0] = i;
+        iter_key[1] = 0;
 
         p_iter_value = calloc(1, sizeof(JSONValue_t)),
 
@@ -1256,7 +1435,6 @@ int construct_object_recursive ( JSONValue_t **pp_value )
         p_last_value = p_iter_value;
     }
     
-
     // Return
     *pp_value = p_iter_value;
 
@@ -1325,7 +1503,7 @@ int construct_object_array_objects ( JSONValue_t **pp_value )
     p_int_value->integer = 1;
     dict_construct(&p_dict_value->object, 1);
     dict_add(p_dict_value->object,"a",p_int_value);
-    array_add(p_array_value->list, p_int_value);
+    array_add(p_array_value->list, p_dict_value);
 
     p_int_value          = calloc(1, sizeof(JSONValue_t));
     p_dict_value         = calloc(1, sizeof(JSONValue_t));
@@ -1333,7 +1511,7 @@ int construct_object_array_objects ( JSONValue_t **pp_value )
     p_int_value->integer = 2;
     dict_construct(&p_dict_value->object, 1);
     dict_add(p_dict_value->object,"b",p_int_value);
-    array_add(p_array_value->list, p_int_value);
+    array_add(p_array_value->list, p_dict_value);
     
     p_int_value          = calloc(1, sizeof(JSONValue_t));
     p_dict_value         = calloc(1, sizeof(JSONValue_t));
@@ -1341,7 +1519,7 @@ int construct_object_array_objects ( JSONValue_t **pp_value )
     p_int_value->integer = 3;
     dict_construct(&p_dict_value->object, 1);
     dict_add(p_dict_value->object,"c",p_int_value);
-    array_add(p_array_value->list, p_int_value);
+    array_add(p_array_value->list, p_dict_value);
 
     dict_add(p_value->object, "a", p_array_value);
 
@@ -1374,7 +1552,7 @@ int construct_object_array_object ( JSONValue_t **pp_value )
     p_int_value->integer = 1;
     dict_construct(&p_dict_value->object, 1);
     dict_add(p_dict_value->object,"a",p_int_value);
-    array_add(p_array_value->list, p_int_value);
+    array_add(p_array_value->list, p_dict_value);
 
     dict_add(p_value->object, "a", p_array_value);
 
@@ -1574,7 +1752,7 @@ int construct_array_float ( JSONValue_t **pp_value )
     // Value
     p_float = calloc(1, sizeof(JSONValue_t));
     p_float->type = JSONfloat;
-    p_float->floating = 3.141;
+    p_float->floating = 3.14;
     array_construct(&p_value->list, 1);
     array_add(p_value->list, p_float);
 
@@ -2071,23 +2249,52 @@ bool test_parse_json ( char *test_file, int(*expected_value_constructor) (JSONVa
                 *p_expected_value = 0;
     bool         ret      = true;
     size_t       file_len = 0;
-    result_t     result   = 0;
+    result_t     result   = 0,
+                 value_eq = 0;
     char        *file_buf = 0;
 
     if (expected_value_constructor)
         expected_value_constructor(&p_expected_value);
 
     result = load_json ( &p_return_value, test_file );
-
+    value_eq = value_equals(p_return_value, p_expected_value);
+    
+    free_json_value(p_return_value);
+    
     // Success
-    return (result == expected && value_equals(p_return_value, p_expected_value));
+    return (result == expected && value_eq);
+}
+
+bool test_serial_json ( char *test_file, int(*expected_value_constructor) (JSONValue_t **), result_t expected )
+{
+    
+    // Initialized data
+    JSONValue_t *p_return_value   = 0,
+                *p_expected_value = 0;
+    bool         ret      = true;
+    size_t       file_len = 0;
+    result_t     result   = 0,
+                 value_eq = 0;
+    char        *file_buf = 0;
+
+    if (expected_value_constructor)
+        expected_value_constructor(&p_expected_value);
+
+    FILE *p_f = fopen(test_file, "w");
+
+    result = print_json_value(p_expected_value, p_f);
+    
+    free_json_value(p_return_value);
+    
+    // Success
+    return (result == expected);
 }
 
 int print_test ( const char *scenario_name, const char *test_name, bool passed )
 {
 
     // Initialized data
-    printf("%s_test_%-75s %s\n",scenario_name, test_name, (passed) ? "PASS" : "FAIL");
+    printf("%s %-75s %s\n",scenario_name, test_name, (passed) ? "PASS" : "FAIL");
 
     // Increment the counters
     {
