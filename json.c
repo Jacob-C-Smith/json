@@ -508,6 +508,21 @@ int  print_json_value      ( JSONValue_t  *p_value , FILE *f )
     }
 }
 
+int evaluate_json_value (JSONValue_t *p_value, void **pp_ret, enum JSONValueType_e type )
+{
+
+    // Argument check
+    if (p_value == 0)
+        return 0;
+    
+    // Type check
+    if (p_value->type == type)
+        *pp_ret = p_value->string;
+
+    // Success    
+    return 1;
+}
+
 void free_json_value           ( JSONValue_t *p_value )
 {
     if ( p_value == (void *)0 )

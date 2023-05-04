@@ -41,6 +41,7 @@ void free_token ( void *ptr );
 
 // This macro will evaluate to the value of the JSON property, if the property is not a null pointer and if the type matches the parameter 't'
 #define JSON_VALUE( property, t ) (property) ? (property->type==t) ? property->integer : 0 : 0;
+#define JSON_EVALUATE( value, variable, type ) evaluate_json_value(value, &variable, type)
 
 // Enumerations
 enum JSONValueType_e
@@ -70,7 +71,7 @@ struct JSONValue_s
 // Type definitions
 typedef struct JSONValue_s JSONValue_t;
 
-/* 
+/** !
  * Parse json text into a JSONValue
  * 
  * @param text pointer to JSON text
@@ -81,7 +82,7 @@ typedef struct JSONValue_s JSONValue_t;
  */
 DLLEXPORT int  parse_json_value      ( char *text, char **return_pointer, JSONValue_t **pp_value );
 
-/* 
+/** !
  * Serialize a JSONValue to a file
  * 
  * @param p_value pointer to JSONValue
@@ -91,7 +92,18 @@ DLLEXPORT int  parse_json_value      ( char *text, char **return_pointer, JSONVa
  */
 DLLEXPORT int  print_json_value      ( JSONValue_t *p_value , FILE *f );
 
-/* 
+/** !
+ * Evaluate a JSON value
+ * 
+ * @param p_value pointer to JSONValue
+ * @param pp_ret  pointer to return pointer
+ * @param type the type of the token to be evaluated 
+ * 
+ * @return 1 on success, 0 on error
+ */
+DLLEXPORT int evaluate_json_value (JSONValue_t *p_value, void **pp_ret, enum JSONValueType_e type );
+
+/** ! 
  * Free a JSON value, and its contents
  * 
  * @param p_value pointer to JSONValue
