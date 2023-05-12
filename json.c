@@ -372,7 +372,7 @@ int parse_json_value      ( char *text, char **return_pointer, JSONValue_t **pp_
         {
             p_value->type = JSONinteger;
             p_value->integer = strtoll(text, NULL, 10);
-            if ( (p_value->integer == INT64_MIN || p_value->integer == INT64_MAX) && errno == ERANGE )
+            if ( (p_value->integer <= -9223372036854775807LL || p_value->integer >= 9223372036854775807LL) && errno == ERANGE )
             {
                 free(p_value);
                 return 0;
@@ -508,7 +508,7 @@ int  print_json_value      ( JSONValue_t  *p_value , FILE *f )
     }
 }
 
-int evaluate_json_value (JSONValue_t *p_value, void **pp_ret, enum JSONValueType_e type )
+int evaluate_json_value ( JSONValue_t *p_value, void **pp_ret, enum JSONValueType_e type )
 {
 
     // Argument check
@@ -523,20 +523,20 @@ int evaluate_json_value (JSONValue_t *p_value, void **pp_ret, enum JSONValueType
     return 1;
 }
 
-void free_json_value           ( JSONValue_t *p_value )
+void free_json_value ( JSONValue_t *p_value )
 {
     if ( p_value == (void *)0 )
         return;
 
     if (p_value->type == JSONobject)
     {
-        dict_free_clear(p_value->object, free_json_value);
+        dict_free_clear(p_value->object, (void(*)(void *))free_json_value);
         dict_destroy(&p_value->object);
     }
 
     if (p_value->type == JSONarray)
     {
-        array_free_clear(p_value->list, free_json_value);
+        array_free_clear(p_value->list, (void(*)(void *))free_json_value);
         array_destroy(&p_value->list);
     }
 

@@ -28,3 +28,7 @@ serial test cases/*.json
 array_example
 array_test
 json_test
+
+*.pdb
+*.exe
+*.dll

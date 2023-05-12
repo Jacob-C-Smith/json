@@ -798,7 +798,7 @@ int construct_int_max ( JSONValue_t **pp_value )
     p_value->type    = JSONinteger;
 
     // Value
-    p_value->integer = INT64_MAX;
+    p_value->integer = 9223372036854775807LL;
 
     // Return
     *pp_value = p_value;
@@ -813,10 +813,10 @@ int construct_int_min ( JSONValue_t **pp_value )
     JSONValue_t *p_value = calloc(1, sizeof(JSONValue_t));
     
     // Type
-    p_value->type    = JSONinteger;
+    p_value->type = JSONinteger;
 
     // Value
-    p_value->integer = INT64_MIN;
+    p_value->integer = (-9223372036854775807i64 - 1);
 
     // Return
     *pp_value = p_value;
@@ -2017,7 +2017,7 @@ int construct_array_array_empty ( JSONValue_t **pp_value )
     // Value 1
     p_array = calloc(1, sizeof(JSONValue_t));
     p_array->type = JSONarray;
-    array_add(p_array->list, 1);
+    array_add(p_array->list, (void *) 1 );
 
     // Value 2
     array_add(p_value->list, p_array);

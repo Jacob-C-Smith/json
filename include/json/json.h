@@ -24,7 +24,7 @@
 // Array submodule
 #include <array/array.h>
 
-#define DICT_SIZE 0
+#define DICT_SIZE 16
 
 // Forward declared functions
 void free_token ( void *ptr );
