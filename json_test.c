@@ -798,7 +798,7 @@ int construct_int_max ( JSONValue_t **pp_value )
     p_value->type    = JSONinteger;
 
     // Value
-    p_value->integer = 9223372036854775807LL;
+    p_value->integer = 9223372036854775807;
 
     // Return
     *pp_value = p_value;
@@ -816,7 +816,7 @@ int construct_int_min ( JSONValue_t **pp_value )
     p_value->type = JSONinteger;
 
     // Value
-    p_value->integer = (-9223372036854775807i64 - 1);
+    p_value->integer = (-9223372036854775807 - 1);
 
     // Return
     *pp_value = p_value;
