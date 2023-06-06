@@ -1,16 +1,16 @@
 cmake_minimum_required (VERSION 3.8)
 
 project ("json")
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/extern/array)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/extern/array)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/extern/array)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/extern/array)
 
 # Add the dictionary submodule
-add_subdirectory(${PROJECT_SOURCE_DIR}/extern/dict)
-find_library(dict NAMES dict HINTS ${PROJECT_SOURCE_DIR}/extern/dict/build/Debug/*)
+add_subdirectory(${CMAKE_SOURCE_DIR}/extern/dict)
+find_library(dict NAMES dict HINTS ${CMAKE_SOURCE_DIR}/extern/dict/build/Debug/*)
 
 # Add the array submodule
-add_subdirectory(${PROJECT_SOURCE_DIR}/extern/array)
-find_library(array NAMES array HINTS ${PROJECT_SOURCE_DIR}/extern/array/build/Debug/*)
+add_subdirectory(${CMAKE_SOURCE_DIR}/extern/array)
+find_library(array NAMES array HINTS ${CMAKE_SOURCE_DIR}/extern/array/build/Debug/*)
 
 # Add source to this project's executable.
 add_executable (json_example "json.c" "main.c")
