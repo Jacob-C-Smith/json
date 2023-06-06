@@ -6,6 +6,9 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
 set(CMAKE_PREFIX_PATH ${CMAKE_SOURCE_DIR}/extern/)
 
+add_subdirectory("extern/dict")
+add_subdirectory("extern/array")
+
 find_package(array REQUIRED CONFIG REQUIRED COMPONENTS array)
 find_package(dict REQUIRED CONFIG REQUIRED COMPONENTS dict)
 
