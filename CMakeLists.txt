@@ -6,8 +6,8 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
 set(CMAKE_PREFIX_PATH ${CMAKE_SOURCE_DIR}/extern/)
 
-add_subdirectory("extern/dict")
-add_subdirectory("extern/array")
+add_subdirectory("extern/dict" dict)
+add_subdirectory("extern/array" array)
 
 find_package(array REQUIRED CONFIG REQUIRED COMPONENTS array)
 find_package(dict REQUIRED CONFIG REQUIRED COMPONENTS dict)
@@ -22,7 +22,7 @@ add_executable (json_example "json.c" "main.c")
 add_executable (json_test "json.c" "json_test.c")
 
 # Add source to this project's library
-add_library    (json SHARED "json.c")
+add_library (json SHARED "json.c")
 
 target_link_libraries(json_example PUBLIC ${ARRAY_LIBRARIES} ${DICT_LIBRARIES})
 target_link_libraries(json_test PUBLIC ${ARRAY_LIBRARIES} ${DICT_LIBRARIES})
