@@ -2,12 +2,22 @@ cmake_minimum_required (VERSION 3.26)
 
 project ("json")
 
-if ( HAS_ARRAY )
+# Comment out for Debug mode
+set(IS_DEBUG_BUILD CMAKE_BUILD_TYPE STREQUAL "Debug")
+if ( NOT "${HAS_ARRAY}")
+    message("[JSON] Adding array project")
     add_subdirectory(${CMAKE_SOURCE_DIR}/extern/array ${CMAKE_SOURCE_DIR}/build/array)
+    set(HAS_ARRAY true PARENT_SCOPE)
 endif()
 
-if ( HAS_DICT )
+if ( NOT "${HAS_DICT}")
+    message("[JSON] Adding dict project")
     add_subdirectory(${CMAKE_SOURCE_DIR}/extern/dict ${CMAKE_SOURCE_DIR}/build/dict)
+    set(HAS_DICT true PARENT_SCOPE)
+endif()
+
+if ( NOT "${HAS_JSON}")
+    set(HAS_JSON true PARENT_SCOPE)
 endif()
 
 # Comment out for Debug mode
