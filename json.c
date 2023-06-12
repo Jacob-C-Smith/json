@@ -434,7 +434,7 @@ int  print_json_value      ( JSONValue_t  *p_value , FILE *f )
                 values = calloc(property_count, sizeof(JSONValue_t*));
                 
                 dict_keys(p_value->object, keys);
-                dict_values(p_value->object, values);
+                dict_values(p_value->object, (void **)values);
                 for (size_t i = 0; i < property_count-1; i++)
                 {
                     fprintf(f,"\"%s\":",keys[i]);
@@ -462,7 +462,7 @@ int  print_json_value      ( JSONValue_t  *p_value , FILE *f )
                 if ( elements == (void *) 0 )
                     goto no_mem;
 
-                array_get(p_value->list, elements, 0);
+                array_get(p_value->list, (void **)elements, 0);
                 fprintf(f,"[");
 
                 if (element_count)

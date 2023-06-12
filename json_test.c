@@ -661,8 +661,8 @@ result_t value_equals (JSONValue_t *a, JSONValue_t *b)
         a_values = calloc(b_properties+1, sizeof(JSONValue_t *)),
         b_values = calloc(b_properties+1, sizeof(JSONValue_t *));
         
-        array_get(a_array, a_values, 0);
-        array_get(b_array, b_values, 0);
+        array_get(a_array, (void **) a_values, 0);
+        array_get(b_array, (void **) b_values, 0);
         
         for (size_t i = 0; i < a_properties; i++)
         {
