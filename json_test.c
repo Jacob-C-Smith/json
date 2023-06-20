@@ -549,7 +549,7 @@ result_t value_equals (JSONValue_t *a, JSONValue_t *b)
 {
     result_t result = 1;
 
-    if (a == 0)
+    if ( a == 0 )
     {
         if (b == 0)
             return result;
@@ -557,7 +557,7 @@ result_t value_equals (JSONValue_t *a, JSONValue_t *b)
             return 0;
     }
     
-    if (b == 0)
+    if ( b == 0 )
     {
         if (a == 0)
             return result;
@@ -565,7 +565,7 @@ result_t value_equals (JSONValue_t *a, JSONValue_t *b)
             return 0;
     }      
 
-    if(a->type != b->type)
+    if ( a->type != b->type )
     {
         result = 0;
         goto exit;
@@ -634,7 +634,7 @@ result_t value_equals (JSONValue_t *a, JSONValue_t *b)
                 }
             }
 
-            if( ( has_key && has_value ) == 0 )
+            if ( ( has_key && has_value ) == 0 )
             {
                 result = 0;
             }
@@ -2374,7 +2374,7 @@ size_t load_file ( const char *path, void *buffer, bool binary_mode )
     fseek(f, 0, SEEK_SET);
     
     // Read to data
-    if(buffer)
+    if ( buffer )
         ret = fread(buffer, 1, ret, f);
 
     // The file is no longer needed

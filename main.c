@@ -137,7 +137,7 @@ size_t load_file ( const char *path, void *buffer, bool binary_mode )
     fseek(f, 0, SEEK_SET);
     
     // Read to data
-    if(buffer)
+    if ( buffer )
         ret = fread(buffer, 1, ret, f);
 
     // The file is no longer needed
