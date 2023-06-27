@@ -43,6 +43,23 @@ void free_token ( void *ptr );
 #define JSON_VALUE( property, t ) (property) ? (property->type==t) ? property->integer : 0 : 0;
 #define JSON_EVALUATE( value, variable, type ) evaluate_json_value(value, &variable, type)
 
+// Set the reallocator for the dict submodule
+#ifdef DICT_REALLOC
+    #undef DICT_REALLOC
+    #define DICT_REALLOC(p, sz) realloc(p, sz)
+#endif
+
+// Set the reallocator for the array submodule
+#ifdef ARRAY_REALLOC
+    #undef ARRAY_REALLOC
+    #define ARRAY_REALLOC(p, sz) realloc(p, sz)
+#endif
+
+// Memory management macro
+#ifndef JSON_REALLOC
+#define JSON_REALLOC(p, sz) realloc(p,sz)
+#endif
+
 // Enumerations
 enum JSONValueType_e
 {
@@ -80,7 +97,7 @@ typedef struct JSONValue_s JSONValue_t;
  * 
  * @return 1 on success, 0 on error
  */
-DLLEXPORT int  parse_json_value      ( char *text, char **return_pointer, JSONValue_t **pp_value );
+DLLEXPORT int parse_json_value ( char *text, char **return_pointer, JSONValue_t **pp_value );
 
 /** !
  * Serialize a JSONValue to a file
