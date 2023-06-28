@@ -125,7 +125,7 @@ size_t load_file ( const char *path, void *buffer, bool binary_mode )
     size_t  ret = 0;
     FILE   *f   = 0;
     
-    fopen(&f, path, (binary_mode) ? "rb" : "r");
+    f = fopen(path, (binary_mode) ? "rb" : "r");
     
     // Check if file is valid
     if ( f == NULL )
