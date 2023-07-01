@@ -36,3 +36,5 @@ json_test
 *.exe
 *.dll
 *.filters
+*.ini
+*.ico
