@@ -18,10 +18,13 @@
 #include <errno.h>
 #include <ctype.h>
 
-// Dictionary submodule
+// sync submodule
+#include <sync/sync.h>
+
+// dict submodule
 #include <dict/dict.h>
 
-// Array submodule
+// array submodule
 #include <array/array.h>
 
 #define DICT_SIZE 16
@@ -107,7 +110,7 @@ DLLEXPORT int parse_json_value ( char *text, char **return_pointer, JSONValue_t 
  * 
  * @return 1 on success, 0 on error
  */
-DLLEXPORT int  print_json_value      ( JSONValue_t *p_value , FILE *f );
+DLLEXPORT int print_json_value ( JSONValue_t *p_value , FILE *f );
 
 /** !
  * Evaluate a JSON value
@@ -127,4 +130,4 @@ DLLEXPORT int evaluate_json_value (JSONValue_t *p_value, void **pp_ret, enum JSO
  *  
  * @return void
  */
-DLLEXPORT void free_json_value       ( JSONValue_t *p_value );
+DLLEXPORT void free_json_value ( JSONValue_t *p_value );
