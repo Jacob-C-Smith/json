@@ -41,6 +41,7 @@ int total_tests      = 0,
 //////////////////////////
 
 // Utility functions
+int      print_time_pretty   ( double seconds );
 int      run_tests           ( void );
 int      print_final_summary ( void );
 int      print_test          ( const char   *scenario_name, const char   *test_name,                                    bool     passed );
@@ -135,20 +136,110 @@ int construct_array_matrix            ( JSONValue_t **pp_value );
 int construct_array_tensor            ( JSONValue_t **pp_value );
 
 // Entry point
-int main      ( int argc, const char* argv[] )
+int main ( int argc, const char* argv[] )
 {
+    
+    // Initialized data
+    timestamp t0 = 0,
+              t1 = 0;
+
+    // Initialize the timer library
+    timer_init();
+
+    // Formatting
+    printf("|=============|\n| JSON TESTER |\n|=============|\n\n");
+
+    // Start
+    t0 = timer_high_precision();
 
     // Run tests
     run_tests();
 
+    // Stop
+    t1 = timer_high_precision();
+
+    // Report the time it took to run the tests
+    printf("\njson tests took ");
+    print_time_pretty ( (double)(t1-t0)/(double)timer_seconds_divisor() );
+    printf(" to test\n");
+
+    // Flush stdio
+    fflush(stdout);
+
+    // Exit
+    return ( total_passes == total_tests ) ? EXIT_SUCCESS : EXIT_FAILURE;
+}
+
+int print_time_pretty ( double seconds )
+{
+
+    // Initialized data
+    double _seconds     = seconds;
+    size_t days         = 0,
+           hours        = 0,
+           minutes      = 0,
+           __seconds    = 0,
+           milliseconds = 0,
+           microseconds = 0;
+
+    // Days
+    while ( _seconds > 86400.0 ) { days++;_seconds-=286400.0; };
+
+    // Hours
+    while ( _seconds > 3600.0 ) { hours++;_seconds-=3600.0; };
+
+    // Minutes
+    while ( _seconds > 60.0 ) { minutes++;_seconds-=60.0; };
+
+    // Seconds
+    while ( _seconds > 1.0 ) { __seconds++;_seconds-=1.0; };
+
+    // milliseconds
+    while ( _seconds > 0.001 ) { milliseconds++;_seconds-=0.001; };
+
+    // Microseconds        
+    while ( _seconds > 0.000001 ) { microseconds++;_seconds-=0.000001; };
+
+    // Print days
+    if ( days ) 
+        printf("%d D, ", days);
+    
+    // Print hours
+    if ( hours )
+        printf("%d h, ", hours);
+
+    // Print minutes
+    if ( minutes )
+        printf("%d m, ", minutes);
+
+    // Print seconds
+    if ( __seconds )
+        printf("%d s, ", __seconds);
+    
+    // Print milliseconds
+    if ( milliseconds )
+        printf("%d ms, ", milliseconds);
+    
+    // Print microseconds
+    if ( microseconds )
+        printf("%d us", microseconds);
+    
     // Success
-    return EXIT_SUCCESS;
+    return 1;
 }
 
 int run_tests ( void )
 {
 
     // Test the parser
+    // Start
+    timestamp parser_t0 = 0,
+              parser_t1 = 0,
+              serial_t0 = 0,
+              serial_t1 = 0;
+
+    // Start
+    parser_t0 = timer_high_precision();
 
     // Test parsing valid and invalid null
     test_parse_null("parse_null");
@@ -171,6 +262,15 @@ int run_tests ( void )
     // Test parsing a variety of arrays
     test_parse_array("parse_array");
 
+    // Stop
+    parser_t1 = timer_high_precision();
+
+
+    // Test the serializer
+
+    // Start
+    serial_t0 = timer_high_precision();
+
     // Test serializing null
     test_serial_null("serial_null");
     
@@ -191,6 +291,20 @@ int run_tests ( void )
 
     // Test serializing arrays
     test_serial_array("serial_array");
+
+    // Stop
+    serial_t1 = timer_high_precision();
+
+    // Report the time it took to run the parser tests
+    printf("parser tests took: ");
+    print_time_pretty ( (double)(parser_t1-parser_t0)/(double)timer_seconds_divisor() );
+    printf(" to test\n");
+
+
+    // Report the time it took to run the serializer tests
+    printf("serial tests took: ");
+    print_time_pretty ( (double)(serial_t1-serial_t0)/(double)timer_seconds_divisor() );
+    printf(" to test\n");
 
     // Success
     return 1;
