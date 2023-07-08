@@ -40,4 +40,6 @@ jobs:
       run: |
         cp -r ${{github.workspace}}/parse\ test\ cases/ ${{github.workspace}}/build/parse\ test\ cases/
         cp -r ${{github.workspace}}/serial\ test\ cases/ ${{github.workspace}}/build/serial\ test\ cases/
+        ${{github.workspace}}/build/dict_test
+        ${{github.workspace}}/build/array_test
         ${{github.workspace}}/build/json_test
