@@ -100,7 +100,7 @@ typedef struct JSONValue_s JSONValue_t;
  * 
  * @return 1 on success, 0 on error
  */
-DLLEXPORT int parse_json_value ( char *text, char **return_pointer, JSONValue_t **pp_value );
+DLLEXPORT int parse_json_value ( char *text, const char **const return_pointer, const JSONValue_t **const pp_value );
 
 /** !
  * Serialize a JSONValue to a file
@@ -110,7 +110,7 @@ DLLEXPORT int parse_json_value ( char *text, char **return_pointer, JSONValue_t 
  * 
  * @return 1 on success, 0 on error
  */
-DLLEXPORT int print_json_value ( JSONValue_t *p_value , FILE *f );
+DLLEXPORT int print_json_value ( const JSONValue_t *const p_value , FILE *f );
 
 /** !
  * Evaluate a JSON value
@@ -121,7 +121,7 @@ DLLEXPORT int print_json_value ( JSONValue_t *p_value , FILE *f );
  * 
  * @return 1 on success, 0 on error
  */
-DLLEXPORT int evaluate_json_value (JSONValue_t *p_value, void **pp_ret, enum JSONValueType_e type );
+DLLEXPORT int evaluate_json_value ( const JSONValue_t *const p_value, const void **const pp_ret, enum JSONValueType_e type );
 
 /** ! 
  * Free a JSON value, and its contents
@@ -130,4 +130,4 @@ DLLEXPORT int evaluate_json_value (JSONValue_t *p_value, void **pp_ret, enum JSO
  *  
  * @return void
  */
-DLLEXPORT void free_json_value ( JSONValue_t *p_value );
+DLLEXPORT void free_json_value ( const JSONValue_t *const p_value );

@@ -4,7 +4,7 @@
 typedef union  JSONContent_u   JSONContent_t;
 typedef enum   JSONValueType_e JSONValueType_t;
 
-int parse_json_whitespace ( char *pointer, char **return_pointer )
+int parse_json_whitespace ( const char *pointer, const char **const return_pointer )
 {
 
     // Argument check
@@ -56,7 +56,7 @@ int parse_json_whitespace ( char *pointer, char **return_pointer )
     }
 }
 
-int parse_json_string ( char *pointer, char **return_pointer )
+int parse_json_string ( char *const pointer, const char **const return_pointer )
 {
 
     // Argument check
@@ -190,7 +190,7 @@ int parse_json_string ( char *pointer, char **return_pointer )
     }
 }
 
-int parse_json_object     ( char *pointer, char **return_pointer, dict **pp_dict )
+int parse_json_object ( char *pointer, const char **const return_pointer, dict **const pp_dict )
 {
     
     // Initialized data
@@ -199,8 +199,9 @@ int parse_json_object     ( char *pointer, char **return_pointer, dict **pp_dict
     dict   *p_dict         = 0;
 
     // Construct a dict
-    if ( dict_construct(&p_dict, DICT_SIZE) == 0 )
-        goto failed_to_construct_dict;
+    if ( dict_construct(pp_dict, DICT_SIZE) == 0 ) goto failed_to_construct_dict;
+
+    p_dict = *pp_dict;
 
     // Check for correct start
     if ( *pointer != '{' )
@@ -303,7 +304,7 @@ int parse_json_object     ( char *pointer, char **return_pointer, dict **pp_dict
     }
 }
 
-int parse_json_array ( char *pointer, char **return_pointer, array **pp_array )
+int parse_json_array ( char *pointer, const char **const return_pointer, const array **const pp_array )
 {
 
     // Initialized data
@@ -393,7 +394,7 @@ int parse_json_array ( char *pointer, char **return_pointer, array **pp_array )
         return 0;
 }
 
-int parse_json_value      ( char *text, char **return_pointer, JSONValue_t **pp_value )
+int parse_json_value ( char *text, const char **const return_pointer, const JSONValue_t **const pp_value )
 {
 
     // Argument check
@@ -756,7 +757,7 @@ int parse_json_value      ( char *text, char **return_pointer, JSONValue_t **pp_
     }
 }
 
-int print_json_value ( JSONValue_t *p_value , FILE *f )
+int print_json_value ( const JSONValue_t *const p_value , FILE *f )
 {
     
     // Null case
@@ -1008,12 +1009,11 @@ int print_json_value ( JSONValue_t *p_value , FILE *f )
     }
 }
 
-int evaluate_json_value ( JSONValue_t *p_value, void **pp_ret, enum JSONValueType_e type )
+int evaluate_json_value ( const JSONValue_t *const p_value, const void **const pp_ret, enum JSONValueType_e type )
 {
 
     // Argument check
-    if (p_value == 0)
-        return 0;
+    if ( p_value == 0 ) return 0;
     
     // Type check
     if (p_value->type == type)
@@ -1023,7 +1023,7 @@ int evaluate_json_value ( JSONValue_t *p_value, void **pp_ret, enum JSONValueTyp
     return 1;
 }
 
-void free_json_value ( JSONValue_t *p_value )
+void free_json_value ( const JSONValue_t *const p_value )
 {
     
     // Argument errors
@@ -1039,7 +1039,7 @@ void free_json_value ( JSONValue_t *p_value )
 
         // Free each dict property
         if ( p_value->object )
-            dict_free_clear(p_value->object, (void(*)(void *))free_json_value);
+            dict_free_clear(p_value->object, (void(*)(const void *const))free_json_value);
     }
 
     // Free an array
