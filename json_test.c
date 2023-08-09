@@ -1,22 +1,13 @@
-/*
- * @file queue tester
+/** !
+ * @file json_test.c
+ * 
  * @author Jacob C Smith
+ * 
+ * json tester
 */
 
-// TODO: Improve documentation
-
-// Include
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
-#include <limits.h>
-#include <errno.h>
-#include <float.h>
-
-#include <dict/dict.h>
-#include <array/array.h>
-#include <json/json.h>
-
+// Include header
+#include <json/json_test.h>
 
 //////////////////
 // Test results //
@@ -49,7 +40,7 @@ bool     test_parse_json     ( char         *test_file    , int         (*expect
 bool     test_serial_json    ( char         *test_file    , char         *expected_file                               , int(*expected_value_constructor) (json_value **), result_t expected );
 result_t load_json           ( json_value  **pp_value     , char         *test_file );
 result_t save_json           ( char         *path         , json_value   *p_value );
-result_t value_equals        ( json_value   *a            , json_value   *b );
+bool     value_equals        ( json_value   *a            , json_value   *b );
 size_t   load_file           ( const char   *path         , void         *buffer                                      , bool     binary_mode );
 
 int test_parse_null   (char *text);
@@ -663,7 +654,7 @@ result_t load_json ( json_value **pp_value, char *test_file )
     return r;
 }
 
-result_t value_equals (json_value *a, json_value *b)
+bool value_equals (json_value *a, json_value *b)
 {
     result_t result = 1;
 
@@ -2125,8 +2116,8 @@ int construct_array_array_empty ( json_value **pp_value )
 {
     
     // Initialized data
-    json_value *p_value           = calloc(1, sizeof(json_value)),
-                *p_array           = 0;
+    json_value *p_value = calloc(1, sizeof(json_value)),
+               *p_array = 0;
 
     // Type
     p_value->type = JSON_VALUE_ARRAY;
