@@ -83,3 +83,9 @@ add_library (json SHARED "json.c")
 add_dependencies(json array dict sync)
 target_include_directories(json PUBLIC include include/json)
 target_link_libraries(json PRIVATE array dict sync)
+
+# Add source to this project's tester library
+add_library (lib_json_test SHARED "json_test.c")
+add_dependencies(lib_json_test json array dict sync)
+target_include_directories(lib_json_test PUBLIC include include/json)
+target_link_libraries(lib_json_test PRIVATE json array dict sync)

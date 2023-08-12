@@ -154,9 +154,6 @@ int main ( int argc, const char* argv[] )
     print_time_pretty ( (double)(t1-t0)/(double)timer_seconds_divisor() );
     printf(" to test\n");
 
-    // Flush stdio
-    fflush(stdout);
-
     // Exit
     return ( total_passes == total_tests ) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
