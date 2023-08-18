@@ -11,11 +11,9 @@ int parse_json_whitespace ( const char *pointer, const char **const return_point
 {
 
     // Argument check
-    {
-        #ifndef NDEBUG
-            if ( pointer == (void *) 0 ) goto no_pointer;
-        #endif
-    }
+    #ifndef NDEBUG
+        if ( pointer == (void *) 0 ) goto no_pointer;
+    #endif
 
     // Initialized data
     size_t i = 0;
@@ -63,13 +61,10 @@ int parse_json_string ( char *const pointer, const char **const return_pointer )
 {
 
     // Argument check
-    {
-        #ifndef NDEBUG
-            if ( pointer == (void *) 0 ) goto no_pointer;
-        #endif
-    }
+    #ifndef NDEBUG
+        if ( pointer == (void *) 0 ) goto no_pointer;
+    #endif
 
-    // TODO: FIX ESCAPE SEQUENCES
     // Initialized data
     size_t i = 0,
            j = 1,
@@ -170,7 +165,7 @@ int parse_json_string ( char *const pointer, const char **const return_pointer )
     // Insert a null terminator
     pointer[i]='\0';
 
-    // Return the new pointer
+    // Return the updated pointer
     *return_pointer = &pointer[j];
 
     // Success
