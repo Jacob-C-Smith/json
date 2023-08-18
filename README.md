@@ -89,21 +89,19 @@
  
  ### Type definitions
  ```c
- typedef struct JSONValue_s JSONValue_t;
+ typedef struct json_value_s json_value;
  ```
  ### Function definitions
 
- ```c 
-int  parse_json_value ( char *text, char **return_pointer, JSONValue_t **pp_value );
-int  print_json_value ( JSONValue_t *p_value, FILE *f );
-void free_json_value  ( JSONValue_t *p_value );
- ```
-
- ### Macro definitions
  ```c
-// This macro is used to free JSONValue_t *'s 
-#define FREE_VALUE( value ) free_json_value(value)
 
-// This macro will evaluate to the value of the JSON property, if the property is not a null pointer and if the type matches the parameter 't'
-#define JSON_VALUE( property, t ) (property) ? (property->type==t) ? property->integer : 0 : 0;
+// Parse text to json_value
+int  parse_json_value ( char *text, char **return_pointer, json_value_t **pp_value );
+
+// Serialize a json_value to text 
+int  print_json_value ( json_value *p_value, FILE *f );
+
+
+void free_json_value  ( json_value *p_value );
  ```
+
