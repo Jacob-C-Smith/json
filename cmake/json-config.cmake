@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.26)
 
 include(FeatureSummary)
 set_package_properties(JSON PROPERTIES
-    URL "https://www.g10.app/status"
+    URL "https://www.g10.app/status#parser_serializer"
     DESCRIPTION "JSON parser/serializer"
 )
 
