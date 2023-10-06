@@ -197,7 +197,7 @@ int parse_json_object ( char *pointer, const char **const return_pointer, dict *
     dict   *p_dict         = 0;
 
     // Construct a dict
-    if ( dict_construct(pp_dict, DICT_SIZE) == 0 ) goto failed_to_construct_dict;
+    if ( dict_construct(pp_dict, DICT_SIZE, 0) == 0 ) goto failed_to_construct_dict;
 
     p_dict = *pp_dict;
 

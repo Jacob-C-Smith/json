@@ -1,15 +1,12 @@
-[submodule "dict"]
-	path = extern/dict
-	url = https://github.com/Jacob-C-Smith/dict
-[submodule "array"]
+[submodule "extern/array"]
 	path = extern/array
 	url = https://github.com/Jacob-C-Smith/array
 [submodule "extern/dict"]
 	path = extern/dict
 	url = https://github.com/Jacob-C-Smith/dict
-[submodule "extern/array"]
-	path = extern/array
-	url = https://github.com/Jacob-C-Smith/array
 [submodule "extern/sync"]
 	path = extern/sync
 	url = https://github.com/Jacob-C-Smith/sync
+[submodule "extern/crypto"]
+	path = extern/crypto
+	url = https://github.com/Jacob-C-Smith/crypto
