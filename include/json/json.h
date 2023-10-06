@@ -1,8 +1,8 @@
 /** !
- * @file JSON/JSON.h 
+ * @file json/json.h 
  * @author Jacob Smith
  * 
- * Include header for JSON parser library
+ * Include header for json library
  */
 
 // Include guard
