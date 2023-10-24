@@ -1,25 +1,24 @@
 /** !
+ * Tester for json module
+ * 
  * @file json_test.c
  * 
  * @author Jacob C Smith
- * 
- * json tester
-*/
+ */
 
-// Include header
+// Header
 #include <json/json_test.h>
 
-//////////////////
-// Test results //
-//////////////////
-typedef enum result_e {
-    zero=0,    
-    one=1,
-} result_t;
+// Enumeration definitions
+enum result_e {
+    zero = 0,    
+    one  = 1,
+};
 
-///////////////////
-// Test counters //
-///////////////////
+// Type definitions
+typedef enum result_e result_t;
+
+// Global variables
 int total_tests      = 0,
     total_passes     = 0,
     total_fails      = 0,
@@ -27,15 +26,46 @@ int total_tests      = 0,
     ephemeral_passes = 0,
     ephemeral_fails  = 0;
 
-//////////////////////////
-// Forward declarations //
-//////////////////////////
+// Forward declarations
+/** !
+ * Print the time formatted in days, hours, minutes, seconds, miliseconds, microseconds
+ * 
+ * @param seconds the time in seconds
+ * 
+ * @return void
+ */
+void print_time_pretty ( double seconds );
 
-// Utility functions
-int      print_time_pretty   ( double seconds );
-int      run_tests           ( void );
-int      print_final_summary ( void );
-int      print_test          ( const char   *scenario_name, const char   *test_name,                                    bool     passed );
+/** !
+ * Run all the tests
+ * 
+ * @param void
+ * 
+ * @return void
+ */
+void run_tests ( void );
+
+/** !
+ * Print a summary of the test scenario
+ * 
+ * @param void
+ * 
+ * @return void
+ */
+void print_final_summary ( void );
+
+/** !
+ * Print the result of a single test
+ * 
+ * @param scenario_name the name of the scenario
+ * @param test_name     the name of the test
+ * @param passed        true if test passes, false if test fails
+ * 
+ * @return void
+ */
+void print_test ( const char *scenario_name, const char *test_name, bool passed );
+
+
 bool     test_parse_json     ( char         *test_file    , int         (*expected_value_constructor) (json_value **), result_t expected );
 bool     test_serial_json    ( char         *test_file    , char         *expected_file                               , int(*expected_value_constructor) (json_value **), result_t expected );
 result_t load_json           ( json_value  **pp_value     , char         *test_file );
@@ -43,38 +73,249 @@ result_t save_json           ( char         *path         , json_value   *p_valu
 bool     value_equals        ( json_value   *a            , json_value   *b );
 size_t   load_file           ( const char   *path         , void         *buffer                                      , bool     binary_mode );
 
-int test_parse_null   (char *text);
-int test_parse_bool   (char *text);
-int test_parse_int    (char *text);
-int test_parse_float  (char *text);
-int test_parse_string (char *text);
-int test_parse_object (char *text);
-int test_parse_array  (char *text);
-int test_serial_null  (char *text);
-int test_serial_bool  (char *text);
-int test_serial_int   (char *text);
-int test_serial_float (char *text);
-int test_serial_string(char *text);
-int test_serial_object(char *text);
-int test_serial_array (char *text);
+/** !
+ * Test parsing of valid and invalid null values
+ * 
+ * @param name the name of the test
+ * 
+ * @return void
+ */
+void test_parse_null ( char *name );
+
+/** !
+ * Test parsing of valid and invalid boolean values
+ * 
+ * @param name the name of the test
+ * 
+ * @return void
+ */
+void test_parse_bool ( char *name );
+
+/** !
+ * Test parsing of valid and invalid integer values
+ * 
+ * @param name the name of the test
+ * 
+ * @return void
+ */
+void test_parse_int ( char *name );
+
+/** !
+ * Test parsing of valid and invalid floating point values
+ * 
+ * @param name the name of the test
+ * 
+ * @return void
+ */
+void test_parse_float (char *name);
+
+/** !
+ * Test parsing of valid and invalid string values
+ * 
+ * @param name the name of the test
+ * 
+ * @return void
+ */
+void test_parse_string (char *name);
+
+/** !
+ * Test parsing of valid and invalid object values
+ * 
+ * @param name the name of the test
+ * 
+ * @return void
+ */
+void test_parse_object (char *name);
+
+/** !
+ * Test parsing of valid and invalid array values
+ * 
+ * @param name the name of the test
+ * 
+ * @return void
+ */
+void test_parse_array ( char *name );
+
+/** !
+ * Test serializing the null value
+ * 
+ * @param name the name of the test
+ * 
+ * @return void
+ */
+void test_serial_null ( char *name );
+
+/** !
+ * Test serializing of boolean values
+ * 
+ * @param name the name of the test
+ * 
+ * @return void
+ */
+int test_serial_bool ( char *name );
+
+/** !
+ * Test serializing of integer values
+ * 
+ * @param name the name of the test
+ * 
+ * @return void
+ */
+int test_serial_int ( char *name );
+
+/** !
+ * Test serializing of floating point values
+ * 
+ * @param name the name of the test
+ * 
+ * @return void
+ */
+int test_serial_float ( char *name );
+
+/** !
+ * Test serializing of string values
+ * 
+ * @param name the name of the test
+ * 
+ * @return void
+ */
+int test_serial_string ( char *name );
+
+/** !
+ * Test serializing of object values
+ * 
+ * @param name the name of the test
+ * 
+ * @return void
+ */
+int test_serial_object ( char *name );
+
+/** !
+ * Test serializing of boolean values
+ * 
+ * @param name the name of the test
+ * 
+ * @return void
+ */
+int test_serial_array ( char *name );
 
 // Scenario constructors
-int  construct_null                   ( json_value **pp_value );
+/** !
+ * Construct a null json_value, return the result 
+ * 
+ * @param pp_value result
+ * 
+ * @return void
+ */
+int construct_null ( json_value **pp_value );
 
-int  construct_bool_false             ( json_value **pp_value );
-int  construct_bool_true              ( json_value **pp_value );
+/** !
+ * Construct a false json_value, return the result 
+ * 
+ * @param pp_value result
+ * 
+ * @return void
+ */
+int construct_bool_false ( json_value **pp_value );
 
-int  construct_int_minus_one          ( json_value **pp_value ); 
-int  construct_int_zero               ( json_value **pp_value ); 
-int  construct_int_one                ( json_value **pp_value ); 
-int  construct_int_max                ( json_value **pp_value ); 
-int  construct_int_min                ( json_value **pp_value ); 
+/** !
+ * Construct a true json_value, return the result 
+ * 
+ * @param pp_value result
+ * 
+ * @return void
+ */
+int construct_bool_true ( json_value **pp_value );
 
-int  construct_float_minus_one        ( json_value **pp_value ); 
-int  construct_float_zero             ( json_value **pp_value ); 
-int  construct_float_one              ( json_value **pp_value ); 
-int  construct_float_max              ( json_value **pp_value ); 
-int  construct_float_min              ( json_value **pp_value ); 
+/** !
+ * Construct a -1 json_value, return the result 
+ * 
+ * @param pp_value result
+ * 
+ * @return void
+ */
+int construct_int_minus_one ( json_value **pp_value ); 
+
+/** !
+ * Construct a 0 json_value, return the result 
+ * 
+ * @param pp_value result
+ * 
+ * @return void
+ */
+int construct_int_zero ( json_value **pp_value ); 
+
+/** !
+ * Construct a 1 json_value, return the result 
+ * 
+ * @param pp_value result
+ * 
+ * @return void
+ */
+int construct_int_one ( json_value **pp_value ); 
+
+/** !
+ * Construct a maximum integer json_value, return the result 
+ * 
+ * @param pp_value result
+ * 
+ * @return void
+ */
+int construct_int_max ( json_value **pp_value ); 
+
+/** !
+ * Construct a minimum integer json_value, return the result 
+ * 
+ * @param pp_value result
+ * 
+ * @return void
+ */
+int construct_int_min ( json_value **pp_value ); 
+
+/** !
+ * Construct a -1.0 double precision floating point json_value, return the result 
+ * 
+ * @param pp_value result
+ * 
+ * @return void
+ */
+int construct_float_minus_one ( json_value **pp_value ); 
+
+/** !
+ * Construct a 0.0 double precision floating point json_value, return the result 
+ * 
+ * @param pp_value result
+ * 
+ * @return void
+ */
+int construct_float_zero ( json_value **pp_value ); 
+
+/** !
+ * Construct a 1.0 double precision floating point json_value, return the result 
+ * 
+ * @param pp_value result
+ * 
+ * @return void
+ */
+int construct_float_one ( json_value **pp_value ); 
+
+/** !
+ * Construct a maximum double precision floating point json_value, return the result 
+ * 
+ * @param pp_value result
+ * 
+ * @return void
+ */
+int construct_float_max ( json_value **pp_value ); 
+
+/** !
+ * Construct a minimum double precision floating point json_value, return the result 
+ * 
+ * @param pp_value result
+ * 
+ * @return void
+ */
+int construct_float_min ( json_value **pp_value ); 
 
 int construct_string_empty            ( json_value **pp_value );
 int construct_string_a                ( json_value **pp_value );
@@ -151,14 +392,14 @@ int main ( int argc, const char* argv[] )
 
     // Report the time it took to run the tests
     printf("\njson tests took ");
-    print_time_pretty ( (double)(t1-t0)/(double)timer_seconds_divisor() );
+    print_time_pretty ( (double) ( t1 - t0 ) / (double) timer_seconds_divisor() );
     printf(" to test\n");
 
     // Exit
     return ( total_passes == total_tests ) ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
-int print_time_pretty ( double seconds )
+void print_time_pretty ( double seconds )
 {
 
     // Initialized data
@@ -189,42 +430,39 @@ int print_time_pretty ( double seconds )
     while ( _seconds > 0.000001 ) { microseconds++;_seconds-=0.000001; };
 
     // Print days
-    if ( days ) 
-        printf("%d D, ", days);
+    if ( days ) printf("%zu D, ", days);
     
     // Print hours
-    if ( hours )
-        printf("%d h, ", hours);
+    if ( hours ) printf("%zu h, ", hours);
 
     // Print minutes
-    if ( minutes )
-        printf("%d m, ", minutes);
+    if ( minutes ) printf("%zu m, ", minutes);
 
     // Print seconds
-    if ( __seconds )
-        printf("%d s, ", __seconds);
+    if ( __seconds ) printf("%zu s, ", __seconds);
     
     // Print milliseconds
-    if ( milliseconds )
-        printf("%d ms, ", milliseconds);
+    if ( milliseconds ) printf("%zu ms, ", milliseconds);
     
     // Print microseconds
-    if ( microseconds )
-        printf("%d us", microseconds);
+    if ( microseconds ) printf("%zu us", microseconds);
     
-    // Success
-    return 1;
+    // Done
+    return;
 }
 
-int run_tests ( void )
+void run_tests ( void )
 {
 
-    // Test the parser
-    // Start
+    // Initialized data
     timestamp parser_t0 = 0,
               parser_t1 = 0,
               serial_t0 = 0,
               serial_t1 = 0;
+
+    /////////////////////
+    // Test the parser //
+    /////////////////////
 
     // Start
     parser_t0 = timer_high_precision();
@@ -253,8 +491,9 @@ int run_tests ( void )
     // Stop
     parser_t1 = timer_high_precision();
 
-
-    // Test the serializer
+    /////////////////////////
+    // Test the serializer //
+    /////////////////////////
 
     // Start
     serial_t0 = timer_high_precision();
@@ -288,100 +527,131 @@ int run_tests ( void )
     print_time_pretty ( (double)(parser_t1-parser_t0)/(double)timer_seconds_divisor() );
     printf(" to test\n");
 
-
     // Report the time it took to run the serializer tests
     printf("serial tests took: ");
     print_time_pretty ( (double)(serial_t1-serial_t0)/(double)timer_seconds_divisor() );
     printf(" to test\n");
 
-    // Success
-    return 1;
+    // Done
+    return;
 }
 
-int test_parse_null ( char *name )
+void test_parse_null ( char *name )
 {
 
-    // Initialized data
-    json_value *p_value = 0;
-
+    // Formatting
     printf("Scenario: %s\n", name);
 
+    // Test a valid null token
     print_test(name, "null", test_parse_json("parse test cases/pass/null.json", (void *) 0, one));
+
+    // Test an invalid null token
     print_test(name, "nul" , test_parse_json("parse test cases/fail/null.json", (void *) 0, zero));
 
+    // Print the summary of this test
     print_final_summary();
 
-    return 1;
-
+    // Success
+    return;
 }
 
-int test_parse_bool ( char *name )
+void test_parse_bool ( char *name )
 {
 
-    // Initialized data
-    json_value *p_value = 0;
-
+    // Formatting
     printf("Scenario: %s\n", name);
 
+    // Test a valid false token
     print_test(name, "false", test_parse_json("parse test cases/pass/bool/bool_false.json", construct_bool_false, one));
-    print_test(name, "true" , test_parse_json("parse test cases/pass/bool/bool_true.json" , construct_bool_true , one));
-    print_test(name, "fals" , test_parse_json("parse test cases/fail/bool/bool_false.json", (void *) 0          , zero));
-    print_test(name, "tru"  , test_parse_json("parse test cases/fail/bool/bool_true.json" , (void *) 0          , zero));
 
+    // Test a valid true token
+    print_test(name, "true", test_parse_json("parse test cases/pass/bool/bool_true.json", construct_bool_true , one));
+
+    // Test an invalid false token
+    print_test(name, "fals", test_parse_json("parse test cases/fail/bool/bool_false.json", (void *) 0, zero));
+
+    // Test an invalid true token
+    print_test(name, "tru", test_parse_json("parse test cases/fail/bool/bool_true.json", (void *) 0, zero));
+
+    // Print the summary of this test
     print_final_summary();
 
-    return 1;
-
+    // Done
+    return;
 }
 
-int test_parse_int ( char *name )
+void test_parse_int ( char *name )
 {
 
-    // Initialized data
-    json_value *p_value = 0;
-
+    // Formatting
     printf("Scenario: %s\n", name);
 
-    print_test(name, "-1"    , test_parse_json("parse test cases/pass/int/int_-1.json" , construct_int_minus_one, one));
-    print_test(name, "0"     , test_parse_json("parse test cases/pass/int/int_0.json"  , construct_int_zero     , one));
-    print_test(name, "1"     , test_parse_json("parse test cases/pass/int/int_1.json"  , construct_int_one      , one));
-    print_test(name, "max"   , test_parse_json("parse test cases/pass/int/int_max.json", construct_int_max      , one));
-    print_test(name, "min"   , test_parse_json("parse test cases/pass/int/int_min.json", construct_int_min      , one));
-    print_test(name, "max +1", test_parse_json("parse test cases/fail/int/int_max.json", (void *)0              , zero));
-    print_test(name, "min -1", test_parse_json("parse test cases/fail/int/int_min.json", (void *)0              , zero));
+    // Test -1
+    print_test(name, "-1", test_parse_json("parse test cases/pass/int/int_-1.json", construct_int_minus_one, one));
 
+    // Test 0
+    print_test(name, "0", test_parse_json("parse test cases/pass/int/int_0.json", construct_int_zero, one));
+
+    // Test 1
+    print_test(name, "1", test_parse_json("parse test cases/pass/int/int_1.json", construct_int_one, one));
+
+    // Test integer max
+    print_test(name, "max", test_parse_json("parse test cases/pass/int/int_max.json", construct_int_max, one));
+
+    // Test integer min
+    print_test(name, "min", test_parse_json("parse test cases/pass/int/int_min.json", construct_int_min, one));
+
+    // Test an overflow
+    print_test(name, "max +1", test_parse_json("parse test cases/fail/int/int_max.json", (void *)0, zero));
+
+    // Test an underflow
+    print_test(name, "min -1", test_parse_json("parse test cases/fail/int/int_min.json", (void *)0, zero));
+
+    // Print the summary of this test
     print_final_summary();
 
-    return 1;
+    // Done
+    return;
 }
 
-int test_parse_float ( char *name )
+void test_parse_float ( char *name )
 {
 
-    // Initialized data
-    json_value *p_value = 0;
-
+    // Formatting
     printf("Scenario: %s\n", name);
 
-    print_test(name, "-1.0"    , test_parse_json("parse test cases/pass/float/float_-1.json" , construct_float_minus_one, one));
-    print_test(name, "0.0"     , test_parse_json("parse test cases/pass/float/float_0.json"  , construct_float_zero     , one));
-    print_test(name, "1.0"     , test_parse_json("parse test cases/pass/float/float_1.json"  , construct_float_one      , one));
-    print_test(name, "max"     , test_parse_json("parse test cases/pass/float/float_max.json", construct_float_max      , one));
-    print_test(name, "min"     , test_parse_json("parse test cases/pass/float/float_min.json", construct_float_min      , one));
-    print_test(name, "max + 1.0", test_parse_json("parse test cases/fail/float/float_max.json", (void *)0                , zero));
-    print_test(name, "min - 1.0", test_parse_json("parse test cases/fail/float/float_min.json", (void *)0                , zero));
+    // Test -1.0
+    print_test(name, "-1.0", test_parse_json("parse test cases/pass/float/float_-1.json", construct_float_minus_one, one));
 
+    // Test 0.0
+    print_test(name, "0.0", test_parse_json("parse test cases/pass/float/float_0.json", construct_float_zero, one));
+
+    // Test 1.0
+    print_test(name, "1.0", test_parse_json("parse test cases/pass/float/float_1.json", construct_float_one, one));
+
+    // Test double precision floating point max
+    print_test(name, "max", test_parse_json("parse test cases/pass/float/float_max.json", construct_float_max, one));
+
+    // Test double precision floating point min
+    print_test(name, "min", test_parse_json("parse test cases/pass/float/float_min.json", construct_float_min, one));
+
+    // Test double precision floating point overflow
+    print_test(name, "max + 1.0", test_parse_json("parse test cases/fail/float/float_max.json", (void *)0, zero));
+
+    // Test double precision floating point underflow
+    print_test(name, "min - 1.0", test_parse_json("parse test cases/fail/float/float_min.json", (void *)0, zero));
+
+    // Print the summary of this test
     print_final_summary();
 
-    return 1;
+    // Done
+    return;
 }
 
-int test_parse_string ( char *name )
+void test_parse_string ( char *name )
 {
 
-    // Initialized data
-    json_value *p_value = 0;
-
+    // Formatting
     printf("Scenario: %s\n", name);
     
     print_test(name, "\"\""       , test_parse_json("parse test cases/pass/string/string_empty.json"          , construct_string_empty          , one));
@@ -400,17 +670,17 @@ int test_parse_string ( char *name )
     print_test(name, "\"\\t\""    , test_parse_json("parse test cases/pass/string/string_horizontal_tab.json" , construct_string_horizontal_tab , one));
     //print_test(name, "string \"\u1234\"" , test_parse_json("parse test cases/pass/string/string_escape.json"         , construct_string_escape         , one));
 
+    // Print the summary of this test
     print_final_summary();
 
-    return 1;
+    // Done
+    return;
 }
 
-int test_parse_object ( char *name )
+void test_parse_object ( char *name )
 {
 
-    // Initialized data
-    json_value *p_value = 0;
-
+    // Formatting
     printf("Scenario: %s\n", name);
     
     print_test(name, "{}"                                               , test_parse_json("parse test cases/pass/object/object_empty.json"        , construct_object_empty        , one));
@@ -428,17 +698,17 @@ int test_parse_object ( char *name )
     print_test(name, "{\"a\":[{\"a\":1}]}"                              , test_parse_json("parse test cases/pass/object/object_array_object.json" , construct_object_array_object , one));
     print_test(name, "{\"a\":{\"b\":{\"c\":{\"d\":{...{\"z\":{ }...}"   , test_parse_json("parse test cases/pass/object/object_recursive.json"    , construct_object_recursive    , one));
 
+    // Print the summary of this test
     print_final_summary();
 
-    return 1;
+    // Done
+    return;
 }
 
-int test_parse_array ( char *name )
+void test_parse_array ( char *name )
 {
 
-    // Initialized data
-    json_value *p_value = 0;
-
+    // Formatting
     printf("Scenario: %s\n", name);
     
     print_test(name, "[]"                                  , test_parse_json("parse test cases/pass/array/array_empty.json"            , construct_array_empty            , one));
@@ -461,38 +731,39 @@ int test_parse_array ( char *name )
     print_test(name, "[[1, 2, 3],[4, 5, 6],[7, 8, 9]]"     , test_parse_json("parse test cases/pass/array/array_matrix.json"           , construct_array_matrix           , one));
     print_test(name, "[[[1, 2], [3, 4]], [[5, 6], [7, 8]]]", test_parse_json("parse test cases/pass/array/array_tensor.json"           , construct_array_tensor           , one));
 
+    // Print the summary of this test
     print_final_summary();
 
-    return 1;
+    // Done
+    return;
 }
 
-int test_serial_null ( char *name )
+void test_serial_null ( char *name )
 {
 
-    // Initialized data
-    json_value *p_value = 0;
-
+    // Formatting
     printf("Scenario: %s\n", name);
 
+    // Test serializing a null value
     print_test(name, "null", test_serial_json("serial test cases/TESTER_null.json", "parse test cases/pass/null.json", construct_null, one));
 
+    // Print the summary of this test
     print_final_summary();
 
-    return 1;
-
+    // Done
+    return;
 }
 
 int test_serial_bool ( char *name )
 {
 
-    // Initialized data
-    json_value *p_value = 0;
-
+    // Formatting
     printf("Scenario: %s\n", name);
 
     print_test(name, "false", test_serial_json("serial test cases/bool/TESTER_bool_false.json", "parse test cases/pass/bool/bool_false.json", construct_bool_false, one));
     print_test(name, "true" , test_serial_json("serial test cases/bool/TESTER_bool_true.json" , "parse test cases/pass/bool/bool_true.json" , construct_bool_true , one));
 
+    // Print the summary of this test
     print_final_summary();
 
     return 1;
@@ -502,9 +773,7 @@ int test_serial_bool ( char *name )
 int test_serial_int ( char *name )
 {
 
-    // Initialized data
-    json_value *p_value = 0;
-
+    // Formatting
     printf("Scenario: %s\n", name);
 
     print_test(name, "-1"    , test_serial_json("serial test cases/int/TESTER_int_-1.json" , "parse test cases/pass/int/int_-1.json" , construct_int_minus_one, one));
@@ -513,6 +782,7 @@ int test_serial_int ( char *name )
     print_test(name, "max"   , test_serial_json("serial test cases/int/TESTER_int_max.json", "parse test cases/pass/int/int_max.json", construct_int_max      , one));
     print_test(name, "min"   , test_serial_json("serial test cases/int/TESTER_int_min.json", "parse test cases/pass/int/int_min.json", construct_int_min      , one));
 
+    // Print the summary of this test
     print_final_summary();
 
     return 1;
@@ -521,9 +791,7 @@ int test_serial_int ( char *name )
 int test_serial_float ( char *name )
 {
 
-    // Initialized data
-    json_value *p_value = 0;
-
+    // Formatting
     printf("Scenario: %s\n", name);
 
     printf("TODO: While the floating point serializer does work, the formatting is poor.\n");
@@ -536,6 +804,7 @@ int test_serial_float ( char *name )
     //print_test(name, "max"     , test_serial_json("serial test cases/float/TESTER_float_max.json", "parse test cases/pass/float/float_max.json", construct_float_max      , one));
     //print_test(name, "min"     , test_serial_json("serial test cases/float/TESTER_float_min.json", "parse test cases/pass/float/float_min.json", construct_float_min      , one));
 
+    // Print the summary of this test
     print_final_summary();
 
     return 1;
@@ -544,9 +813,7 @@ int test_serial_float ( char *name )
 int test_serial_string ( char *name )
 {
 
-    // Initialized data
-    json_value *p_value = 0;
-
+    // Formatting
     printf("Scenario: %s\n", name);
     
     print_test(name, "\"\""       , test_serial_json("serial test cases/string/TESTER_string_empty.json"          , "parse test cases/pass/string/string_empty.json"          , construct_string_empty          , one));
@@ -563,6 +830,7 @@ int test_serial_string ( char *name )
     print_test(name, "\"\\r\""    , test_serial_json("serial test cases/string/TESTER_string_carriage_return.json", "parse test cases/pass/string/string_carriage_return.json", construct_string_carriage_return, one));
     print_test(name, "\"\\t\""    , test_serial_json("serial test cases/string/TESTER_string_horizontal_tab.json" , "parse test cases/pass/string/string_horizontal_tab.json" , construct_string_horizontal_tab , one));
 
+    // Print the summary of this test
     print_final_summary();
 
     return 1;
@@ -571,9 +839,7 @@ int test_serial_string ( char *name )
 int test_serial_object ( char *name )
 {
 
-    // Initialized data
-    json_value *p_value = 0;
-
+    // Formatting
     printf("Scenario: %s\n", name);
     
     print_test(name, "{}"                                               , test_serial_json("serial test cases/object/TESTER_object_empty.json"        , "parse test cases/pass/object/object_empty.json"        , construct_object_empty        , one));
@@ -591,6 +857,7 @@ int test_serial_object ( char *name )
     print_test(name, "{\"a\":[{\"a\":1}]}"                              , test_serial_json("serial test cases/object/TESTER_object_array_object.json" , "parse test cases/pass/object/object_array_object.json" , construct_object_array_object , one));
     print_test(name, "{\"a\":{\"b\":{\"c\":{\"d\":{...{\"z\":{ }...}"   , test_serial_json("serial test cases/object/TESTER_object_recursive.json"    , "parse test cases/pass/object/object_recursive.json"    , construct_object_recursive    , one));
 
+    // Print the summary of this test
     print_final_summary();
 
     return 1;
@@ -599,9 +866,7 @@ int test_serial_object ( char *name )
 int test_serial_array ( char *name )
 {
 
-    // Initialized data
-    json_value *p_value = 0;
-
+    // Formatting
     printf("Scenario: %s\n", name);
     
     print_test(name, "[]"                                  , test_serial_json("serial test cases/array/TESTER_array_empty.json"            , "parse test cases/pass/array/array_empty.json"            , construct_array_empty            , one));
@@ -624,6 +889,7 @@ int test_serial_array ( char *name )
     print_test(name, "[[1, 2, 3],[4, 5, 6],[7, 8, 9]]"     , test_serial_json("serial test cases/array/TESTER_array_matrix.json"           , "parse test cases/pass/array/array_matrix.json"           , construct_array_matrix           , one));
     print_test(name, "[[[1, 2], [3, 4]], [[5, 6], [7, 8]]]", test_serial_json("serial test cases/array/TESTER_array_tensor.json"           , "parse test cases/pass/array/array_tensor.json"           , construct_array_tensor           , one));
 
+    // Print the summary of this test
     print_final_summary();
 
     return 1;
@@ -798,8 +1064,10 @@ bool value_equals (json_value *a, json_value *b)
 int construct_null ( json_value **pp_value )
 {
 
+    // null is NULL is (void *) 0
     *pp_value = (void *) 0;
 
+    // Success
     return 1;
 }
 
@@ -809,13 +1077,14 @@ int construct_bool_false ( json_value **pp_value )
     // Initialized data
     json_value *p_value = calloc(1, sizeof(json_value));
     
-    // Type
-    p_value->type = JSON_VALUE_BOOLEAN;
+    // Populate the json_value
+    *p_value = (json_value) 
+    {
+        .type    = JSON_VALUE_BOOLEAN,
+        .boolean = false
+    };
 
-    // Value
-    p_value->boolean = false;
-
-    // Return
+    // Return a pointer to the caller
     *pp_value = p_value;
 
     // Success
@@ -828,13 +1097,14 @@ int construct_bool_true ( json_value **pp_value )
     // Initialized data
     json_value *p_value = calloc(1, sizeof(json_value));
     
-    // Type
-    p_value->type = JSON_VALUE_BOOLEAN;
+    // Populate the json_value
+    *p_value = (json_value) 
+    {
+        .type    = JSON_VALUE_BOOLEAN,
+        .boolean = true
+    };
 
-    // Value
-    p_value->boolean = true;
-
-    // Return
+    // Return a pointer to the caller
     *pp_value = p_value;
 
     // Success
@@ -843,16 +1113,18 @@ int construct_bool_true ( json_value **pp_value )
 
 int construct_int_minus_one ( json_value **pp_value )
 {
+
     // Initialized data
     json_value *p_value = calloc(1, sizeof(json_value));
     
     // Type
-    p_value->type = JSON_VALUE_INTEGER;
+    *p_value = (json_value)
+    {
+        .type    = JSON_VALUE_INTEGER,
+        .integer = -1
+    };
 
-    // Value
-    p_value->integer = -1;
-
-    // Return
+    // Return a pointer to the caller
     *pp_value = p_value;
 
     // Success
@@ -866,12 +1138,13 @@ int construct_int_zero ( json_value **pp_value )
     json_value *p_value = calloc(1, sizeof(json_value));
     
     // Type
-    p_value->type = JSON_VALUE_INTEGER;
+    *p_value = (json_value)
+    {
+        .type    = JSON_VALUE_INTEGER,
+        .integer = 0
+    };
 
-    // Value
-    p_value->integer = 0;
-
-    // Return
+    // Return a pointer to the caller
     *pp_value = p_value;
 
     // Success
@@ -880,17 +1153,18 @@ int construct_int_zero ( json_value **pp_value )
 
 int construct_int_one ( json_value **pp_value )
 {
-    
+
     // Initialized data
     json_value *p_value = calloc(1, sizeof(json_value));
     
     // Type
-    p_value->type = JSON_VALUE_INTEGER;
+    *p_value = (json_value)
+    {
+        .type    = JSON_VALUE_INTEGER,
+        .integer = 1
+    };
 
-    // Value
-    p_value->integer = 1;
-
-    // Return
+    // Return a pointer to the caller
     *pp_value = p_value;
 
     // Success
@@ -904,12 +1178,13 @@ int construct_int_max ( json_value **pp_value )
     json_value *p_value = calloc(1, sizeof(json_value));
     
     // Type
-    p_value->type = JSON_VALUE_INTEGER;
+    *p_value = (json_value)
+    {
+        .type    = JSON_VALUE_INTEGER,
+        .integer = 9223372036854775807
+    };
 
-    // Value
-    p_value->integer = 9223372036854775807;
-
-    // Return
+    // Return a pointer to the caller
     *pp_value = p_value;
 
     // Success
@@ -923,12 +1198,13 @@ int construct_int_min ( json_value **pp_value )
     json_value *p_value = calloc(1, sizeof(json_value));
     
     // Type
-    p_value->type = JSON_VALUE_INTEGER;
+    *p_value = (json_value)
+    {
+        .type    = JSON_VALUE_INTEGER,
+        .integer = (-9223372036854775807 - 1)
+    };
 
-    // Value
-    p_value->integer = (-9223372036854775807 - 1);
-
-    // Return
+    // Return a pointer to the caller
     *pp_value = p_value;
 
     // Success
@@ -1184,6 +1460,7 @@ int construct_string_reverse_solidus ( json_value **pp_value )
 
 int construct_string_solidus ( json_value **pp_value )
 {
+
     // Initialized data
     json_value *p_value = calloc(1, sizeof(json_value));
     
@@ -2500,31 +2777,26 @@ bool test_serial_json ( char *test_file, char *expected_file, int(*expected_valu
     return ret;
 }
 
-int print_test ( const char *scenario_name, const char *test_name, bool passed )
+void print_test ( const char *scenario_name, const char *test_name, bool passed )
 {
 
     // Initialized data
     printf("%s %-75s %s\n",scenario_name, test_name, (passed) ? "PASS" : "FAIL");
 
-    // Increment the counters
-    {
-        if (passed)
-        {
-            ephemeral_passes++;
-        }
-        else
-        {
-            ephemeral_fails++;
-        }
+    // Increment the pass/fail counter
+    if (passed)
+        ephemeral_passes++;
+    else
+        ephemeral_fails++;
 
-        ephemeral_tests++;
-    }
+    // Increment the test counter
+    ephemeral_tests++;
 
-    // Success
-    return 1;
+    // Done
+    return;
 }
 
-int print_final_summary ()
+void print_final_summary ( void )
 {
 
     // Accumulate
@@ -2536,32 +2808,27 @@ int print_final_summary ()
     printf("\nTests: %d, Passed: %d, Failed: %d (%%%.3f)\n",  ephemeral_tests, ephemeral_passes, ephemeral_fails, ((float)ephemeral_passes/(float)ephemeral_tests*100.f));
     printf("Total: %d, Passed: %d, Failed: %d (%%%.3f)\n\n",  total_tests, total_passes, total_fails, ((float)total_passes/(float)total_tests*100.f));
     
+    // Clear test counters for this test
     ephemeral_tests  = 0;
     ephemeral_passes = 0;
     ephemeral_fails  = 0;
 
-    // Success
-    return 1;
+    // Done
+    return;
 }
 
 size_t load_file ( const char *path, void *buffer, bool binary_mode )
 {
 
     // Argument checking 
-    {
-        #ifndef NDEBUG
-            if ( path == 0 )
-                goto no_path;
-        #endif
-    }
+    if ( path == 0 ) goto no_path;
 
     // Initialized data
     size_t  ret = 0;
     FILE   *f   = fopen(path, (binary_mode) ? "rb" : "r");
     
     // Check if file is valid
-    if ( f == NULL )
-        goto invalid_file;
+    if ( f == NULL ) goto invalid_file;
 
     // Find file size and prep for read
     fseek(f, 0, SEEK_END);
@@ -2569,7 +2836,7 @@ size_t load_file ( const char *path, void *buffer, bool binary_mode )
     fseek(f, 0, SEEK_SET);
     
     // Read to data
-    if ( buffer )
+    if ( buffer ) 
         ret = fread(buffer, 1, ret, f);
 
     // The file is no longer needed
