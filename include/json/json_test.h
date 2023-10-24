@@ -253,7 +253,7 @@ DLLEXPORT int construct_string_reverse_solidus ( json_value **pp_value );
 DLLEXPORT int construct_string_solidus ( json_value **pp_value );
 
 /** ! 
- * Returns "\b" as a json_value
+ * Returns "\\b" as a json_value
  * 
  * @param pp_value return
  * 
@@ -263,7 +263,7 @@ DLLEXPORT int construct_string_solidus ( json_value **pp_value );
 DLLEXPORT int construct_string_backspace ( json_value **pp_value );
 
 /** ! 
- * Returns "\f" as a json_value
+ * Returns "\\f" as a json_value
  * 
  * @param pp_value return
  * 
@@ -273,7 +273,7 @@ DLLEXPORT int construct_string_backspace ( json_value **pp_value );
 DLLEXPORT int construct_string_formfeed ( json_value **pp_value );
 
 /** ! 
- * Returns "/r" as a json_value
+ * Returns "\\n" as a json_value
  * 
  * @param pp_value return
  * 
@@ -283,7 +283,7 @@ DLLEXPORT int construct_string_formfeed ( json_value **pp_value );
 DLLEXPORT int construct_string_linefeed ( json_value **pp_value );
 
 /** ! 
- * Returns "\n" as a json_value
+ * Returns "\\r" as a json_value
  * 
  * @param pp_value return
  * 
@@ -293,7 +293,7 @@ DLLEXPORT int construct_string_linefeed ( json_value **pp_value );
 DLLEXPORT int construct_string_carriage_return ( json_value **pp_value );
 
 /** ! 
- * Returns "\t" as a json_value
+ * Returns "\\t" as a json_value
  * 
  * @param pp_value return
  * 

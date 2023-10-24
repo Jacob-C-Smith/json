@@ -65,7 +65,6 @@ void print_final_summary ( void );
  */
 void print_test ( const char *scenario_name, const char *test_name, bool passed );
 
-
 bool     test_parse_json     ( char         *test_file    , int         (*expected_value_constructor) (json_value **), result_t expected );
 bool     test_serial_json    ( char         *test_file    , char         *expected_file                               , int(*expected_value_constructor) (json_value **), result_t expected );
 result_t load_json           ( json_value  **pp_value     , char         *test_file );
@@ -198,174 +197,6 @@ int test_serial_object ( char *name );
  * @return void
  */
 int test_serial_array ( char *name );
-
-// Scenario constructors
-/** !
- * Construct a null json_value, return the result 
- * 
- * @param pp_value result
- * 
- * @return void
- */
-int construct_null ( json_value **pp_value );
-
-/** !
- * Construct a false json_value, return the result 
- * 
- * @param pp_value result
- * 
- * @return void
- */
-int construct_bool_false ( json_value **pp_value );
-
-/** !
- * Construct a true json_value, return the result 
- * 
- * @param pp_value result
- * 
- * @return void
- */
-int construct_bool_true ( json_value **pp_value );
-
-/** !
- * Construct a -1 json_value, return the result 
- * 
- * @param pp_value result
- * 
- * @return void
- */
-int construct_int_minus_one ( json_value **pp_value ); 
-
-/** !
- * Construct a 0 json_value, return the result 
- * 
- * @param pp_value result
- * 
- * @return void
- */
-int construct_int_zero ( json_value **pp_value ); 
-
-/** !
- * Construct a 1 json_value, return the result 
- * 
- * @param pp_value result
- * 
- * @return void
- */
-int construct_int_one ( json_value **pp_value ); 
-
-/** !
- * Construct a maximum integer json_value, return the result 
- * 
- * @param pp_value result
- * 
- * @return void
- */
-int construct_int_max ( json_value **pp_value ); 
-
-/** !
- * Construct a minimum integer json_value, return the result 
- * 
- * @param pp_value result
- * 
- * @return void
- */
-int construct_int_min ( json_value **pp_value ); 
-
-/** !
- * Construct a -1.0 double precision floating point json_value, return the result 
- * 
- * @param pp_value result
- * 
- * @return void
- */
-int construct_float_minus_one ( json_value **pp_value ); 
-
-/** !
- * Construct a 0.0 double precision floating point json_value, return the result 
- * 
- * @param pp_value result
- * 
- * @return void
- */
-int construct_float_zero ( json_value **pp_value ); 
-
-/** !
- * Construct a 1.0 double precision floating point json_value, return the result 
- * 
- * @param pp_value result
- * 
- * @return void
- */
-int construct_float_one ( json_value **pp_value ); 
-
-/** !
- * Construct a maximum double precision floating point json_value, return the result 
- * 
- * @param pp_value result
- * 
- * @return void
- */
-int construct_float_max ( json_value **pp_value ); 
-
-/** !
- * Construct a minimum double precision floating point json_value, return the result 
- * 
- * @param pp_value result
- * 
- * @return void
- */
-int construct_float_min ( json_value **pp_value ); 
-
-int construct_string_empty            ( json_value **pp_value );
-int construct_string_a                ( json_value **pp_value );
-int construct_string_abc              ( json_value **pp_value );
-int construct_string_quote_abc_quote  ( json_value **pp_value );
-int construct_string_quote            ( json_value **pp_value );
-int construct_string_quote_quote      ( json_value **pp_value );
-int construct_string_whitespaces_abc  ( json_value **pp_value );
-int construct_string_reverse_solidus  ( json_value **pp_value );
-int construct_string_solidus          ( json_value **pp_value );
-int construct_string_backspace        ( json_value **pp_value );
-int construct_string_formfeed         ( json_value **pp_value );
-int construct_string_linefeed         ( json_value **pp_value );
-int construct_string_carriage_return  ( json_value **pp_value );
-int construct_string_horizontal_tab   ( json_value **pp_value );
-
-int construct_object_empty            ( json_value **pp_value );
-int construct_object_string           ( json_value **pp_value );
-int construct_object_int              ( json_value **pp_value );
-int construct_object_float            ( json_value **pp_value );
-int construct_object_false            ( json_value **pp_value );
-int construct_object_true             ( json_value **pp_value );
-int construct_object_strings          ( json_value **pp_value );
-int construct_object_mixed_values     ( json_value **pp_value );
-int construct_object_object           ( json_value **pp_value );
-int construct_object_object_object    ( json_value **pp_value );
-int construct_object_recursive        ( json_value **pp_value );
-int construct_object_array            ( json_value **pp_value );
-int construct_object_array_objects    ( json_value **pp_value );
-int construct_object_array_object     ( json_value **pp_value );
-
-int construct_array_empty             ( json_value **pp_value );
-int construct_array_null              ( json_value **pp_value );
-int construct_array_nulls             ( json_value **pp_value );
-int construct_array_bool              ( json_value **pp_value );
-int construct_array_bools             ( json_value **pp_value );
-int construct_array_int               ( json_value **pp_value );
-int construct_array_ints              ( json_value **pp_value );
-int construct_array_float             ( json_value **pp_value );
-int construct_array_floats            ( json_value **pp_value );
-int construct_array_string_empty      ( json_value **pp_value );
-int construct_array_string            ( json_value **pp_value );
-int construct_array_strings           ( json_value **pp_value );
-int construct_array_object_empty      ( json_value **pp_value );
-int construct_array_object            ( json_value **pp_value );
-int construct_array_objects           ( json_value **pp_value );
-int construct_array_array_empty       ( json_value **pp_value );
-int construct_array_array_array_empty ( json_value **pp_value );
-int construct_array_matrix            ( json_value **pp_value );
-int construct_array_tensor            ( json_value **pp_value );
 
 // Entry point
 int main ( int argc, const char* argv[] )
@@ -1218,12 +1049,13 @@ int construct_float_minus_one ( json_value **pp_value )
     json_value *p_value = calloc(1, sizeof(json_value));
     
     // Type
-    p_value->type = JSON_VALUE_NUMBER;
+    *p_value = (json_value)
+    {
+        .type    = JSON_VALUE_NUMBER,
+        .integer = -1.0
+    };
 
-    // Value
-    p_value->number = -1.0;
-
-    // Return
+    // Return a pointer to the caller
     *pp_value = p_value;
 
     // Success
@@ -1237,12 +1069,13 @@ int construct_float_zero ( json_value **pp_value )
     json_value *p_value = calloc(1, sizeof(json_value));
     
     // Type
-    p_value->type = JSON_VALUE_NUMBER;
+    *p_value = (json_value)
+    {
+        .type    = JSON_VALUE_NUMBER,
+        .integer = -0.0
+    };
 
-    // Value
-    p_value->number = 0.0;
-
-    // Return
+    // Return a pointer to the caller
     *pp_value = p_value;
 
     // Success
@@ -1256,12 +1089,13 @@ int construct_float_one ( json_value **pp_value )
     json_value *p_value = calloc(1, sizeof(json_value));
     
     // Type
-    p_value->type = JSON_VALUE_NUMBER;
+    *p_value = (json_value)
+    {
+        .type    = JSON_VALUE_NUMBER,
+        .integer = 1.0
+    };
 
-    // Value
-    p_value->number = 1.0;
-
-    // Return
+    // Return a pointer to the caller
     *pp_value = p_value;
 
     // Success
@@ -1275,12 +1109,13 @@ int construct_float_max ( json_value **pp_value )
     json_value *p_value = calloc(1, sizeof(json_value));
     
     // Type
-    p_value->type = JSON_VALUE_NUMBER;
+    *p_value = (json_value)
+    {
+        .type    = JSON_VALUE_NUMBER,
+        .integer = DBL_MAX
+    };
 
-    // Value
-    p_value->number = DBL_MAX;
-
-    // Return
+    // Return a pointer to the caller
     *pp_value = p_value;
 
     // Success
@@ -1294,12 +1129,13 @@ int construct_float_min ( json_value **pp_value )
     json_value *p_value = calloc(1, sizeof(json_value));
     
     // Type
-    p_value->type = JSON_VALUE_NUMBER;
+    *p_value = (json_value)
+    {
+        .type    = JSON_VALUE_NUMBER,
+        .integer = DBL_MAX
+    };
 
-    // Value
-    p_value->number = -DBL_MAX;
-
-    // Return
+    // Return a pointer to the caller
     *pp_value = p_value;
 
     // Success
@@ -1313,12 +1149,13 @@ int construct_string_empty ( json_value **pp_value )
     json_value *p_value = calloc(1, sizeof(json_value));
     
     // Type
-    p_value->type = JSON_VALUE_STRING;
+    *p_value = (json_value)
+    {
+        .type   = JSON_VALUE_STRING,
+        .string = ""
+    };
 
-    // Value
-    p_value->string = "";
-
-    // Return
+    // Return a pointer to the caller
     *pp_value = p_value;
 
     // Success
@@ -1332,12 +1169,13 @@ int construct_string_a ( json_value **pp_value )
     json_value *p_value = calloc(1, sizeof(json_value));
     
     // Type
-    p_value->type = JSON_VALUE_STRING;
+    *p_value = (json_value)
+    {
+        .type   = JSON_VALUE_STRING,
+        .string = "a"
+    };
 
-    // Value
-    p_value->string = "a";
-
-    // Return
+    // Return a pointer to the caller
     *pp_value = p_value;
 
     // Success
@@ -1351,12 +1189,13 @@ int construct_string_abc ( json_value **pp_value )
     json_value *p_value = calloc(1, sizeof(json_value));
     
     // Type
-    p_value->type = JSON_VALUE_STRING;
+    *p_value = (json_value)
+    {
+        .type   = JSON_VALUE_STRING,
+        .string = "abc"
+    };
 
-    // Value
-    p_value->string = "abc";
-
-    // Return
+    // Return a pointer to the caller
     *pp_value = p_value;
 
     // Success
@@ -1370,12 +1209,13 @@ int construct_string_quote_abc_quote ( json_value **pp_value )
     json_value *p_value = calloc(1, sizeof(json_value));
     
     // Type
-    p_value->type = JSON_VALUE_STRING;
+    *p_value = (json_value)
+    {
+        .type   = JSON_VALUE_STRING,
+        .string = "\"abc\""
+    };
 
-    // Value
-    p_value->string = "\"abc\"";
-
-    // Return
+    // Return a pointer to the caller
     *pp_value = p_value;
 
     // Success
@@ -1389,12 +1229,13 @@ int construct_string_quote ( json_value **pp_value )
     json_value *p_value = calloc(1, sizeof(json_value));
     
     // Type
-    p_value->type = JSON_VALUE_STRING;
+    *p_value = (json_value)
+    {
+        .type   = JSON_VALUE_STRING,
+        .string = "\""
+    };
 
-    // Value
-    p_value->string = "\"";
-
-    // Return
+    // Return a pointer to the caller
     *pp_value = p_value;
 
     // Success
@@ -1408,12 +1249,13 @@ int construct_string_quote_quote ( json_value **pp_value )
     json_value *p_value = calloc(1, sizeof(json_value));
     
     // Type
-    p_value->type = JSON_VALUE_STRING;
+    *p_value = (json_value)
+    {
+        .type   = JSON_VALUE_STRING,
+        .string = "\"\""
+    };
 
-    // Value
-    p_value->string = "\"\"";
-
-    // Return
+    // Return a pointer to the caller
     *pp_value = p_value;
 
     // Success
@@ -1427,12 +1269,13 @@ int construct_string_whitespaces_abc ( json_value **pp_value )
     json_value *p_value = calloc(1, sizeof(json_value));
     
     // Type
-    p_value->type = JSON_VALUE_STRING;
+    *p_value = (json_value)
+    {
+        .type   = JSON_VALUE_STRING,
+        .string = "abc"
+    };
 
-    // Value
-    p_value->string = "abc";
-
-    // Return
+    // Return a pointer to the caller
     *pp_value = p_value;
 
     // Success
@@ -1446,12 +1289,13 @@ int construct_string_reverse_solidus ( json_value **pp_value )
     json_value *p_value = calloc(1, sizeof(json_value));
     
     // Type
-    p_value->type = JSON_VALUE_STRING;
+    *p_value = (json_value)
+    {
+        .type   = JSON_VALUE_STRING,
+        .string = "\\"
+    };
 
-    // Value
-    p_value->string = "\\";
-
-    // Return
+    // Return a pointer to the caller
     *pp_value = p_value;
 
     // Success
@@ -1465,12 +1309,13 @@ int construct_string_solidus ( json_value **pp_value )
     json_value *p_value = calloc(1, sizeof(json_value));
     
     // Type
-    p_value->type = JSON_VALUE_STRING;
+    *p_value = (json_value)
+    {
+        .type   = JSON_VALUE_STRING,
+        .string = "/"
+    };
 
-    // Value
-    p_value->string = "/";
-
-    // Return
+    // Return a pointer to the caller
     *pp_value = p_value;
 
     // Success
@@ -1484,12 +1329,13 @@ int construct_string_backspace ( json_value **pp_value )
     json_value *p_value = calloc(1, sizeof(json_value));
     
     // Type
-    p_value->type = JSON_VALUE_STRING;
+    *p_value = (json_value)
+    {
+        .type   = JSON_VALUE_STRING,
+        .string = "\b"
+    };
 
-    // Value
-    p_value->string = "\b";
-
-    // Return
+    // Return a pointer to the caller
     *pp_value = p_value;
 
     // Success
@@ -1503,12 +1349,13 @@ int construct_string_formfeed ( json_value **pp_value )
     json_value *p_value = calloc(1, sizeof(json_value));
     
     // Type
-    p_value->type = JSON_VALUE_STRING;
+    *p_value = (json_value)
+    {
+        .type   = JSON_VALUE_STRING,
+        .string = "\f"
+    };
 
-    // Value
-    p_value->string = "\f";
-
-    // Return
+    // Return a pointer to the caller
     *pp_value = p_value;
 
     // Success
@@ -1522,12 +1369,13 @@ int construct_string_linefeed ( json_value **pp_value )
     json_value *p_value = calloc(1, sizeof(json_value));
     
     // Type
-    p_value->type = JSON_VALUE_STRING;
+    *p_value = (json_value)
+    {
+        .type   = JSON_VALUE_STRING,
+        .string = "\n"
+    };
 
-    // Value
-    p_value->string = "\n";
-
-    // Return
+    // Return a pointer to the caller
     *pp_value = p_value;
 
     // Success
@@ -1541,12 +1389,13 @@ int construct_string_carriage_return ( json_value **pp_value )
     json_value *p_value = calloc(1, sizeof(json_value));
     
     // Type
-    p_value->type = JSON_VALUE_STRING;
+    *p_value = (json_value)
+    {
+        .type   = JSON_VALUE_STRING,
+        .string = "\r"
+    };
 
-    // Value
-    p_value->string = "\r";
-
-    // Return
+    // Return a pointer to the caller
     *pp_value = p_value;
 
     // Success
@@ -1560,12 +1409,13 @@ int construct_string_horizontal_tab ( json_value **pp_value )
     json_value *p_value = calloc(1, sizeof(json_value));
     
     // Type
-    p_value->type = JSON_VALUE_STRING;
+    *p_value = (json_value)
+    {
+        .type   = JSON_VALUE_STRING,
+        .string = "\t"
+    };
 
-    // Value
-    p_value->string = "\t";
-
-    // Return
+    // Return a pointer to the caller
     *pp_value = p_value;
 
     // Success
@@ -2692,22 +2542,25 @@ bool test_parse_json ( char *test_file, int(*expected_value_constructor) (json_v
 {
     
     // Initialized data
-    json_value *p_return_value   = 0,
-                *p_expected_value = 0;
     bool         ret      = true;
     size_t       file_len = 0;
     result_t     result   = 0,
                  value_eq = 0;
     char        *file_buf = 0;
+    json_value  *p_return_value   = 0,
+                *p_expected_value = 0;
 
-    if (expected_value_constructor)
-        expected_value_constructor(&p_expected_value);
+    // Construct the expected json value
+    if (expected_value_constructor) expected_value_constructor(&p_expected_value);
 
+    // Parse the json value
     result = load_json ( &p_return_value, test_file );
+
+    // Test for equality
     value_eq = value_equals(p_return_value, p_expected_value);
-    
-    if ( p_return_value )
-        free_json_value(p_return_value);
+
+    // Free the json value
+    if ( p_return_value ) free_json_value(p_return_value);
     
     // Success
     return (result == expected && value_eq);
@@ -2717,56 +2570,61 @@ bool test_serial_json ( char *test_file, char *expected_file, int(*expected_valu
 {
     
     // Initialized data
-    json_value *p_return_value   = 0,
+    json_value  *p_return_value   = 0,
                 *p_expected_value = 0;
-    bool         ret      = true;
-    size_t       file_len = 0;
-    result_t     result   = 0,
-                 value_eq = 0;
-    char        *file_buf = 0;
-    FILE *p_f  = fopen(test_file, "w");
-    FILE *p_ef = 0;
+    bool         ret              = true;
+    size_t       file_len         = 0;
+    result_t     result           = 0,
+                 value_eq         = 0;
+    char        *file_buf         = 0;
+    FILE        *p_f              = fopen(test_file, "w"),
+                *p_ef             = 0;
     
-    if (expected_value_constructor)
-        expected_value_constructor(&p_expected_value);
+    // Construct the expected value
+    if ( expected_value_constructor ) expected_value_constructor(&p_expected_value);
 
+    // Write the expected value to a file
     result = print_json_value(p_expected_value, p_f);
     
+    // Clean up resources
     free_json_value(p_return_value);
     fclose(p_f);
 
+    // Open the expected and the result
     p_f  = fopen(test_file, "r");
     p_ef = fopen(expected_file, "r");    
 
     // Short circuit
-    if ( load_file(test_file, 0, false) != load_file(expected_file, 0, false) ) 
-        return false;
+    if ( load_file(test_file, 0, false) != load_file(expected_file, 0, false) ) return false;
 
     // Compare the files
     {
 
         // Initialized data
-        size_t  f_len  = load_file(test_file, 0, false),
-                ef_len = load_file(expected_file, 0, false);
+        size_t  f_len       = load_file(test_file, 0, false),
+                ef_len      = load_file(expected_file, 0, false);
         char   *f_contents  = calloc(f_len+1, sizeof(char)),
                *ef_contents = calloc(ef_len+1, sizeof(char));
 
         // Error checking
-        if ( ef_contents == (void *) 0 )
-            return false;
+        if ( ef_contents == (void *) 0 ) return false;
         
         // Error checking
-        if ( f_contents == (void *) 0 )
-            return false;
+        if ( f_contents == (void *) 0 ) return false;
 
+        // Load each file
         load_file(test_file    , f_contents, false),
         load_file(expected_file, ef_contents, false);
 
+        // For each character ...
         for (size_t i = 0; i < f_len; i++)
-        {
+
+            // ... compare the expected to the result ...
             if ( f_contents[i] != ef_contents[i] )
+
+                // ... and fail if there is a difference
                 ret = false;
-        }
+
 
         // Free the file contents
         free(f_contents);
