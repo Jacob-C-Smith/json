@@ -37,11 +37,8 @@ void free_token ( void *ptr );
 #define DLLEXPORT
 #endif
 
-// This macro is used to free JSONValue_t *'s 
+// This macro is used to free json_value_t *'s 
 #define FREE_VALUE( value ) free_json_value(value)
-
-// This macro will evaluate to the value of the JSON property, if the property is not a null pointer and if the type matches the parameter 't'
-#define JSON_EVALUATE( value, variable, type ) evaluate_json_value(value, &variable, type)
 
 // Set the reallocator for the dict submodule
 #ifdef DICT_REALLOC
@@ -89,10 +86,10 @@ struct json_value_s
 typedef struct json_value_s json_value;
 
 /** !
- * Parse json text into a JSONValue
+ * Parse json text into a json_value
  * 
- * @param text pointer to JSON text
- * @param return_pointer null or pointer to end of JSON value
+ * @param text pointer to json text
+ * @param return_pointer null or pointer to end of json value
  * @param pp_value return
  * 
  * @return 1 on success, 0 on error
@@ -100,30 +97,19 @@ typedef struct json_value_s json_value;
 DLLEXPORT int parse_json_value ( char *text, const char **const return_pointer, const json_value **const pp_value );
 
 /** !
- * Serialize a JSONValue to a file
+ * Serialize a json_value to a file
  * 
- * @param p_value pointer to JSONValue
+ * @param p_value pointer to json_value
  * @param f the file to write to
  * 
  * @return 1 on success, 0 on error
  */
 DLLEXPORT int print_json_value ( const json_value *const p_value , FILE *f );
 
-/** !
- * Evaluate a JSON value
- * 
- * @param p_value pointer to JSONValue
- * @param pp_ret  pointer to return pointer
- * @param type the type of the token to be evaluated 
- * 
- * @return 1 on success, 0 on error
- */
-DLLEXPORT int evaluate_json_value ( const json_value *const p_value, const void **const pp_ret, enum json_value_type_e type );
-
 /** ! 
- * Free a JSON value, and its contents
+ * Free a json value, and its contents
  * 
- * @param p_value pointer to JSONValue
+ * @param p_value pointer to json_value
  *  
  * @return void
  */
