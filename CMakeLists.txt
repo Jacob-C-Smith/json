@@ -21,7 +21,7 @@ endif ()
 if ( NOT "${HAS_ARRAY}")
     
     # Log
-    message("[JSON] Adding array project")
+    message("[json] Adding array project")
     
     # Add the array directory
     add_subdirectory(${CMAKE_SOURCE_DIR}/extern/array ${CMAKE_SOURCE_DIR}/build/array)
@@ -34,7 +34,7 @@ endif()
 if ( NOT "${HAS_DICT}")
     
     # Log
-    message("[JSON] Adding dict project")
+    message("[json] Adding dict project")
     
     # Add the dict directory
     add_subdirectory(${CMAKE_SOURCE_DIR}/extern/dict ${CMAKE_SOURCE_DIR}/build/dict)
@@ -47,7 +47,7 @@ endif()
 if ( NOT "${HAS_SYNC}")
 
     # Log
-    message("[JSON] Adding sync project")
+    message("[json] Adding sync project")
 
     # Add the sync directory
     add_subdirectory(${CMAKE_SOURCE_DIR}/extern/sync ${CMAKE_SOURCE_DIR}/build/sync)
@@ -56,11 +56,23 @@ if ( NOT "${HAS_SYNC}")
     set(HAS_SYNC true PARENT_SCOPE)
 endif()
 
+# Find the log module
+if ( NOT "${HAS_LOG}")
+
+    # Log
+    message("[json] Adding log project")
+
+    # Add the log directory
+    add_subdirectory(${CMAKE_SOURCE_DIR}/extern/log ${CMAKE_SOURCE_DIR}/build/log)
+
+    # Let any parent project know that this project has log
+    set(HAS_LOG true PARENT_SCOPE)
+endif()
 # Find the JSON module
 if ( NOT "${HAS_JSON}")
 
     # Log
-    message("[JSON] Adding json project")
+    message("[json] Adding json project")
 
     # Let any parent project know that it has the json project
     set(HAS_JSON true PARENT_SCOPE)
@@ -74,9 +86,9 @@ target_link_libraries(json_example json array dict sync)
 
 ## Add source to the tester
 add_executable (json_test "json_test.c")
-add_dependencies(json_test array dict sync)
+add_dependencies(json_test array dict sync log)
 target_include_directories(json_test PUBLIC include include/json ${CMAKE_SOURCE_DIR}/extern/array/include/ ${CMAKE_SOURCE_DIR}/extern/dict/include/ ${CMAKE_SOURCE_DIR}/extern/sync/include/)
-target_link_libraries(json_test json array dict sync)
+target_link_libraries(json_test json array dict sync log)
 
 # Add source to this project's library
 add_library (json SHARED "json.c")
@@ -86,6 +98,6 @@ target_link_libraries(json PRIVATE array dict sync)
 
 # Add source to this project's tester library
 add_library (json_test_lib SHARED "json_test.c")
-add_dependencies(json_test_lib json array dict sync)
+add_dependencies(json_test_lib json array dict sync log)
 target_include_directories(json_test_lib PUBLIC include include/json)
-target_link_libraries(json_test_lib PRIVATE json array dict sync)
+target_link_libraries(json_test_lib PRIVATE json array dict sync log)

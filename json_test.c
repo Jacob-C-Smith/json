@@ -6,6 +6,8 @@
  * @author Jacob C Smith
  */
 
+#include <log/log.h>
+
 // Header
 #include <json/json_test.h>
 
@@ -208,9 +210,15 @@ int main ( int argc, const char* argv[] )
 
     // Initialize the timer library
     timer_init();
+    log_init(0, true);
+
+    // ╰╯╭╮│
 
     // Formatting
-    printf("|=============|\n| JSON TESTER |\n|=============|\n\n");
+    printf(
+        "╭─────────────╮\n"\
+        "│ JSON TESTER │\n"\
+        "╰─────────────╯\n\n");
 
     // Start
     t0 = timer_high_precision();
@@ -222,9 +230,9 @@ int main ( int argc, const char* argv[] )
     t1 = timer_high_precision();
 
     // Report the time it took to run the tests
-    printf("\njson tests took ");
+    log_info("\njson tests took ");
     print_time_pretty ( (double) ( t1 - t0 ) / (double) timer_seconds_divisor() );
-    printf(" to test\n");
+    log_info(" to test\n");
 
     // Exit
     return ( total_passes == total_tests ) ? EXIT_SUCCESS : EXIT_FAILURE;
@@ -261,22 +269,22 @@ void print_time_pretty ( double seconds )
     while ( _seconds > 0.000001 ) { microseconds++;_seconds-=0.000001; };
 
     // Print days
-    if ( days ) printf("%zu D, ", days);
+    if ( days ) log_info("%zu D, ", days);
     
     // Print hours
-    if ( hours ) printf("%zu h, ", hours);
+    if ( hours ) log_info("%zu h, ", hours);
 
     // Print minutes
-    if ( minutes ) printf("%zu m, ", minutes);
+    if ( minutes ) log_info("%zu m, ", minutes);
 
     // Print seconds
-    if ( __seconds ) printf("%zu s, ", __seconds);
+    if ( __seconds ) log_info("%zu s, ", __seconds);
     
     // Print milliseconds
-    if ( milliseconds ) printf("%zu ms, ", milliseconds);
+    if ( milliseconds ) log_info("%zu ms, ", milliseconds);
     
     // Print microseconds
-    if ( microseconds ) printf("%zu us", microseconds);
+    if ( microseconds ) log_info("%zu us", microseconds);
     
     // Done
     return;
@@ -354,14 +362,14 @@ void run_tests ( void )
     serial_t1 = timer_high_precision();
 
     // Report the time it took to run the parser tests
-    printf("parser tests took: ");
+    log_info("parser tests took: ");
     print_time_pretty ( (double)(parser_t1-parser_t0)/(double)timer_seconds_divisor() );
-    printf(" to test\n");
+    log_info(" to test\n");
 
     // Report the time it took to run the serializer tests
-    printf("serial tests took: ");
+    log_info("serial tests took: ");
     print_time_pretty ( (double)(serial_t1-serial_t0)/(double)timer_seconds_divisor() );
-    printf(" to test\n");
+    log_info(" to test\n");
 
     // Done
     return;
@@ -371,7 +379,7 @@ void test_parse_null ( char *name )
 {
 
     // Formatting
-    printf("Scenario: %s\n", name);
+    log_info("Scenario: %s\n", name);
 
     // Test a valid null token
     print_test(name, "null", test_parse_json("parse test cases/pass/null.json", (void *) 0, one));
@@ -390,7 +398,7 @@ void test_parse_bool ( char *name )
 {
 
     // Formatting
-    printf("Scenario: %s\n", name);
+    log_info("Scenario: %s\n", name);
 
     // Test a valid false token
     print_test(name, "false", test_parse_json("parse test cases/pass/bool/bool_false.json", construct_bool_false, one));
@@ -415,7 +423,7 @@ void test_parse_int ( char *name )
 {
 
     // Formatting
-    printf("Scenario: %s\n", name);
+    log_info("Scenario: %s\n", name);
 
     // Test -1
     print_test(name, "-1", test_parse_json("parse test cases/pass/int/int_-1.json", construct_int_minus_one, one));
@@ -449,7 +457,7 @@ void test_parse_float ( char *name )
 {
 
     // Formatting
-    printf("Scenario: %s\n", name);
+    log_info("Scenario: %s\n", name);
 
     // Test -1.0
     print_test(name, "-1.0", test_parse_json("parse test cases/pass/float/float_-1.json", construct_float_minus_one, one));
@@ -483,7 +491,7 @@ void test_parse_string ( char *name )
 {
 
     // Formatting
-    printf("Scenario: %s\n", name);
+    log_info("Scenario: %s\n", name);
     
     print_test(name, "\"\""       , test_parse_json("parse test cases/pass/string/string_empty.json"          , construct_string_empty          , one));
     print_test(name, "\"a\""      , test_parse_json("parse test cases/pass/string/string_a.json"              , construct_string_a              , one));
@@ -512,7 +520,7 @@ void test_parse_object ( char *name )
 {
 
     // Formatting
-    printf("Scenario: %s\n", name);
+    log_info("Scenario: %s\n", name);
     
     print_test(name, "{}"                                               , test_parse_json("parse test cases/pass/object/object_empty.json"        , construct_object_empty        , one));
     print_test(name, "{\"abc\":\"def\"}"                                , test_parse_json("parse test cases/pass/object/object_string.json"       , construct_object_string       , one));
@@ -540,7 +548,7 @@ void test_parse_array ( char *name )
 {
 
     // Formatting
-    printf("Scenario: %s\n", name);
+    log_info("Scenario: %s\n", name);
     
     print_test(name, "[]"                                  , test_parse_json("parse test cases/pass/array/array_empty.json"            , construct_array_empty            , one));
     print_test(name, "[null]"                              , test_parse_json("parse test cases/pass/array/array_null.json"             , construct_array_null             , one));
@@ -573,7 +581,7 @@ void test_serial_null ( char *name )
 {
 
     // Formatting
-    printf("Scenario: %s\n", name);
+    log_info("Scenario: %s\n", name);
 
     // Test serializing a null value
     print_test(name, "null", test_serial_json("serial test cases/TESTER_null.json", "parse test cases/pass/null.json", construct_null, one));
@@ -589,7 +597,7 @@ int test_serial_bool ( char *name )
 {
 
     // Formatting
-    printf("Scenario: %s\n", name);
+    log_info("Scenario: %s\n", name);
 
     print_test(name, "false", test_serial_json("serial test cases/bool/TESTER_bool_false.json", "parse test cases/pass/bool/bool_false.json", construct_bool_false, one));
     print_test(name, "true" , test_serial_json("serial test cases/bool/TESTER_bool_true.json" , "parse test cases/pass/bool/bool_true.json" , construct_bool_true , one));
@@ -605,7 +613,7 @@ int test_serial_int ( char *name )
 {
 
     // Formatting
-    printf("Scenario: %s\n", name);
+    log_info("Scenario: %s\n", name);
 
     print_test(name, "-1"    , test_serial_json("serial test cases/int/TESTER_int_-1.json" , "parse test cases/pass/int/int_-1.json" , construct_int_minus_one, one));
     print_test(name, "0"     , test_serial_json("serial test cases/int/TESTER_int_0.json"  , "parse test cases/pass/int/int_0.json"  , construct_int_zero     , one));
@@ -623,7 +631,7 @@ int test_serial_float ( char *name )
 {
 
     // Formatting
-    printf("Scenario: %s\n", name);
+    log_info("Scenario: %s\n", name);
 
     printf("TODO: While the floating point serializer does work, the formatting is poor.\n");
     printf("These tests will fail if compared against the original file, so I've disabled them\n");
@@ -645,7 +653,7 @@ int test_serial_string ( char *name )
 {
 
     // Formatting
-    printf("Scenario: %s\n", name);
+    log_info("Scenario: %s\n", name);
     
     print_test(name, "\"\""       , test_serial_json("serial test cases/string/TESTER_string_empty.json"          , "parse test cases/pass/string/string_empty.json"          , construct_string_empty          , one));
     print_test(name, "\"a\""      , test_serial_json("serial test cases/string/TESTER_string_a.json"              , "parse test cases/pass/string/string_a.json"              , construct_string_a              , one));
@@ -671,7 +679,7 @@ int test_serial_object ( char *name )
 {
 
     // Formatting
-    printf("Scenario: %s\n", name);
+    log_info("Scenario: %s\n", name);
     
     print_test(name, "{}"                                               , test_serial_json("serial test cases/object/TESTER_object_empty.json"        , "parse test cases/pass/object/object_empty.json"        , construct_object_empty        , one));
     print_test(name, "{\"abc\":\"def\"}"                                , test_serial_json("serial test cases/object/TESTER_object_string.json"       , "parse test cases/pass/object/object_string.json"       , construct_object_string       , one));
@@ -698,7 +706,7 @@ int test_serial_array ( char *name )
 {
 
     // Formatting
-    printf("Scenario: %s\n", name);
+    log_info("Scenario: %s\n", name);
     
     print_test(name, "[]"                                  , test_serial_json("serial test cases/array/TESTER_array_empty.json"            , "parse test cases/pass/array/array_empty.json"            , construct_array_empty            , one));
     print_test(name, "[null]"                              , test_serial_json("serial test cases/array/TESTER_array_null.json"             , "parse test cases/pass/array/array_null.json"             , construct_array_null             , one));
@@ -2639,7 +2647,10 @@ void print_test ( const char *scenario_name, const char *test_name, bool passed 
 {
 
     // Initialized data
-    printf("%s %-75s %s\n",scenario_name, test_name, (passed) ? "PASS" : "FAIL");
+    if ( passed )
+        log_pass("[%s] %s %s\n", "PASS", scenario_name, test_name);
+    else
+        log_fail("[%s] %s %s\n", "FAIL", scenario_name, test_name);
 
     // Increment the pass/fail counter
     if (passed)

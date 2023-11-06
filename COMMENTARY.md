@@ -208,3 +208,39 @@ And in the exit branch, the dictionary is written to the double pointer paramete
 
 ### > The implementation
 Please see [JSON.c](JSON.c)
+
+# v3.0
+### > Background
+The previous two versions were capable of parsing JSON objects. This project has been incredibly useful since I started it three years ago. I
+
+### > The solution, design choices, and code commentary
+
+This was straightforward. I changed the function signature to write to a dictionary. 
+```c
+DLLEXPORT int parse_json ( char* token_text, size_t len, dict** dictionary );
+```
+After counting JSON tokens, a hash table is constructed. I made the arbitrary choice to make the hash table twice as big as the property count. This was done in an effort to minimize collisions. 
+```c
+    // Initialized data.
+    ...
+    dict  *i_dictionary   = 0;
+    ...
+    dict_construct(dictionary, count*2);
+    i_dictionary = *dictionary;
+```
+The parser allocates a new token after every iteration. After the token is populated, it is added to the dictionary.
+```c
+// Populate key, value, and type in token
+...
+
+token_iterator++;
+
+dict_add(i_dictionary, token->key, token);
+
+// Iterate or exit
+...
+```
+And in the exit branch, the dictionary is written to the double pointer parameter. It was really that simple. 
+
+### > The implementation
+Please see [JSON.c](JSON.c)
