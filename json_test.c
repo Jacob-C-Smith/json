@@ -212,13 +212,12 @@ int main ( int argc, const char* argv[] )
     timer_init();
     log_init(0, true);
 
-    // ╰╯╭╮│
-
     // Formatting
     printf(
         "╭─────────────╮\n"\
         "│ JSON TESTER │\n"\
-        "╰─────────────╯\n\n");
+        "╰─────────────╯\n\n"
+    );
 
     // Start
     t0 = timer_high_precision();
