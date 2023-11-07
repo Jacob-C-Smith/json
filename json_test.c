@@ -215,7 +215,7 @@ int main ( int argc, const char* argv[] )
     // Formatting
     printf(
         "╭─────────────╮\n"\
-        "│ JSON TESTER │\n"\
+        "│ json tester │\n"\
         "╰─────────────╯\n\n"
     );
 
@@ -632,8 +632,10 @@ int test_serial_float ( char *name )
     // Formatting
     log_info("Scenario: %s\n", name);
 
-    printf("TODO: While the floating point serializer does work, the formatting is poor.\n");
-    printf("These tests will fail if compared against the original file, so I've disabled them\n");
+    log_warning(
+        "TODO: While the floating point serializer does work, the formatting is poor.\n"\
+        "These tests will fail if compared against the original file, so I've disabled them\n"
+    );
 
     // TODO: Format perfectly. 
     //print_test(name, "-1.0"    , test_serial_json("serial test cases/float/TESTER_float_-1.json" , "parse test cases/pass/float/float_-1.json" , construct_float_minus_one, one));
@@ -2673,8 +2675,8 @@ void print_final_summary ( void )
     total_fails  += ephemeral_fails;
 
     // Print
-    printf("\nTests: %d, Passed: %d, Failed: %d (%%%.3f)\n",  ephemeral_tests, ephemeral_passes, ephemeral_fails, ((float)ephemeral_passes/(float)ephemeral_tests*100.f));
-    printf("Total: %d, Passed: %d, Failed: %d (%%%.3f)\n\n",  total_tests, total_passes, total_fails, ((float)total_passes/(float)total_tests*100.f));
+    log_info("\nTests: %d, Passed: %d, Failed: %d (%%%.3f)\n",  ephemeral_tests, ephemeral_passes, ephemeral_fails, ((float)ephemeral_passes/(float)ephemeral_tests*100.f));
+    log_info("Total: %d, Passed: %d, Failed: %d (%%%.3f)\n\n",  total_tests, total_passes, total_fails, ((float)total_passes/(float)total_tests*100.f));
     
     // Clear test counters for this test
     ephemeral_tests  = 0;
