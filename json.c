@@ -7,10 +7,8 @@ int parse_json_whitespace ( const char *pointer, const char **const return_point
 {
 
     // Argument check
-    if ( pointer == (void *) 0 ) goto no_pointer;
-
-    // Initialized data
-    size_t i = 0;
+    if ( pointer  == (void *) 0 ) goto no_pointer;
+    if ( *pointer ==       '\0' ) goto done;
 
     // Skip past spaces, line feed, carriage return, horizontal tab
     while (
@@ -24,7 +22,8 @@ int parse_json_whitespace ( const char *pointer, const char **const return_point
 
     // Error checking
     if ( *pointer == '\0' ) return 0;
-
+    
+    done:
     // Return the new pointer
     *return_pointer = pointer;
 
@@ -429,7 +428,7 @@ int parse_json_value ( char *text, const char **const return_pointer, const json
                     string_len = strlen(last_text);           
 
                     // Allocate memory for the string
-                    p_value->string = realloc(0, (string_len+1) * sizeof(char));
+                    p_value->string = JSON_REALLOC(0, (string_len+1) * sizeof(char));
                 
                     // Error check
                     if ( p_value->string == (void *) 0 ) goto no_mem;
@@ -865,8 +864,9 @@ int print_json_value ( const json_value *const p_value , FILE *f )
 
                     if ( property_count == 0 )
                         goto done;
-                    keys   = calloc(property_count, sizeof(char*));
-                    values = calloc(property_count, sizeof(json_value*));
+
+                    keys   = JSON_REALLOC(0, property_count * sizeof(char*));
+                    values = JSON_REALLOC(0, property_count * sizeof(json_value*));
 
                     dict_keys(p_value->object, keys);
                     dict_values(p_value->object, (void **)values);
@@ -879,6 +879,8 @@ int print_json_value ( const json_value *const p_value , FILE *f )
                     fprintf(f,"\"%s\":",keys[property_count-1]);
                     print_json_value(values[property_count-1],f);
 
+                    JSON_REALLOC(keys, 0);
+                    JSON_REALLOC(values, 0);
                     done:
                     fprintf(f,"}");
                 }
@@ -905,7 +907,7 @@ int print_json_value ( const json_value *const p_value , FILE *f )
                     array_get(p_value->list, 0,&element_count);
 
                     // Allocate memory for the elements
-                    elements = calloc(element_count, sizeof(json_value*));
+                    elements = JSON_REALLOC(0, element_count * sizeof(json_value*));
 
                     // Error check
                     if ( elements == (void *) 0 )
@@ -975,19 +977,25 @@ void free_json_value ( const json_value *const p_value )
 {
     
     // Argument errors
-    {
-        #ifndef NDEBUG
-            if ( p_value == (void *)0 ) return;
-        #endif
-    }
+    if ( p_value == (void *)0 ) return;
     
-    // Free a value
+    // Free a string
+    if (p_value->type == JSON_VALUE_STRING)
+    {
+
+        if ( p_value->string ) JSON_REALLOC(p_value->string, 0);
+    }
+
+    // Free an object
     if (p_value->type == JSON_VALUE_OBJECT)
     {
 
         // Free each dict property
         if ( p_value->object )
+        {
             dict_free_clear(p_value->object, (void(*)(const void *const))free_json_value);
+            dict_destroy(&p_value->object);
+        }
     }
 
     // Free an array

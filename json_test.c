@@ -11,6 +11,22 @@
 // Header
 #include <json/json_test.h>
 
+// Set reallocator macros
+#ifdef DICT_REALLOC
+    #undef DICT_REALLOC
+    #define DICT_REALLOC(p, sz) realloc(p, sz)
+#endif
+
+#ifdef ARRAY_REALLOC
+    #undef ARRAY_REALLOC
+    #define ARRAY_REALLOC(p, sz) realloc(p, sz)
+#endif
+
+#ifdef JSON_REALLOC
+    #undef JSON_REALLOC
+    #define JSON_REALLOC(p, sz) realloc(p, sz)
+#endif
+
 // Enumeration definitions
 enum result_e {
     zero = 0,    
@@ -27,6 +43,34 @@ int total_tests      = 0,
     ephemeral_tests  = 0,
     ephemeral_passes = 0,
     ephemeral_fails  = 0;
+const char *alphabet[] = {
+    "a",
+    "b",
+    "c",
+    "d",
+    "e",
+    "f",
+    "g",
+    "h",
+    "i",
+    "j",
+    "k",
+    "l",
+    "m",
+    "n",
+    "o",
+    "p",
+    "q",
+    "r",
+    "s",
+    "t",
+    "u",
+    "v",
+    "w",
+    "x",
+    "y",
+    "z"
+};
 
 // Forward declarations
 /** !
@@ -69,7 +113,7 @@ void print_test ( const char *scenario_name, const char *test_name, bool passed 
 
 bool     test_parse_json     ( char         *test_file    , int         (*expected_value_constructor) (json_value **), result_t expected );
 bool     test_serial_json    ( char         *test_file    , char         *expected_file                               , int(*expected_value_constructor) (json_value **), result_t expected );
-result_t load_json           ( json_value  **pp_value     , char         *test_file );
+result_t load_json           ( json_value  **pp_value     , char         *test_file, char **free_me );
 result_t save_json           ( char         *path         , json_value   *p_value );
 bool     value_equals        ( json_value   *a            , json_value   *b );
 size_t   load_file           ( const char   *path         , void         *buffer                                      , bool     binary_mode );
@@ -735,7 +779,7 @@ int test_serial_array ( char *name )
     return 1;
 }
 
-result_t load_json ( json_value **pp_value, char *test_file )
+result_t load_json ( json_value **pp_value, char *test_file, char **free_me )
 {
 
     // Initialized data
@@ -752,6 +796,8 @@ result_t load_json ( json_value **pp_value, char *test_file )
 
     // Parse JSON
     r = parse_json_value(file_buf, 0, pp_value);
+
+    *free_me = file_buf;
 
     // Success
     return r;
@@ -851,6 +897,11 @@ bool value_equals (json_value *a, json_value *b)
                 result = 0;
             }
         }
+
+        free(a_keys);
+        free(b_keys);
+        free(a_values);
+        free(b_values);
     }
 
     if ( a->type == JSON_VALUE_ARRAY )
@@ -1157,11 +1208,14 @@ int construct_string_empty ( json_value **pp_value )
     // Initialized data
     json_value *p_value = calloc(1, sizeof(json_value));
     
+    char *z = JSON_REALLOC(0, 3);
+    *z='\0';
+
     // Type
     *p_value = (json_value)
     {
         .type   = JSON_VALUE_STRING,
-        .string = ""
+        .string = z
     };
 
     // Return a pointer to the caller
@@ -1176,12 +1230,16 @@ int construct_string_a ( json_value **pp_value )
 
     // Initialized data
     json_value *p_value = calloc(1, sizeof(json_value));
-    
+    char *z = JSON_REALLOC(0, 5);
+
+    z[0]='a';
+    z[1]='\0';
+
     // Type
     *p_value = (json_value)
     {
         .type   = JSON_VALUE_STRING,
-        .string = "a"
+        .string = z
     };
 
     // Return a pointer to the caller
@@ -1196,12 +1254,18 @@ int construct_string_abc ( json_value **pp_value )
 
     // Initialized data
     json_value *p_value = calloc(1, sizeof(json_value));
-    
+    char *z = JSON_REALLOC(0, 5);
+
+    z[0]='a';
+    z[1]='b';
+    z[2]='c';
+    z[3]='\0';
+
     // Type
     *p_value = (json_value)
     {
         .type   = JSON_VALUE_STRING,
-        .string = "abc"
+        .string = z
     };
 
     // Return a pointer to the caller
@@ -1216,12 +1280,20 @@ int construct_string_quote_abc_quote ( json_value **pp_value )
 
     // Initialized data
     json_value *p_value = calloc(1, sizeof(json_value));
-    
+    char *z = JSON_REALLOC(0, 10);
+
+    z[0]='\"';
+    z[1]='a';
+    z[2]='b';
+    z[3]='c';
+    z[4]='\"';
+    z[5]='\0';
+
     // Type
     *p_value = (json_value)
     {
         .type   = JSON_VALUE_STRING,
-        .string = "\"abc\""
+        .string = z
     };
 
     // Return a pointer to the caller
@@ -1236,12 +1308,16 @@ int construct_string_quote ( json_value **pp_value )
 
     // Initialized data
     json_value *p_value = calloc(1, sizeof(json_value));
-    
+    char *z = JSON_REALLOC(0, 3);
+
+    z[0]='\"';
+    z[1]='\0';
+
     // Type
     *p_value = (json_value)
     {
         .type   = JSON_VALUE_STRING,
-        .string = "\""
+        .string = z
     };
 
     // Return a pointer to the caller
@@ -1256,12 +1332,17 @@ int construct_string_quote_quote ( json_value **pp_value )
 
     // Initialized data
     json_value *p_value = calloc(1, sizeof(json_value));
+    char *z = JSON_REALLOC(0, 4);
+
+    z[0]='\"';
+    z[1]='\"';
+    z[2]='\0';
     
     // Type
     *p_value = (json_value)
     {
         .type   = JSON_VALUE_STRING,
-        .string = "\"\""
+        .string = z
     };
 
     // Return a pointer to the caller
@@ -1276,12 +1357,18 @@ int construct_string_whitespaces_abc ( json_value **pp_value )
 
     // Initialized data
     json_value *p_value = calloc(1, sizeof(json_value));
-    
+    char *z = JSON_REALLOC(0, 4);
+
+    z[0]='a';
+    z[1]='b';
+    z[2]='c';
+    z[3]='\0';
+
     // Type
     *p_value = (json_value)
     {
         .type   = JSON_VALUE_STRING,
-        .string = "abc"
+        .string = z
     };
 
     // Return a pointer to the caller
@@ -1296,12 +1383,16 @@ int construct_string_reverse_solidus ( json_value **pp_value )
 
     // Initialized data
     json_value *p_value = calloc(1, sizeof(json_value));
+    char *z = JSON_REALLOC(0, 3);
+
+    z[0]='\\';
+    z[1]='\0';
     
     // Type
     *p_value = (json_value)
     {
         .type   = JSON_VALUE_STRING,
-        .string = "\\"
+        .string = z
     };
 
     // Return a pointer to the caller
@@ -1316,12 +1407,16 @@ int construct_string_solidus ( json_value **pp_value )
 
     // Initialized data
     json_value *p_value = calloc(1, sizeof(json_value));
-    
+    char *z = JSON_REALLOC(0, 3);
+
+    z[0]='/';
+    z[1]='\0';
+
     // Type
     *p_value = (json_value)
     {
         .type   = JSON_VALUE_STRING,
-        .string = "/"
+        .string = z
     };
 
     // Return a pointer to the caller
@@ -1336,12 +1431,16 @@ int construct_string_backspace ( json_value **pp_value )
 
     // Initialized data
     json_value *p_value = calloc(1, sizeof(json_value));
-    
+    char *z = JSON_REALLOC(0, 3);
+
+    z[0]='\b';
+    z[1]='\0';
+
     // Type
     *p_value = (json_value)
     {
         .type   = JSON_VALUE_STRING,
-        .string = "\b"
+        .string = z
     };
 
     // Return a pointer to the caller
@@ -1356,12 +1455,16 @@ int construct_string_formfeed ( json_value **pp_value )
 
     // Initialized data
     json_value *p_value = calloc(1, sizeof(json_value));
-    
+    char *z = JSON_REALLOC(0, 3);
+
+    z[0]='\f';
+    z[1]='\0';
+
     // Type
     *p_value = (json_value)
     {
         .type   = JSON_VALUE_STRING,
-        .string = "\f"
+        .string = z
     };
 
     // Return a pointer to the caller
@@ -1376,12 +1479,16 @@ int construct_string_linefeed ( json_value **pp_value )
 
     // Initialized data
     json_value *p_value = calloc(1, sizeof(json_value));
-    
+    char *z = JSON_REALLOC(0, 3);
+
+    z[0]='\n';
+    z[1]='\0';
+
     // Type
     *p_value = (json_value)
     {
         .type   = JSON_VALUE_STRING,
-        .string = "\n"
+        .string = z
     };
 
     // Return a pointer to the caller
@@ -1396,12 +1503,16 @@ int construct_string_carriage_return ( json_value **pp_value )
 
     // Initialized data
     json_value *p_value = calloc(1, sizeof(json_value));
-    
+    char *z = JSON_REALLOC(0, 3);
+
+    z[0]='\r';
+    z[1]='\0';
+
     // Type
     *p_value = (json_value)
     {
         .type   = JSON_VALUE_STRING,
-        .string = "\r"
+        .string = z
     };
 
     // Return a pointer to the caller
@@ -1416,12 +1527,16 @@ int construct_string_horizontal_tab ( json_value **pp_value )
 
     // Initialized data
     json_value *p_value = calloc(1, sizeof(json_value));
-    
+    char *z = JSON_REALLOC(0, 3);
+
+    z[0]='\t';
+    z[1]='\0';
+
     // Type
     *p_value = (json_value)
     {
         .type   = JSON_VALUE_STRING,
-        .string = "\t"
+        .string = z
     };
 
     // Return a pointer to the caller
@@ -1456,11 +1571,17 @@ int construct_object_string ( json_value **pp_value )
     // Initialized data
     json_value *p_value     = calloc(1, sizeof(json_value)),
                *p_abc_value = calloc(1, sizeof(json_value));
-    
+    char *z = JSON_REALLOC(0, 4);
+
+    z[0]='d';
+    z[1]='e';
+    z[2]='f';
+    z[3]='\0';
+
     // Type
     p_value->type = JSON_VALUE_OBJECT;
     p_abc_value->type = JSON_VALUE_STRING;
-    p_abc_value->string = "def";
+    p_abc_value->string = z;
     
     // Value
     dict_construct(&p_value->object, 1, 0);
@@ -1573,15 +1694,33 @@ int construct_object_strings ( json_value **pp_value )
                *p_abc_value = calloc(1, sizeof(json_value)),
                *p_ghi_value = calloc(1, sizeof(json_value)),
                *p_mno_value = calloc(1, sizeof(json_value));
-    
+    char *x = JSON_REALLOC(0, 4);
+    char *y = JSON_REALLOC(0, 4);
+    char *z = JSON_REALLOC(0, 4);
+
+    x[0] = 'd';
+    x[1] = 'e';
+    x[2] = 'f';
+    x[3] = '\0';
+
+    y[0] = 'j';
+    y[1] = 'k';
+    y[2] = 'l';
+    y[3] = '\0';
+
+    z[0] = 'p';
+    z[1] = 'q';
+    z[2] = 'r';
+    z[3] = '\0';
+
     // Type
     p_value->type = JSON_VALUE_OBJECT;
     p_abc_value->type = JSON_VALUE_STRING;
-    p_abc_value->string = "def";
+    p_abc_value->string = x;
     p_ghi_value->type = JSON_VALUE_STRING;
-    p_ghi_value->string = "jkl";
+    p_ghi_value->string = y;
     p_mno_value->type = JSON_VALUE_STRING;
-    p_mno_value->string = "pqr";
+    p_mno_value->string = z;
     
     // Value
     dict_construct(&p_value->object, 3, 0);
@@ -1604,11 +1743,19 @@ int construct_object_mixed_values ( json_value **pp_value )
                *p_name_value   = calloc(1, sizeof(json_value)),
                *p_age_value    = calloc(1, sizeof(json_value)),
                *p_height_value = calloc(1, sizeof(json_value));
+
+    char *z = JSON_REALLOC(0, 5);
     
+    z[0] = 'j';
+    z[1] = 'a';
+    z[2] = 'k';
+    z[3] = 'e';
+    z[4] = '\0';
+
     // Type
     p_value->type          = JSON_VALUE_OBJECT;
     p_name_value->type     = JSON_VALUE_STRING;
-    p_name_value->string   = "jake";
+    p_name_value->string   = z;
     p_age_value->type      = JSON_VALUE_INTEGER;
     p_age_value->integer   = 20;
     p_height_value->type   = JSON_VALUE_NUMBER;
@@ -1692,15 +1839,12 @@ int construct_object_recursive ( json_value **pp_value )
 {
 
     // Initialized data
-    json_value *p_value      = calloc(1, sizeof(json_value)),
-               *p_iter_value = calloc(1, sizeof(json_value)),
-               *p_last_value = calloc(1, sizeof(json_value));
+    json_value *p_iter_value = JSON_REALLOC(0, sizeof(json_value)),
+               *p_last_value = 0;
     char       *iter_key     = 0;
 
     p_iter_value->type = JSON_VALUE_OBJECT;
 
-    // Construct the object
-    dict_construct(&p_value->object, 1, 0);
     
     p_iter_value->type = JSON_VALUE_OBJECT;
     dict_construct(&p_iter_value->object, 1, 0);
@@ -1711,15 +1855,11 @@ int construct_object_recursive ( json_value **pp_value )
     for (size_t i = 'z'; i > 'a'-1; i--)
     {
 
-        iter_key = calloc(2, sizeof(char));
-        iter_key[0] = i;
-        iter_key[1] = 0;
-
-        p_iter_value = calloc(1, sizeof(json_value)),
+        p_iter_value = JSON_REALLOC(0, sizeof(json_value)),
 
         p_iter_value->type = JSON_VALUE_OBJECT;
         dict_construct(&p_iter_value->object, 1, 0);
-        dict_add(p_iter_value->object,iter_key, p_last_value);   
+        dict_add(p_iter_value->object,alphabet[i-'a'], p_last_value);   
         p_last_value = p_iter_value;
     }
     
@@ -2108,10 +2248,14 @@ int construct_array_string_empty ( json_value **pp_value )
     // Type
     p_value->type = JSON_VALUE_ARRAY;
 
+    char *z = JSON_REALLOC(0, 5);
+
+    z[0]='\0';
+
     // Value
     p_string = calloc(1, sizeof(json_value));
     p_string->type = JSON_VALUE_STRING;
-    p_string->string = "";
+    p_string->string = z;
     array_construct(&p_value->list, 1);
     array_add(p_value->list, p_string);
 
@@ -2131,11 +2275,17 @@ int construct_array_string ( json_value **pp_value )
 
     // Type
     p_value->type = JSON_VALUE_ARRAY;
+    char *z = JSON_REALLOC(0, 5);
+
+    z[0]='a';
+    z[1]='b';
+    z[2]='c';
+    z[3]='\0';
 
     // Value
     p_string = calloc(1, sizeof(json_value));
     p_string->type = JSON_VALUE_STRING;
-    p_string->string = "abc";
+    p_string->string = z;
     array_construct(&p_value->list, 1);
     array_add(p_value->list, p_string);
 
@@ -2152,6 +2302,24 @@ int construct_array_strings ( json_value **pp_value )
     // Initialized data
     json_value *p_value  = calloc(1, sizeof(json_value)),
                 *p_string = 0;
+    char *x = JSON_REALLOC(0, 4);
+    char *y = JSON_REALLOC(0, 4);
+    char *z = JSON_REALLOC(0, 4);
+
+    x[0] = 'a';
+    x[1] = 'b';
+    x[2] = 'c';
+    x[3] = '\0';
+
+    y[0] = 'd';
+    y[1] = 'e';
+    y[2] = 'f';
+    y[3] = '\0';
+
+    z[0] = 'g';
+    z[1] = 'h';
+    z[2] = 'i';
+    z[3] = '\0';
 
     // Type
     p_value->type = JSON_VALUE_ARRAY;
@@ -2160,19 +2328,19 @@ int construct_array_strings ( json_value **pp_value )
     // Value 1
     p_string = calloc(1, sizeof(json_value));
     p_string->type = JSON_VALUE_STRING;
-    p_string->string = "abc";
+    p_string->string = x;
     array_add(p_value->list, p_string);
     
     // Value 2
     p_string = calloc(1, sizeof(json_value));
     p_string->type = JSON_VALUE_STRING;
-    p_string->string = "def";
+    p_string->string = y;
     array_add(p_value->list, p_string);
 
     // Value 3
     p_string = calloc(1, sizeof(json_value));
     p_string->type = JSON_VALUE_STRING;
-    p_string->string = "ghi";
+    p_string->string = z;
     array_add(p_value->list, p_string);
 
     // Return
@@ -2555,7 +2723,8 @@ bool test_parse_json ( char *test_file, int(*expected_value_constructor) (json_v
     size_t       file_len = 0;
     result_t     result   = 0,
                  value_eq = 0;
-    char        *file_buf = 0;
+    char        *file_buf = 0,
+                *free_me = 0;
     json_value  *p_return_value   = 0,
                 *p_expected_value = 0;
 
@@ -2563,14 +2732,17 @@ bool test_parse_json ( char *test_file, int(*expected_value_constructor) (json_v
     if (expected_value_constructor) expected_value_constructor(&p_expected_value);
 
     // Parse the json value
-    result = load_json ( &p_return_value, test_file );
+    result = load_json ( &p_return_value, test_file, &free_me );
 
     // Test for equality
     value_eq = value_equals(p_return_value, p_expected_value);
 
     // Free the json value
     if ( p_return_value ) free_json_value(p_return_value);
-    
+    if ( p_expected_value ) free_json_value(p_expected_value);
+    if ( free_me )
+        free(free_me);
+
     // Success
     return (result == expected && value_eq);
 }
@@ -2597,6 +2769,8 @@ bool test_serial_json ( char *test_file, char *expected_file, int(*expected_valu
     
     // Clean up resources
     free_json_value(p_return_value);
+    free_json_value(p_expected_value);
+
     fclose(p_f);
 
     // Open the expected and the result
@@ -2639,6 +2813,9 @@ bool test_serial_json ( char *test_file, char *expected_file, int(*expected_valu
         free(f_contents);
         free(ef_contents);
     }
+
+    fclose(p_f);
+    fclose(p_ef);
 
     // Success
     return ret;

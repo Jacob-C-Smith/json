@@ -17,6 +17,8 @@ if (${IS_DEBUG_BUILD})
     add_compile_definitions(NDEBUG)
 endif ()
 
+add_compile_options(-gdwarf-4 -Wall -Wextra -Wpedantic -Wpointer-arith -Wstrict-prototypes -Wformat-security -Wduplicated-cond -Wfloat-equal -Wshadow -Wconversion -Wjump-misses-init -Wlogical-not-parentheses -Wnull-dereference)
+
 # Find the array module
 if ( NOT "${HAS_ARRAY}")
     
