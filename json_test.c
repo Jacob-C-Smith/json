@@ -2649,9 +2649,9 @@ void print_test ( const char *scenario_name, const char *test_name, bool passed 
 
     // Initialized data
     if ( passed )
-        log_pass("[%s] %s %s\n", "PASS", scenario_name, test_name);
+        log_pass("%s %s\n", scenario_name, test_name);
     else
-        log_fail("[%s] %s %s\n", "FAIL", scenario_name, test_name);
+        log_fail("%s %s\n", scenario_name, test_name);
 
     // Increment the pass/fail counter
     if (passed)
