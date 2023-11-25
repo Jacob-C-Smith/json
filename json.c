@@ -731,7 +731,238 @@ int parse_json_value ( char *text, const char **const return_pointer, const json
     }
 }
 
-int print_json_value ( const json_value *const p_value , FILE *f )
+int serialize_json_value ( const json_value *const p_value, char *_buffer )
+{
+
+    size_t written_characters = 0;
+
+    // Null case
+    if ( p_value == 0 ) written_characters += sprintf(&_buffer[written_characters], "null");
+
+    // Everything else
+    else
+    {
+
+        // Print the value
+        switch (p_value->type)
+        {
+            
+            // Print a boolean value
+            case JSON_VALUE_BOOLEAN:
+                written_characters += sprintf(&_buffer[written_characters],"%s",p_value->boolean ? "true" : "false");
+                break;
+            
+            // Print an integer value
+            case JSON_VALUE_INTEGER:
+                written_characters += sprintf(&_buffer[written_characters],"%lld", p_value->integer);
+                break;
+
+            // Print a floating point value
+            case JSON_VALUE_NUMBER:
+                written_characters += sprintf(&_buffer[written_characters],"%g", p_value->number);
+                break;
+
+
+            // Print a string
+            case JSON_VALUE_STRING:
+            {
+
+                // Initialized data
+                size_t len = strlen(p_value->string);
+
+                // Formatting
+                written_characters += sprintf(&_buffer[written_characters], "\"");
+                
+                // Iterate over each character
+                for (size_t i = 0; i < len; i++)
+                {
+
+                    // Check for an escape sequence
+                    switch(p_value->string[i])
+                    {
+
+                        // Double quote
+                        case '\"':
+                            _buffer[written_characters++] = '\\';
+                            _buffer[written_characters++] = '\"';
+
+                            break;
+
+                        // Backslash
+                        case '\\':
+                            _buffer[written_characters++] = '\\';
+                            _buffer[written_characters++] = '\\';
+
+                            break;
+
+                        // Forward slash
+                        case '/':
+                            _buffer[written_characters++] = '\\';
+                            _buffer[written_characters++] = '/';
+
+                            break;
+                        
+                        // Backspace
+                        case '\b':
+                            _buffer[written_characters++] = '\\';
+                            _buffer[written_characters++] = 'b';
+
+                            break;
+                        
+                        // Form feed
+                        case '\f':
+                            _buffer[written_characters++] = '\\';
+                            _buffer[written_characters++] = 'f';
+
+                            break;
+                        
+                        // Line feed
+                        case '\n':
+                            _buffer[written_characters++] = '\\';
+                            _buffer[written_characters++] = 'n';
+
+                            break;
+                        
+                        // Carriage return
+                        case '\r':
+                            _buffer[written_characters++] = '\\';
+                            _buffer[written_characters++] = 'r';
+
+                            break;
+                        
+                        // Horizontal tab
+                        case '\t':
+                            _buffer[written_characters++] = '\\';
+                            _buffer[written_characters++] = 't';
+
+                            break;
+
+                        // TODO: Unicode
+                        // TODO:case '\u':
+                            // TODO:
+                            // TODO:break;
+                        
+                        // Default
+                        default:
+                            _buffer[written_characters++] = p_value->string[i];
+                    }
+                }
+            
+                // Formatting
+                written_characters += sprintf(&_buffer[written_characters], "\"");
+                break;
+            }
+            
+            // Print an object
+            case JSON_VALUE_OBJECT:
+            {
+                if ( p_value->object )
+                {
+                    // Initialized data
+                    size_t        property_count = dict_values(p_value->object, 0);
+                    char        **keys           = 0;
+                    json_value **values          = 0;
+
+                    written_characters += sprintf(&_buffer[written_characters],"{");
+
+                    if ( property_count == 0 )
+                        goto done;
+
+                    keys   = JSON_REALLOC(0, property_count * sizeof(char*));
+                    values = JSON_REALLOC(0, property_count * sizeof(json_value*));
+
+                    dict_keys(p_value->object, keys);
+                    dict_values(p_value->object, (void **)values);
+                    for (size_t i = 0; i < property_count-1; i++)
+                    {
+                        written_characters += sprintf(&_buffer[written_characters],"\"%s\":",keys[i]);
+                        serialize_json_value(values[i],_buffer);
+                        written_characters += sprintf(&_buffer[written_characters],",");
+                    }
+                    written_characters += sprintf(&_buffer[written_characters],"\"%s\":",keys[property_count-1]);
+                    serialize_json_value(values[property_count-1], _buffer);
+
+                    JSON_REALLOC(keys, 0);
+                    JSON_REALLOC(values, 0);
+                    done:
+                    written_characters += sprintf(&_buffer[written_characters],"}");
+                }
+                break;
+            }
+            
+            // Print an array
+            case JSON_VALUE_ARRAY:
+            {
+                
+                // Initialized data
+                size_t       element_count = 0;
+                char        *keys          = 0;
+                json_value **elements      = 0;
+
+                // Error check
+                if ( p_value->list == (void *) 0 )
+                    goto no_list;
+
+                // Get the contents of the array
+                {
+
+                    // Get the quantity of elements                    
+                    array_get(p_value->list, 0,&element_count);
+
+                    // Allocate memory for the elements
+                    elements = JSON_REALLOC(0, element_count * sizeof(json_value*));
+
+                    // Error check
+                    if ( elements == (void *) 0 )
+                        goto no_mem;
+
+                    // Get the contents of the array
+                    array_get(p_value->list, (void **)elements, 0);
+                }
+                
+                // Formatting
+                written_characters += sprintf(&_buffer[written_characters],"[");
+
+                // Print the first element
+                if ( element_count )
+                    serialize_json_value(elements[0], _buffer);
+                
+                // Iterate over each element
+                for (size_t i = 1; i < element_count; i++)
+                {
+
+                    // Formatting
+                    written_characters += sprintf(&_buffer[written_characters], ",");
+
+                    // Print the value
+                    serialize_json_value(elements[i], _buffer);
+                }
+
+                // Free the element
+                JSON_REALLOC(elements, 0);
+
+
+                // Formatting
+                written_characters += sprintf(&_buffer[written_characters], "]");
+            }
+                break;
+            
+            default:
+
+                // Error
+                return 0;
+            }
+    }
+
+    // Success
+    return 1;
+
+    no_list:
+    no_mem:
+        return 0;
+}
+
+int print_json_value ( const json_value *const p_value, FILE *f )
 {
     
     // Null case

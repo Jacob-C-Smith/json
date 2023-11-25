@@ -96,6 +96,15 @@ typedef struct json_value_s json_value;
  */
 DLLEXPORT int parse_json_value ( char *text, const char **const return_pointer, const json_value **const pp_value );
 
+/** ! 
+ * Serialize a json_value to a buffer
+ * 
+ * @param p_value pointer to json_value
+ * @param _buffer pointer to text buffer
+ * 
+ * @return 1 on success, 0 on error
+*/
+DLLEXPORT int serialize_json_value ( const json_value *const p_value, char *_buffer );
 /** !
  * Serialize a json_value to a file
  * 
