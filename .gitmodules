@@ -13,3 +13,6 @@
 [submodule "extern/log"]
 	path = extern/log
 	url = https://github.com/Jacob-C-Smith/log
+[submodule "array"]
+	path = array
+	url = https://github.com/Jacob-C-Smith/array
