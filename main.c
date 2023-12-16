@@ -142,7 +142,6 @@ int print_json_file ( const char *path )
     }
 }
 
-
 size_t load_file ( const char *path, void *buffer, bool binary_mode )
 {
 
