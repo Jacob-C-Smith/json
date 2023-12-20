@@ -55,8 +55,7 @@ int parse_json_string ( char *const pointer, const char **const return_pointer )
 
     // Initialized data
     size_t i = 0,
-           j = 1,
-           k = 0;
+           j = 1;
 
     // Error check
     if ( pointer[i] != '\"' ) return 0;
