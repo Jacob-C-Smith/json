@@ -252,10 +252,6 @@ int main ( int argc, const char* argv[] )
     timestamp t0 = 0,
               t1 = 0;
 
-    // Initialize the timer library
-    timer_init();
-    log_init(0, true);
-
     // Formatting
     printf(
         "╭─────────────╮\n"\
@@ -776,6 +772,7 @@ int test_serial_array ( char *name )
     // Print the summary of this test
     print_final_summary();
 
+    // Success
     return 1;
 }
 
@@ -795,7 +792,7 @@ result_t load_json ( json_value **pp_value, char *test_file, char **free_me )
     }
 
     // Parse JSON
-    r = parse_json_value(file_buf, 0, pp_value);
+    r = json_value_parse(file_buf, 0, pp_value);
 
     *free_me = file_buf;
 
@@ -1931,6 +1928,7 @@ int construct_object_array_objects ( json_value **pp_value )
     p_dict_value         = calloc(1, sizeof(json_value));
     p_int_value->type    = JSON_VALUE_INTEGER;
     p_int_value->integer = 1;
+    p_dict_value->type   = JSON_VALUE_OBJECT;
     dict_construct(&p_dict_value->object, 1, 0);
     dict_add(p_dict_value->object,"a",p_int_value);
     array_add(p_array_value->list, p_dict_value);
@@ -1939,6 +1937,7 @@ int construct_object_array_objects ( json_value **pp_value )
     p_dict_value         = calloc(1, sizeof(json_value));
     p_int_value->type    = JSON_VALUE_INTEGER;
     p_int_value->integer = 2;
+    p_dict_value->type   = JSON_VALUE_OBJECT;
     dict_construct(&p_dict_value->object, 1, 0);
     dict_add(p_dict_value->object,"b",p_int_value);
     array_add(p_array_value->list, p_dict_value);
@@ -1947,6 +1946,7 @@ int construct_object_array_objects ( json_value **pp_value )
     p_dict_value         = calloc(1, sizeof(json_value));
     p_int_value->type    = JSON_VALUE_INTEGER;
     p_int_value->integer = 3;
+    p_dict_value->type   = JSON_VALUE_OBJECT;
     dict_construct(&p_dict_value->object, 1, 0);
     dict_add(p_dict_value->object,"c",p_int_value);
     array_add(p_array_value->list, p_dict_value);
@@ -1981,6 +1981,7 @@ int construct_object_array_object ( json_value **pp_value )
     p_dict_value         = calloc(1, sizeof(json_value));
     p_int_value->type    = JSON_VALUE_INTEGER;
     p_int_value->integer = 1;
+    p_dict_value->type   = JSON_VALUE_OBJECT;
     dict_construct(&p_dict_value->object, 1, 0);
     dict_add(p_dict_value->object,"a",p_int_value);
     array_add(p_array_value->list, p_dict_value);
@@ -2738,8 +2739,8 @@ bool test_parse_json ( char *test_file, int(*expected_value_constructor) (json_v
     value_eq = value_equals(p_return_value, p_expected_value);
 
     // Free the json value
-    if ( p_return_value ) free_json_value(p_return_value);
-    if ( p_expected_value ) free_json_value(p_expected_value);
+    if ( p_return_value ) json_value_free(p_return_value);
+    if ( p_expected_value ) json_value_free(p_expected_value);
     if ( free_me )
         free(free_me);
 
@@ -2765,11 +2766,11 @@ bool test_serial_json ( char *test_file, char *expected_file, int(*expected_valu
     if ( expected_value_constructor ) expected_value_constructor(&p_expected_value);
 
     // Write the expected value to a file
-    result = print_json_value(p_expected_value, p_f);
+    result = json_value_fprint(p_expected_value, p_f);
     
     // Clean up resources
-    free_json_value(p_return_value);
-    free_json_value(p_expected_value);
+    json_value_free(p_return_value);
+    json_value_free(p_expected_value);
 
     fclose(p_f);
 
@@ -2899,7 +2900,7 @@ size_t load_file ( const char *path, void *buffer, bool binary_mode )
         {
             no_path:
                 #ifndef NDEBUG
-                    printf("[JSON] Null path provided to function \"%s\n", __FUNCTION__);
+                    log_error("[json] Null path provided to function \"%s\n", __FUNCTION__);
                 #endif
 
             // Error

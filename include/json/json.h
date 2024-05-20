@@ -1,8 +1,9 @@
 /** !
- * @file json/json.h 
- * @author Jacob Smith
- * 
  * Include header for json library
+ * 
+ * @file json/json.h 
+ * 
+ * @author Jacob Smith
  */
 
 // Include guard
@@ -18,13 +19,13 @@
 #include <errno.h>
 #include <ctype.h>
 
-// sync submodule
+// sync module
 #include <sync/sync.h>
 
-// dict submodule
+// dict module
 #include <dict/dict.h>
 
-// array submodule
+// array module
 #include <array/array.h>
 
 // Forward declared functions
@@ -38,7 +39,7 @@ void free_token ( void *ptr );
 #endif
 
 // This macro is used to free json_value_t *'s 
-#define FREE_VALUE( value ) free_json_value(value)
+#define FREE_VALUE( value ) json_value_free(value)
 
 // Set the reallocator for the dict submodule
 #ifdef DICT_REALLOC
@@ -60,6 +61,7 @@ void free_token ( void *ptr );
 // Enumerations
 enum json_value_type_e
 {
+    JSON_VALUE_INVALID,
     JSON_VALUE_OBJECT,
     JSON_VALUE_ARRAY,
     JSON_VALUE_STRING,
@@ -85,6 +87,18 @@ struct json_value_s
 // Type definitions
 typedef struct json_value_s json_value;
 
+// Function declarations
+// Initializer
+/** !
+ * This gets called at runtime before main. 
+ * 
+ * @param void
+ * 
+ * @return void
+ */
+DLLEXPORT void json_init ( void ) __attribute__((constructor));
+
+// Parser
 /** !
  * Parse json text into a json_value
  * 
@@ -94,8 +108,9 @@ typedef struct json_value_s json_value;
  * 
  * @return 1 on success, 0 on error
  */
-DLLEXPORT int parse_json_value ( char *text, const char **const return_pointer, const json_value **const pp_value );
+DLLEXPORT int json_value_parse ( char *text, const char **const return_pointer, const json_value **const pp_value );
 
+// Serializer
 /** ! 
  * Serialize a json_value to a buffer
  * 
@@ -104,17 +119,18 @@ DLLEXPORT int parse_json_value ( char *text, const char **const return_pointer, 
  * 
  * @return 1 on success, 0 on error
 */
-DLLEXPORT int serialize_json_value ( const json_value *const p_value, char *_buffer );
+DLLEXPORT int json_value_serialize ( const json_value *const p_value, char *_buffer );
+
 /** !
- * Serialize a json_value to a file
+ * Serialize a json value to standard out
  * 
- * @param p_value pointer to json_value
- * @param f the file to write to
+ * @param p_value the json value
  * 
  * @return 1 on success, 0 on error
  */
-DLLEXPORT int print_json_value ( const json_value *const p_value , FILE *f );
+DLLEXPORT int json_value_print ( const json_value *const p_value );
 
+// Destructor
 /** ! 
  * Free a json value, and its contents
  * 
@@ -122,4 +138,14 @@ DLLEXPORT int print_json_value ( const json_value *const p_value , FILE *f );
  *  
  * @return void
  */
-DLLEXPORT void free_json_value ( const json_value *const p_value );
+DLLEXPORT void json_value_free ( const json_value *const p_value );
+
+// Cleanup
+/** !
+ * This gets called at runtime after main
+ * 
+ * @param void
+ * 
+ * @return void
+ */
+DLLEXPORT void json_exit ( void ) __attribute__((destructor));

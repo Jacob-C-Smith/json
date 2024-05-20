@@ -1,12 +1,22 @@
+/** !
+ * JSON example program
+ * 
+ * @file main.c
+ * 
+ * @author Jacob Smith
+ */
+
+// Standard library
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
 
+// json
 #include <json/json.h>
 
-// Helper functions
+// Function declarations
 /**!
  * Print a json_value to stdout
  * 
@@ -62,22 +72,22 @@ int main ( int argc, const char* argv[] )
     return EXIT_SUCCESS;
     
     // Error handling
-    no_argument:
+    {
+        no_argument:
 
-        // Write a usage message
-        printf("Usage: json_example file1.json [file2.json ... fileN.json]\n");
-        
-        // Error
-        return EXIT_FAILURE;
+            // Write a usage message
+            printf("Usage: json_example file1.json [file2.json ... fileN.json]\n");
+            
+            // Error
+            return EXIT_FAILURE;
+    }
 }
 
 int print_json_file ( const char *path )
 {
     
     // Argument checking 
-    #ifndef NDEBUG
-        if ( path == 0 ) goto no_path;
-    #endif
+    if ( path == 0 ) goto no_path;
 
     // Initialized data
     json_value  *p_json         = 0;
@@ -92,10 +102,10 @@ int print_json_file ( const char *path )
     if ( load_file(path, file_buf, false) == 0 ) goto failed_to_load_file;
 
     // Parse the JSON into a value
-    if ( parse_json_value(file_buf, 0, &p_json) == 0 ) goto failed_to_parse_json;
+    if ( json_value_parse(file_buf, 0, &p_json) == 0 ) goto failed_to_parse_json;
 
     // Print the parsed contents to stdout
-    print_json_value(p_json, stdout);
+    json_value_print(p_json);
 
     // Free the JSON value
     FREE_VALUE(p_json);
@@ -110,7 +120,7 @@ int print_json_file ( const char *path )
         {
             no_path:
                 #ifndef NDEBUG
-                    printf("[JSON] Null path provided to function \"%s\n", __FUNCTION__);
+                    log_error("[json] Null path provided to function \"%s\n", __FUNCTION__);
                 #endif
 
                 // Error
@@ -121,7 +131,7 @@ int print_json_file ( const char *path )
         {
             failed_to_load_file:
                 #ifndef NDEBUG
-                    printf("[json] Failed to load file \"%s\" in call to function \"%s\"\n", path, __FUNCTION__);
+                    log_error("[json] Failed to load file \"%s\" in call to function \"%s\"\n", path, __FUNCTION__);
                 #endif
 
                 // Error
@@ -133,7 +143,7 @@ int print_json_file ( const char *path )
 
             failed_to_parse_json:
                 #ifndef NDEBUG
-                    printf("[JSON] Failed to parse JSON in call to function \"%s\n", __FUNCTION__);
+                    log_error("[json] Failed to parse JSON in call to function \"%s\n", __FUNCTION__);
                 #endif
 
                 // Error
@@ -146,9 +156,7 @@ size_t load_file ( const char *path, void *buffer, bool binary_mode )
 {
 
     // Argument checking 
-    #ifndef NDEBUG
-        if ( path == 0 ) goto no_path;
-    #endif
+    if ( path == 0 ) goto no_path;
 
     // Initialized data
     size_t  ret = 0;
@@ -179,7 +187,7 @@ size_t load_file ( const char *path, void *buffer, bool binary_mode )
         {
             no_path:
                 #ifndef NDEBUG
-                    printf("[JSON] Null path provided to function \"%s\n", __FUNCTION__);
+                    log_error("[json] Null path provided to function \"%s\n", __FUNCTION__);
                 #endif
 
                 // Error
