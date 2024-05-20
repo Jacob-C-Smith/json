@@ -19,6 +19,19 @@ endif ()
 
 add_compile_options(-gdwarf-4 -Wall -Wextra -Wpedantic -Wpointer-arith -Wstrict-prototypes -Wformat-security -Wfloat-equal -Wshadow -Wconversion -Wlogical-not-parentheses -Wnull-dereference)
 
+# Find the hash cache module
+if ( NOT "${HAS_HASH_CACHE}")
+
+    # Add the hash cache directory
+    add_subdirectory(${CMAKE_SOURCE_DIR}/extern/hash-cache ${CMAKE_SOURCE_DIR}/build/hash-cache)
+
+    # Let any parent project know that this project has hash cache
+    if(NOT PROJECT_IS_TOP_LEVEL)
+        set(HAS_HASH_CACHE true PARENT_SCOPE)
+        set(HASH_CACHE_INCLUDE_DIR ${HASH_CACHE_INCLUDE_DIR} PARENT_SCOPE)
+    endif()
+endif()
+
 # Find the array module
 if ( NOT "${HAS_ARRAY}")
     

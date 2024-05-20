@@ -4,12 +4,12 @@
 [submodule "extern/sync"]
 	path = extern/sync
 	url = https://github.com/Jacob-C-Smith/sync
-[submodule "extern/crypto"]
-	path = extern/crypto
-	url = https://github.com/Jacob-C-Smith/crypto
 [submodule "extern/log"]
 	path = extern/log
 	url = https://github.com/Jacob-C-Smith/log
 [submodule "extern/array"]
 	path = extern/array
 	url = https://github.com/Jacob-C-Smith/array
+[submodule "extern/hash-cache"]
+	path = extern/hash-cache
+	url = https://github.com/Jacob-C-Smith/hash-cache
