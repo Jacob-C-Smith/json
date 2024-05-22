@@ -41,7 +41,7 @@ void json_init ( void )
     return;
 }
 
-int json_whitespace_parse ( const char *pointer, const char **const return_pointer )
+int json_whitespace_parse ( char *pointer, char **return_pointer )
 {
 
     // Argument check
@@ -86,20 +86,21 @@ int json_whitespace_parse ( const char *pointer, const char **const return_point
     }
 }
 
-int json_string_parse ( char *const pointer, const char **const return_pointer )
+int json_string_parse ( char *const pointer, char **return_pointer )
 {
 
     // Argument check
     if ( pointer == (void *) 0 ) goto no_pointer;
 
     // Initialized data
-    size_t i = 0, j = 1;
+    size_t i = 0,
+           j = 1;
 
     // Error check
     if ( pointer[i] != '\"' ) return 0;
     
     // Check for an empty string
-    if ( pointer[0] == 0 ) goto exit;
+    if ( pointer[0] == '\0' ) goto exit;
 
     // Walk the string
     while ( pointer[j] )
@@ -253,12 +254,11 @@ int json_string_parse ( char *const pointer, const char **const return_pointer )
     }
 }
 
-int json_object_parse ( char *pointer, const char **const return_pointer, dict **const pp_dict )
+int json_object_parse ( char *pointer, char **return_pointer, dict **const pp_dict )
 {
     
     // Initialized data
     size_t  property_count = 0;
-    char   *last_pointer   = pointer;
     dict   *p_dict         = 0;
 
     // Construct a dict
@@ -320,6 +320,12 @@ int json_object_parse ( char *pointer, const char **const return_pointer, dict *
 
             // Increment the property counter for the last time
             property_count++;
+        
+        // Default
+        else
+
+            // Error
+            return 0;
     }
     
     // Error checking
@@ -372,13 +378,12 @@ int json_object_parse ( char *pointer, const char **const return_pointer, dict *
     }
 }
 
-int json_array_parse ( char *pointer, const char **const return_pointer, const array **const pp_array )
+int json_array_parse ( char *pointer, char **return_pointer, array **const pp_array )
 {
 
     // Initialized data
     size_t  i              = 0,
             property_count = 0;
-    char   *last_pointer   = pointer;
     array  *p_array        = 0;
 
     // Construct an array
@@ -418,11 +423,14 @@ int json_array_parse ( char *pointer, const char **const return_pointer, const a
             // Parse another property
             goto parse_property;
         }
-        // Default
+
+        // Terminate
         else if ( *pointer == ']' )
 
             // Increment the property counter one last time
             property_count++;
+
+        // Default
         else
 
             // Error
@@ -444,13 +452,23 @@ int json_array_parse ( char *pointer, const char **const return_pointer, const a
     // Success
     return 1;
 
-    failed_to_construct_array:
+    // Error check
+    {
+        
+        // dict errors
+        {
+            failed_to_construct_array:
+                #ifndef NDEBUG
+                    log_error("[array] Array constructor returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
+                #endif
 
-        // Error
-        return 0;
+                // Error
+                return 0;
+        }
+    }
 }
 
-int json_value_parse ( char *text, const char **const return_pointer, const json_value **const pp_value )
+int json_value_parse ( char *text, char **return_pointer, json_value **const pp_value )
 {
 
     // Argument check
@@ -529,7 +547,7 @@ int json_value_parse ( char *text, const char **const return_pointer, const json
         case 't':
 
             // Check for the correct keyworkd
-            if ( strncmp(text, "true" , 4) ) goto failed_to_parse_keyword;
+            if ( strncmp(text, "true", 4) ) goto failed_to_parse_keyword;
 
             // Store a true value
             *p_value = (json_value)
@@ -570,7 +588,7 @@ int json_value_parse ( char *text, const char **const return_pointer, const json
             if ( strncmp(text, "null" , 4) ) goto failed_to_parse_keyword;
         
             // Free the JSON value
-            JSON_REALLOC(p_value, 0);
+            if ( JSON_REALLOC(p_value, 0) ) goto failed_to_free;
             
             // Skip the cursor
             text += 4;
@@ -596,8 +614,6 @@ int json_value_parse ( char *text, const char **const return_pointer, const json
                d = 0;
         bool   f = false;
         bool   n = false;
-        double dret = 0.0;
-        signed iret = 0;
         
         // Check the number's sign
         if ( text[0] == '-' )
@@ -634,11 +650,11 @@ int json_value_parse ( char *text, const char **const return_pointer, const json
             };
 
             // Bounds check
-            if ( (p_value->number > DBL_MAX || p_value->number < -DBL_MAX) || errno == ERANGE )
+            if ( errno == ERANGE )
             {
                 
                 // Free the JSON value
-                JSON_REALLOC(p_value, 0);
+                if ( JSON_REALLOC(p_value, 0) ) goto failed_to_free;
 
                 // Error handling
                 goto float_bounds_exceeded;
@@ -660,11 +676,11 @@ int json_value_parse ( char *text, const char **const return_pointer, const json
             };
 
             // Bounds check
-            if ( (p_value->integer < -9223372036854775808LL || p_value->integer > 9223372036854775807LL) || errno == ERANGE )
+            if ( errno == ERANGE )
             {
 
                 // Free the value
-                JSON_REALLOC(p_value, 0);
+                if ( JSON_REALLOC(p_value, 0) ) goto failed_to_free;
 
                 // Error handling
                 goto integer_bounds_exceeded;
@@ -750,7 +766,7 @@ int json_value_parse ( char *text, const char **const return_pointer, const json
                 #endif
 
                 // Clean up
-                JSON_REALLOC(p_value, 0);
+                if ( JSON_REALLOC(p_value, 0) ) goto failed_to_free;
 
                 // Error
                 return 0;
@@ -760,7 +776,7 @@ int json_value_parse ( char *text, const char **const return_pointer, const json
 
                     // For some reason, printing this on one line caused a segfault. 
                     // Maybe I should report it?
-                    log_error("[json] Integer must be between [%lld, ", 9223372036854775808LL);
+                    log_error("[json] Integer must be between [%lld, ", -9223372036854775807LL);
                     log_error("%lld] in call to function \"%s\"\n",9223372036854775807LL, __FUNCTION__);
                 #endif
 
@@ -791,7 +807,14 @@ int json_value_parse ( char *text, const char **const return_pointer, const json
 
 				// Error
 				return 0;
+                
+            failed_to_free:
+                #ifndef NDEBUG
+                    printf("[Standard Library] Call to \"realloc\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
+                #endif
 
+                // Error
+                return 0;
         }
     }
 }
@@ -802,7 +825,7 @@ int json_value_serialize ( const json_value *const p_value, char *_buffer )
     size_t written_characters = 0;
 
     // Null case
-    if ( p_value == 0 ) written_characters += sprintf(&_buffer[written_characters], "null");
+    if ( p_value == 0 ) written_characters += (size_t) sprintf(&_buffer[written_characters], "null");
 
     // Everything else
     else
@@ -814,17 +837,17 @@ int json_value_serialize ( const json_value *const p_value, char *_buffer )
             
             // Print a boolean value
             case JSON_VALUE_BOOLEAN:
-                written_characters += sprintf(&_buffer[written_characters],"%s",p_value->boolean ? "true" : "false");
+                written_characters += (size_t) sprintf(&_buffer[written_characters],"%s",p_value->boolean ? "true" : "false");
                 break;
             
             // Print an integer value
             case JSON_VALUE_INTEGER:
-                written_characters += sprintf(&_buffer[written_characters],"%lld", p_value->integer);
+                written_characters += (size_t) sprintf(&_buffer[written_characters],"%lld", p_value->integer);
                 break;
 
             // Print a floating point value
             case JSON_VALUE_NUMBER:
-                written_characters += sprintf(&_buffer[written_characters],"%g", p_value->number);
+                written_characters += (size_t) sprintf(&_buffer[written_characters],"%g", p_value->number);
                 break;
 
             // Print a string
@@ -835,7 +858,7 @@ int json_value_serialize ( const json_value *const p_value, char *_buffer )
                 size_t len = strlen(p_value->string);
 
                 // Formatting
-                written_characters += sprintf(&_buffer[written_characters], "\"");
+                written_characters += (size_t) sprintf(&_buffer[written_characters], "\"");
                 
                 // Iterate over each character
                 for (size_t i = 0; i < len; i++)
@@ -913,7 +936,9 @@ int json_value_serialize ( const json_value *const p_value, char *_buffer )
                 }
             
                 // Formatting
-                written_characters += sprintf(&_buffer[written_characters], "\"");
+                written_characters += (size_t) sprintf(&_buffer[written_characters], "\"");
+                
+                // Done
                 break;
             }
             
@@ -924,10 +949,10 @@ int json_value_serialize ( const json_value *const p_value, char *_buffer )
                 {
                     // Initialized data
                     size_t        property_count = dict_values(p_value->object, 0);
-                    char        **keys           = 0;
+                    const char **keys            = 0;
                     json_value **values          = 0;
 
-                    written_characters += sprintf(&_buffer[written_characters],"{");
+                    written_characters += (size_t) sprintf(&_buffer[written_characters],"{");
 
                     if ( property_count == 0 )
                         goto done;
@@ -939,17 +964,17 @@ int json_value_serialize ( const json_value *const p_value, char *_buffer )
                     dict_values(p_value->object, (void **)values);
                     for (size_t i = 0; i < property_count-1; i++)
                     {
-                        written_characters += sprintf(&_buffer[written_characters],"\"%s\":",keys[i]);
+                        written_characters += (size_t) sprintf(&_buffer[written_characters],"\"%s\":",keys[i]);
                         json_value_serialize(values[i],_buffer);
-                        written_characters += sprintf(&_buffer[written_characters],",");
+                        written_characters += (size_t) sprintf(&_buffer[written_characters],",");
                     }
-                    written_characters += sprintf(&_buffer[written_characters],"\"%s\":",keys[property_count-1]);
+                    written_characters += (size_t) sprintf(&_buffer[written_characters],"\"%s\":",keys[property_count-1]);
                     json_value_serialize(values[property_count-1], _buffer);
 
-                    JSON_REALLOC(keys, 0);
-                    JSON_REALLOC(values, 0);
+                    if ( JSON_REALLOC(keys, 0) ) goto failed_to_free;
+                    if ( JSON_REALLOC(values, 0) ) goto failed_to_free;
                     done:
-                    written_characters += sprintf(&_buffer[written_characters],"}");
+                    written_characters += (size_t) sprintf(&_buffer[written_characters],"}");
                 }
                 break;
             }
@@ -960,7 +985,6 @@ int json_value_serialize ( const json_value *const p_value, char *_buffer )
                 
                 // Initialized data
                 size_t       element_count = 0;
-                char        *keys          = 0;
                 json_value **elements      = 0;
 
                 // Error check
@@ -985,7 +1009,7 @@ int json_value_serialize ( const json_value *const p_value, char *_buffer )
                 }
                 
                 // Formatting
-                written_characters += sprintf(&_buffer[written_characters],"[");
+                written_characters += (size_t) sprintf(&_buffer[written_characters],"[");
 
                 // Print the first element
                 if ( element_count )
@@ -996,18 +1020,17 @@ int json_value_serialize ( const json_value *const p_value, char *_buffer )
                 {
 
                     // Formatting
-                    written_characters += sprintf(&_buffer[written_characters], ",");
+                    written_characters += (size_t) sprintf(&_buffer[written_characters], ",");
 
                     // Print the value
                     json_value_serialize(elements[i], _buffer);
                 }
 
                 // Free the element
-                JSON_REALLOC(elements, 0);
-
+                if ( JSON_REALLOC(elements, 0) ) goto failed_to_free;
 
                 // Formatting
-                written_characters += sprintf(&_buffer[written_characters], "]");
+                written_characters += (size_t) sprintf(&_buffer[written_characters], "]");
             }
                 break;
             
@@ -1024,6 +1047,20 @@ int json_value_serialize ( const json_value *const p_value, char *_buffer )
     no_list:
     no_mem:
         return 0;
+
+    // Error handling
+    {
+        // Standard library errors
+        {
+            failed_to_free:
+                #ifndef NDEBUG
+                    printf("[Standard Library] Call to \"realloc\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // Error
+                return 0;
+        }
+    }
 }
 
 int json_value_print ( const json_value *const p_value )
@@ -1183,7 +1220,7 @@ int json_value_print ( const json_value *const p_value )
             
             // Initialized data
             size_t        property_count = dict_values(p_value->object, 0);
-            char        **keys           = 0;
+            const char **keys            = 0;
             json_value **values          = 0;
 
             // Edge case
@@ -1231,8 +1268,8 @@ int json_value_print ( const json_value *const p_value )
             json_value_print(values[property_count-1]);
 
             // Clean up
-            JSON_REALLOC(keys, 0);
-            JSON_REALLOC(values, 0);
+            if ( JSON_REALLOC(keys, 0) ) goto failed_to_free;
+            if ( JSON_REALLOC(values, 0) ) goto failed_to_free;
 
             done:
 
@@ -1249,7 +1286,6 @@ int json_value_print ( const json_value *const p_value )
             
             // Initialized data
             size_t       element_count = 0;
-            char        *keys          = 0;
             json_value **elements      = 0;
 
             // Error check
@@ -1285,7 +1321,7 @@ int json_value_print ( const json_value *const p_value )
             }
 
             // Clean up
-            JSON_REALLOC(elements, 0);
+            if ( JSON_REALLOC(elements, 0) ) goto failed_to_free;
 
             // Finish printing the array
             printf("]");
@@ -1331,14 +1367,25 @@ int json_value_print ( const json_value *const p_value )
                 // Error
                 return 0;
         }
+        
+        // Standard library errors
+        {
+            failed_to_free:
+                #ifndef NDEBUG
+                    printf("[Standard Library] Call to \"realloc\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // Error
+                return 0;
+        }
     }
 }
 
-int json_value_fprint ( const json_value *const p_value, FILE *f )
+int json_value_fprint ( const json_value *const p_value, FILE *p_f )
 {
     
     // Null case
-    if ( p_value == 0 ) fprintf(f,"null");
+    if ( p_value == 0 ) fprintf(p_f,"null");
 
     // Everything else
     else
@@ -1349,17 +1396,17 @@ int json_value_fprint ( const json_value *const p_value, FILE *f )
         {
             // Print a boolean value
             case JSON_VALUE_BOOLEAN:
-                fprintf(f,"%s",p_value->boolean ? "true" : "false");
+                fprintf(p_f,"%s",p_value->boolean ? "true" : "false");
                 break;
             
             // Print an integer value
             case JSON_VALUE_INTEGER:
-                fprintf(f,"%lld", p_value->integer);
+                fprintf(p_f,"%lld", p_value->integer);
                 break;
 
             // Print a floating point value
             case JSON_VALUE_NUMBER:
-                fprintf(f,"%g", p_value->number);
+                fprintf(p_f,"%g", p_value->number);
                 break;
 
 
@@ -1371,7 +1418,7 @@ int json_value_fprint ( const json_value *const p_value, FILE *f )
                 size_t len = strlen(p_value->string);
 
                 // Formatting
-                fprintf(f, "\"");
+                fprintf(p_f, "\"");
                 
                 // Iterate over each character
                 for (size_t i = 0; i < len; i++)
@@ -1383,57 +1430,57 @@ int json_value_fprint ( const json_value *const p_value, FILE *f )
 
                         // Double quote
                         case '\"':
-                            putc('\\', f);
-                            putc('\"', f);
+                            putc('\\', p_f);
+                            putc('\"', p_f);
 
                             break;
 
                         // Backslash
                         case '\\':
-                            putc('\\', f);
-                            putc('\\', f);
+                            putc('\\', p_f);
+                            putc('\\', p_f);
 
                             break;
 
                         // Forward slash
                         case '/':
-                            putc('\\', f);
-                            putc('/', f);
+                            putc('\\', p_f);
+                            putc('/', p_f);
 
                             break;
                         
                         // Backspace
                         case '\b':
-                            putc('\\', f);
-                            putc('b', f);
+                            putc('\\', p_f);
+                            putc('b', p_f);
 
                             break;
                         
                         // Form feed
                         case '\f':
-                            putc('\\', f);
-                            putc('f', f);
+                            putc('\\', p_f);
+                            putc('f', p_f);
 
                             break;
                         
                         // Line feed
                         case '\n':
-                            putc('\\', f);
-                            putc('n', f);
+                            putc('\\', p_f);
+                            putc('n', p_f);
 
                             break;
                         
                         // Carriage return
                         case '\r':
-                            putc('\\', f);
-                            putc('r', f);
+                            putc('\\', p_f);
+                            putc('r', p_f);
 
                             break;
                         
                         // Horizontal tab
                         case '\t':
-                            putc('\\', f);
-                            putc('t', f);
+                            putc('\\', p_f);
+                            putc('t', p_f);
 
                             break;
 
@@ -1444,12 +1491,14 @@ int json_value_fprint ( const json_value *const p_value, FILE *f )
                         
                         // Default
                         default:
-                            putc(p_value->string[i], f);
+                            putc(p_value->string[i], p_f);
                     }
                 }
             
                 // Formatting
-                fprintf(f, "\"");
+                fprintf(p_f, "\"");
+
+                // Done
                 break;
             }
             
@@ -1460,13 +1509,12 @@ int json_value_fprint ( const json_value *const p_value, FILE *f )
                 {
                     // Initialized data
                     size_t        property_count = dict_values(p_value->object, 0);
-                    char        **keys           = 0;
+                    const char **keys            = 0;
                     json_value **values          = 0;
 
-                    fprintf(f,"{");
+                    fprintf(p_f,"{");
 
-                    if ( property_count == 0 )
-                        goto done;
+                    if ( property_count == 0 ) goto done;
 
                     keys   = JSON_REALLOC(0, property_count * sizeof(char*));
                     values = JSON_REALLOC(0, property_count * sizeof(json_value*));
@@ -1475,19 +1523,21 @@ int json_value_fprint ( const json_value *const p_value, FILE *f )
                     dict_values(p_value->object, (void **)values);
                     for (size_t i = 0; i < property_count-1; i++)
                     {
-                        fprintf(f,"\"%s\":",keys[i]);
-                        json_value_fprint(values[i],f);
-                        fprintf(f,",");
+                        fprintf(p_f,"\"%s\":",keys[i]);
+                        json_value_fprint(values[i],p_f);
+                        fprintf(p_f,",");
                     }
-                    fprintf(f,"\"%s\":",keys[property_count-1]);
-                    json_value_fprint(values[property_count-1],f);
+                    fprintf(p_f,"\"%s\":",keys[property_count-1]);
+                    json_value_fprint(values[property_count-1],p_f);
 
-                    JSON_REALLOC(keys, 0);
-                    JSON_REALLOC(values, 0);
+                    if ( JSON_REALLOC(keys, 0) ) goto failed_to_free;
+                    if ( JSON_REALLOC(values, 0) ) goto failed_to_free;
                     done:
-                    fprintf(f,"}");
+                    fprintf(p_f,"}");
+                    
+                    // Done
+                    break;
                 }
-                break;
             }
             
             // Print an array
@@ -1496,12 +1546,10 @@ int json_value_fprint ( const json_value *const p_value, FILE *f )
                 
                 // Initialized data
                 size_t       element_count = 0;
-                char        *keys          = 0;
                 json_value **elements      = 0;
 
                 // Error check
-                if ( p_value->list == (void *) 0 )
-                    goto no_list;
+                if ( p_value->list == (void *) 0 ) goto no_list;
 
                 // Get the contents of the array
                 {
@@ -1513,39 +1561,38 @@ int json_value_fprint ( const json_value *const p_value, FILE *f )
                     elements = JSON_REALLOC(0, element_count * sizeof(json_value*));
 
                     // Error check
-                    if ( elements == (void *) 0 )
-                        goto no_mem;
+                    if ( elements == (void *) 0 ) goto no_mem;
 
                     // Get the contents of the array
                     array_get(p_value->list, (void **)elements, 0);
                 }
                 
                 // Formatting
-                fprintf(f,"[");
+                fprintf(p_f,"[");
 
                 // Print the first element
-                if ( element_count )
-                    json_value_fprint(elements[0],f);
+                if ( element_count ) json_value_fprint(elements[0],p_f);
                 
                 // Iterate over each element
                 for (size_t i = 1; i < element_count; i++)
                 {
 
                     // Formatting
-                    fprintf(f, ",");
+                    fprintf(p_f, ",");
 
                     // Print the value
-                    json_value_fprint(elements[i],f);
+                    json_value_fprint(elements[i],p_f);
                 }
 
                 // Free the element
-                JSON_REALLOC(elements, 0);
-
+                if ( JSON_REALLOC(elements, 0) ) goto failed_to_free;
 
                 // Formatting
-                fprintf(f, "]");
-            }
+                fprintf(p_f, "]");
+
+                // Done
                 break;
+            }
             
             default:
 
@@ -1572,77 +1619,19 @@ int json_value_fprint ( const json_value *const p_value, FILE *f )
 
                 // Error
                 return 0;
+
+            failed_to_free:
+                #ifndef NDEBUG
+                    printf("[Standard Library] Call to \"realloc\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // Error
+                return 0;
         }
     }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-void json_value_free ( const json_value *const p_value )
+void json_value_free ( json_value *p_value )
 {
     
     // Argument errors
@@ -1662,7 +1651,7 @@ void json_value_free ( const json_value *const p_value )
         case JSON_VALUE_STRING:
 
             // Free the string
-            (void) JSON_REALLOC(p_value->string, 0);
+            if ( JSON_REALLOC(p_value->string, 0) ) goto failed_to_free;
 
             // Done
             break;
@@ -1696,10 +1685,25 @@ void json_value_free ( const json_value *const p_value )
     }
 
     // Free the value
-    JSON_REALLOC(p_value, 0);
+    if ( JSON_REALLOC(p_value, 0) ) goto failed_to_free;
     
     // Done
     return;
+
+    // Error handling
+    {
+
+        // Standard library errors
+        {
+            failed_to_free:
+                #ifndef NDEBUG
+                    printf("[Standard Library] Call to \"realloc\" returned an erroneous value in call to function \"%s\"\n", __FUNCTION__);
+                #endif
+
+                // Error
+                return;
+        }
+    }
 }
 
 void json_exit ( void )

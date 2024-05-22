@@ -248,6 +248,10 @@ int test_serial_array ( char *name );
 int main ( int argc, const char* argv[] )
 {
     
+    // Suppress warnings
+    (void) argc;
+    (void) argv;
+
     // Initialized data
     timestamp t0 = 0,
               t1 = 0;
@@ -831,12 +835,16 @@ bool value_equals (json_value *a, json_value *b)
             result = 0;
     
     if ( a->type == JSON_VALUE_NUMBER )
+    {
 
         // Set the last bit of each float's mantissa to zero. 
         // This averts rounding errors
-        if ( *((signed *)((&a->number))) & 0xfffffffffffffffe ==
-             *((signed *)((&b->number))) & 0xfffffffffffffffe)
+        if (
+            (*((signed *)((&a->number))) & (signed)0xfffffffffffffffe) !=
+            (*((signed *)((&b->number))) & (signed)0xfffffffffffffffe) 
+        )
             result = 0;
+    }
 
     if ( a->type == JSON_VALUE_INTEGER )
         if ( a->integer != b->integer )
@@ -852,8 +860,8 @@ bool value_equals (json_value *a, json_value *b)
                *b_dict       = b->object;
         size_t  a_properties = dict_values(a_dict, 0),
                 b_properties = dict_values(b_dict, 0);
-        char  **a_keys       = 0,
-              **b_keys       = 0;
+        const char **a_keys       = 0,
+                   **b_keys       = 0;
         void  **a_values     = 0,
               **b_values     = 0;
                
@@ -1109,7 +1117,7 @@ int construct_float_minus_one ( json_value **pp_value )
     *p_value = (json_value)
     {
         .type    = JSON_VALUE_NUMBER,
-        .integer = -1.0
+        .number = -1.0
     };
 
     // Return a pointer to the caller
@@ -1168,8 +1176,8 @@ int construct_float_max ( json_value **pp_value )
     // Type
     *p_value = (json_value)
     {
-        .type    = JSON_VALUE_NUMBER,
-        .integer = DBL_MAX
+        .type   = JSON_VALUE_NUMBER,
+        .number = DBL_MAX
     };
 
     // Return a pointer to the caller
@@ -1188,8 +1196,8 @@ int construct_float_min ( json_value **pp_value )
     // Type
     *p_value = (json_value)
     {
-        .type    = JSON_VALUE_NUMBER,
-        .integer = DBL_MAX
+        .type   = JSON_VALUE_NUMBER,
+        .number = DBL_MAX
     };
 
     // Return a pointer to the caller
@@ -1838,7 +1846,6 @@ int construct_object_recursive ( json_value **pp_value )
     // Initialized data
     json_value *p_iter_value = JSON_REALLOC(0, sizeof(json_value)),
                *p_last_value = 0;
-    char       *iter_key     = 0;
 
     p_iter_value->type = JSON_VALUE_OBJECT;
 
@@ -2720,12 +2727,9 @@ bool test_parse_json ( char *test_file, int(*expected_value_constructor) (json_v
 {
     
     // Initialized data
-    bool         ret      = true;
-    size_t       file_len = 0;
     result_t     result   = 0,
                  value_eq = 0;
-    char        *file_buf = 0,
-                *free_me = 0;
+    char        *free_me = 0;
     json_value  *p_return_value   = 0,
                 *p_expected_value = 0;
 
@@ -2751,14 +2755,13 @@ bool test_parse_json ( char *test_file, int(*expected_value_constructor) (json_v
 bool test_serial_json ( char *test_file, char *expected_file, int(*expected_value_constructor) (json_value **), result_t expected )
 {
     
+    // Suppress warnings
+    (void) expected;
+
     // Initialized data
     json_value  *p_return_value   = 0,
                 *p_expected_value = 0;
     bool         ret              = true;
-    size_t       file_len         = 0;
-    result_t     result           = 0,
-                 value_eq         = 0;
-    char        *file_buf         = 0;
     FILE        *p_f              = fopen(test_file, "w"),
                 *p_ef             = 0;
     
@@ -2766,7 +2769,7 @@ bool test_serial_json ( char *test_file, char *expected_file, int(*expected_valu
     if ( expected_value_constructor ) expected_value_constructor(&p_expected_value);
 
     // Write the expected value to a file
-    result = json_value_fprint(p_expected_value, p_f);
+    json_value_fprint(p_expected_value, p_f);
     
     // Clean up resources
     json_value_free(p_return_value);
@@ -2880,7 +2883,7 @@ size_t load_file ( const char *path, void *buffer, bool binary_mode )
 
     // Find file size and prep for read
     fseek(f, 0, SEEK_END);
-    ret = ftell(f);
+    ret = (size_t) ftell(f);
     fseek(f, 0, SEEK_SET);
     
     // Read to data

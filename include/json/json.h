@@ -108,7 +108,7 @@ DLLEXPORT void json_init ( void ) __attribute__((constructor));
  * 
  * @return 1 on success, 0 on error
  */
-DLLEXPORT int json_value_parse ( char *text, const char **const return_pointer, const json_value **const pp_value );
+DLLEXPORT int json_value_parse ( char *text, char **return_pointer, json_value **const pp_value );
 
 // Serializer
 /** ! 
@@ -130,6 +130,16 @@ DLLEXPORT int json_value_serialize ( const json_value *const p_value, char *_buf
  */
 DLLEXPORT int json_value_print ( const json_value *const p_value );
 
+/** !
+ * Serialize a json value to a file
+ * 
+ * @param p_value the json value
+ * @param p_f     the file
+ * 
+ * @return 1 on success, 0 on error
+ */
+DLLEXPORT int json_value_fprint ( const json_value *const p_value, FILE *p_f );
+
 // Destructor
 /** ! 
  * Free a json value, and its contents
@@ -138,7 +148,7 @@ DLLEXPORT int json_value_print ( const json_value *const p_value );
  *  
  * @return void
  */
-DLLEXPORT void json_value_free ( const json_value *const p_value );
+DLLEXPORT void json_value_free ( json_value *p_value );
 
 // Cleanup
 /** !

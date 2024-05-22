@@ -99,12 +99,12 @@
  ```c
 
 // Parse text to json_value
-int  parse_json_value ( char *text, char **return_pointer, json_value_t **pp_value );
+int  json_value_parse ( char *text, char **return_pointer, json_value_t **pp_value );
 
 // Serialize a json_value to text 
-int  print_json_value ( json_value *p_value, FILE *f );
+int  json_value_print ( json_value *p_value );
 
 
-void free_json_value  ( json_value *p_value );
+void json_value_free  ( json_value *p_value );
  ```
 

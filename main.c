@@ -54,7 +54,7 @@ int main ( int argc, const char* argv[] )
     if ( argc == 1 ) goto no_argument;
 
     // Iterate over command line arguments
-    for (size_t i = 1; i < argc; i++)
+    for (int i = 1; i < argc; i++)
     {
 
         // Output formatting
@@ -90,13 +90,9 @@ int print_json_file ( const char *path )
     if ( path == 0 ) goto no_path;
 
     // Initialized data
-    json_value  *p_json         = 0;
-    dict        *p_object       = 0;
-    size_t       file_len       = load_file(path, 0, false),
-                 property_count = 0;
-    char        *file_buf       = file_buf = calloc(file_len+1, sizeof(char)),
-               **keys           = 0;
-    void       **values         = 0;
+    json_value  *p_json   = 0;
+    size_t       file_len = load_file(path, 0, false);
+    char        *file_buf = file_buf = calloc(file_len+1, sizeof(char));
 
     // Load the file
     if ( load_file(path, file_buf, false) == 0 ) goto failed_to_load_file;
@@ -167,7 +163,7 @@ size_t load_file ( const char *path, void *buffer, bool binary_mode )
 
     // Find file size and prep for read
     fseek(f, 0, SEEK_END);
-    ret = ftell(f);
+    ret = (size_t) ftell(f);
     fseek(f, 0, SEEK_SET);
     
     // Read to data
