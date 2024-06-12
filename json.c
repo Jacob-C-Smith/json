@@ -500,13 +500,16 @@ int json_value_parse ( char *text, char **return_pointer, json_value **const pp_
             text++;
 
             // Compute the length of the string
-            string_len = strlen(last_text);           
+            string_len = strlen(last_text); 
 
             // Allocate memory for the string
-            p_value->string = JSON_REALLOC(0, (string_len+1) * sizeof(char));
+            p_value->string = JSON_REALLOC(0, ( (string_len + 1 + 8) & 0xFFFFFFFFFFFFFFF8) * sizeof(char));
         
             // Error check
             if ( p_value->string == (void *) 0 ) goto no_mem;
+
+            // Initialize memory
+            memset(p_value->string, 0, ( (string_len + 1 + 8) & 0xFFFFFFFFFFFFFFF8) * sizeof(char));
 
             // Copy the string 
             (void) strncpy(p_value->string, last_text, string_len+1);
