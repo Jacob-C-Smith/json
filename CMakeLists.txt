@@ -1,5 +1,5 @@
-# Need CMake 3.28
-cmake_minimum_required (VERSION 3.28)
+# Need CMake 3.16
+cmake_minimum_required (VERSION 3.16)
 
 # This is the name of the repository
 project ("json")

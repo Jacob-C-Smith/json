@@ -2,10 +2,16 @@
 [![CMake](https://github.com/Jacob-C-Smith/json/actions/workflows/cmake.yml/badge.svg)](https://github.com/Jacob-C-Smith/json/actions/workflows/cmake.yml)
 
 **Dependencies:**\
-[![CMake](https://github.com/Jacob-C-Smith/array/actions/workflows/cmake.yml/badge.svg?branch=main)](https://github.com/Jacob-C-Smith/array/actions/workflows/cmake.yml) [![crypto](https://github.com/Jacob-C-Smith/crypto/actions/workflows/cmake.yml/badge.svg)](https://github.com/Jacob-C-Smith/crypto/actions/workflows/cmake.yml) [![CMake](https://github.com/Jacob-C-Smith/dict/actions/workflows/cmake.yml/badge.svg)](https://github.com/Jacob-C-Smith/dict/actions/workflows/cmake.yml) [![sync](https://github.com/Jacob-C-Smith/sync/actions/workflows/cmake.yml/badge.svg)](https://github.com/Jacob-C-Smith/sync/actions/workflows/cmake.yml)
+[![dict](https://github.com/Jacob-C-Smith/dict/actions/workflows/cmake.yml/badge.svg)](https://github.com/Jacob-C-Smith/dict/actions/workflows/cmake.yml)
+[![array](https://github.com/Jacob-C-Smith/array/actions/workflows/cmake.yml/badge.svg?branch=main)](https://github.com/Jacob-C-Smith/array/actions/workflows/cmake.yml)
+[![hash-cache](https://github.com/Jacob-C-Smith/hash-cache/actions/workflows/cmake.yml/badge.svg)](https://github.com/Jacob-C-Smith/hash-cache/actions/workflows/cmake.yml) 
+[![sync](https://github.com/Jacob-C-Smith/sync/actions/workflows/cmake.yml/badge.svg)](https://github.com/Jacob-C-Smith/sync/actions/workflows/cmake.yml)
+[![log](https://github.com/Jacob-C-Smith/log/actions/workflows/cmake.yml/badge.svg)](https://github.com/Jacob-C-Smith/log/actions/workflows/cmake.yml)
 
  A JSON parser / serializer written in C. 
  
+ > 0 [Try it](#try-it)
+ >
  > 1 [Download](#download)
  >
  > 2 [Build](#build)
@@ -26,11 +32,17 @@
  >>
  >> 5.3 [Macro definitions](#macro-definitinos)
 
+## Try it
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/Jacob-C-Smith/json?quickstart=1)
+
+Wait for a few moments, then click the play button on the bottom of the window. This will run the example program.
+
  ## Download
  To download json, execute the following command
  ```bash
  $ git clone https://github.com/Jacob-C-Smith/json --recurse-submodules
  ```
+
  ## Build
  To build on UNIX like machines, execute the following commands in the same directory
  ```bash
@@ -74,7 +86,6 @@
  ```
 --- example.json ---
 {"name":"Jacob Smith","age":20,"height":1.775,"dog":{"name":"Eddie","sex":"Male","breed":"Terrier"},"interests":["Computer science","3D modeling","Organic chemistry","Mathematics","Computer games","Epistemology"]}
-
  ```
  [Source](main.c)
  
@@ -97,14 +108,15 @@
  ### Function definitions
 
  ```c
+// Parser
+int json_value_parse ( char *text, char **return_pointer, json_value **const pp_value );
 
-// Parse text to json_value
-int  json_value_parse ( char *text, char **return_pointer, json_value_t **pp_value );
+// Serializer
+int json_value_serialize ( const json_value *const p_value, char *_buffer );
+int json_value_print     ( const json_value *const p_value );
+int json_value_fprint    ( const json_value *const p_value, FILE *p_f );
 
-// Serialize a json_value to text 
-int  json_value_print ( json_value *p_value );
-
-
-void json_value_free  ( json_value *p_value );
+// Destructor
+void json_value_free ( json_value *p_value );
  ```
 
