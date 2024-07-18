@@ -6,7 +6,8 @@
 lib
 x64/
 .DS_Store
-build/
+build/*
+!build/test cases
 CMakeFiles/
 cmake_install.cmake
 Makefile
