@@ -10,5 +10,5 @@
       "extensions": ["ms-vscode.cmake-tools", "ms-vscode.cpptools-extension-pack"]
     }
   },
-  "postCreateCommand": "cd extern;git submodule init;git submodule update;mkdir build;cp -r parse\\ test\\ cases/ build/parse\\ test\\ cases/;cp -r serial\\ test\\ cases/ build/serial\\ test\\ cases/;"
+  "postCreateCommand": "cd extern;git submodule init;git submodule update;"
 }
