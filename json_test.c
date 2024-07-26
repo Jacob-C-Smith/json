@@ -796,7 +796,7 @@ result_t load_json ( json_value **pp_value, char *test_file, char **free_me )
     }
 
     // Parse JSON
-    r = json_value_parse(file_buf, 0, pp_value);
+    r = (result_t) json_value_parse(file_buf, 0, pp_value);
 
     *free_me = file_buf;
 
@@ -1136,8 +1136,8 @@ int construct_float_zero ( json_value **pp_value )
     // Type
     *p_value = (json_value)
     {
-        .type    = JSON_VALUE_NUMBER,
-        .integer = -0.0
+        .type   = JSON_VALUE_NUMBER,
+        .number = 0.0
     };
 
     // Return a pointer to the caller
@@ -1156,8 +1156,8 @@ int construct_float_one ( json_value **pp_value )
     // Type
     *p_value = (json_value)
     {
-        .type    = JSON_VALUE_NUMBER,
-        .integer = 1.0
+        .type   = JSON_VALUE_NUMBER,
+        .number = 1.0
     };
 
     // Return a pointer to the caller

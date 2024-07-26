@@ -258,8 +258,7 @@ int json_object_parse ( char *pointer, char **return_pointer, dict **const pp_di
 {
     
     // Initialized data
-    size_t  property_count = 0;
-    dict   *p_dict         = 0;
+    dict *p_dict = (void *)0;
 
     // Construct a dict
     if ( dict_construct(&p_dict, DICT_SIZE, 0) == 0 ) goto failed_to_construct_dict;
@@ -309,17 +308,14 @@ int json_object_parse ( char *pointer, char **return_pointer, dict **const pp_di
         {
 
             // Increment the property counter and the pointer 
-            property_count++, pointer++;
+            pointer++;
 
             // Parse another property
             goto parse_property;
         }
 
         // ... or the end of the object
-        else if ( *pointer == '}' )
-
-            // Increment the property counter for the last time
-            property_count++;
+        else if ( *pointer == '}' );
         
         // Default
         else
@@ -382,9 +378,8 @@ int json_array_parse ( char *pointer, char **return_pointer, array **const pp_ar
 {
 
     // Initialized data
-    size_t  i              = 0,
-            property_count = 0;
-    array  *p_array        = 0;
+    size_t  i       = 0;
+    array  *p_array = 0;
 
     // Construct an array
     if ( array_construct(&p_array, DICT_SIZE) == 0 ) goto failed_to_construct_array;
@@ -418,17 +413,14 @@ int json_array_parse ( char *pointer, char **return_pointer, array **const pp_ar
         {
 
             // Increment the property counter and the cursor
-            property_count++, pointer++;
+            pointer++;
 
             // Parse another property
             goto parse_property;
         }
 
         // Terminate
-        else if ( *pointer == ']' )
-
-            // Increment the property counter one last time
-            property_count++;
+        else if ( *pointer == ']' );
 
         // Default
         else
