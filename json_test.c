@@ -840,8 +840,8 @@ bool value_equals (json_value *a, json_value *b)
         // Set the last bit of each float's mantissa to zero. 
         // This averts rounding errors
         if (
-            (*((signed *)((&a->number))) & (signed)0xfffffffffffffffe) !=
-            (*((signed *)((&b->number))) & (signed)0xfffffffffffffffe) 
+            (*((unsigned long long *)((&a->number))) & (unsigned long long)0xfffffffffffffffe) !=
+            (*((unsigned long long *)((&b->number))) & (unsigned long long)0xfffffffffffffffe) 
         )
             result = 0;
     }
@@ -1197,7 +1197,7 @@ int construct_float_min ( json_value **pp_value )
     *p_value = (json_value)
     {
         .type   = JSON_VALUE_NUMBER,
-        .number = DBL_MAX
+        .number = -DBL_MAX
     };
 
     // Return a pointer to the caller
