@@ -90,21 +90,24 @@ int print_json_file ( const char *path )
     if ( path == 0 ) goto no_path;
 
     // Initialized data
-    json_value  *p_json   = 0;
+    json_value  *p_value  = 0;
     size_t       file_len = load_file(path, 0, false);
-    char        *file_buf = file_buf = calloc(file_len+1, sizeof(char));
+    char        *file_buf = calloc(file_len + 1, sizeof(char));
 
     // Load the file
     if ( load_file(path, file_buf, false) == 0 ) goto failed_to_load_file;
 
     // Parse the JSON into a value
-    if ( json_value_parse(file_buf, 0, &p_json) == 0 ) goto failed_to_parse_json;
+    if ( json_value_parse(file_buf, 0, &p_value) == 0 ) goto failed_to_parse_json;
+
+    // Free the allocation
+    file_buf = JSON_REALLOC(file_buf, 0);
 
     // Print the parsed contents to stdout
-    json_value_print(p_json);
+    json_value_print(p_value);
 
     // Free the JSON value
-    FREE_VALUE(p_json);
+    json_value_free(p_value);
 
     // Success
     return 1;
