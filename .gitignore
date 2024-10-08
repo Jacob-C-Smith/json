@@ -40,3 +40,5 @@ json_test
 *.ini
 *.ico
 Icon?
+test cases/serial/*
+!test cases/serial/.gitkeep
