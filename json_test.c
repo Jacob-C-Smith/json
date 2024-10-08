@@ -350,25 +350,25 @@ void run_tests ( void )
     parser_t0 = timer_high_precision();
 
     // Test parsing valid and invalid null
-    test_parse_null("parse_null");
+    test_parse_null("parse null");
 
     // Test parsing valid and invalid booleans
-    test_parse_bool("parse_bool");
+    test_parse_bool("parse bool");
 
     // Test parsing valid, invalid, and over/underflowed integers
-    test_parse_int("parse_int");
+    test_parse_int("parse int");
 
     // Test parsing valid, invalid, and over/underflowed floating point numbers
-    test_parse_float("parse_float");
+    test_parse_float("parse float");
     
     // Test parsing valid, invalid, and unicode strings
-    test_parse_string("parse_string");
+    test_parse_string("parse string");
 
     // Test parsing a variety of objects
-    test_parse_object("parse_object");
+    test_parse_object("parse object");
 
     // Test parsing a variety of arrays
-    test_parse_array("parse_array");
+    test_parse_array("parse array");
 
     // Stop
     parser_t1 = timer_high_precision();
@@ -381,25 +381,25 @@ void run_tests ( void )
     serial_t0 = timer_high_precision();
 
     // Test serializing null
-    test_serial_null("serial_null");
+    test_serial_null("serial null");
     
     // Test serializing booleans
-    test_serial_bool("serial_bool");
+    test_serial_bool("serial bool");
 
     // Test serializing integers
-    test_serial_int("serial_int");
+    test_serial_int("serial int");
 
     // Test serializing floating point numbers
-    test_serial_float("serial_float");
+    test_serial_float("serial float");
     
     // Test serializing strings
-    test_serial_string("serial_string");
+    test_serial_string("serial string");
 
     // Test serializing objects
-    test_serial_object("serial_object");
+    test_serial_object("serial object");
 
     // Test serializing arrays
-    test_serial_array("serial_array");
+    test_serial_array("serial array");
 
     // Stop
     serial_t1 = timer_high_precision();
@@ -422,7 +422,7 @@ void test_parse_null ( char *name )
 {
 
     // Formatting
-    log_info("Scenario: %s\n", name);
+    log_scenario("%s\n", name);
 
     // Test a valid null token
     print_test(name, "null", test_parse_json("test cases/parse/pass/null.json", (void *) 0, one));
@@ -441,7 +441,7 @@ void test_parse_bool ( char *name )
 {
 
     // Formatting
-    log_info("Scenario: %s\n", name);
+    log_scenario("%s\n", name);
 
     // Test a valid false token
     print_test(name, "false", test_parse_json("test cases/parse/pass/bool/bool_false.json", construct_bool_false, one));
@@ -466,7 +466,7 @@ void test_parse_int ( char *name )
 {
 
     // Formatting
-    log_info("Scenario: %s\n", name);
+    log_scenario("%s\n", name);
 
     // Test -1
     print_test(name, "-1", test_parse_json("test cases/parse/pass/int/int_-1.json", construct_int_minus_one, one));
@@ -500,7 +500,7 @@ void test_parse_float ( char *name )
 {
 
     // Formatting
-    log_info("Scenario: %s\n", name);
+    log_scenario("%s\n", name);
 
     // Test -1.0
     print_test(name, "-1.0", test_parse_json("test cases/parse/pass/float/float_-1.json", construct_float_minus_one, one));
@@ -534,7 +534,7 @@ void test_parse_string ( char *name )
 {
 
     // Formatting
-    log_info("Scenario: %s\n", name);
+    log_scenario("%s\n", name);
     
     print_test(name, "\"\""       , test_parse_json("test cases/parse/pass/string/string_empty.json"          , construct_string_empty          , one));
     print_test(name, "\"a\""      , test_parse_json("test cases/parse/pass/string/string_a.json"              , construct_string_a              , one));
@@ -563,7 +563,7 @@ void test_parse_object ( char *name )
 {
 
     // Formatting
-    log_info("Scenario: %s\n", name);
+    log_scenario("%s\n", name);
     
     print_test(name, "{}"                                               , test_parse_json("test cases/parse/pass/object/object_empty.json"        , construct_object_empty        , one));
     print_test(name, "{\"abc\":\"def\"}"                                , test_parse_json("test cases/parse/pass/object/object_string.json"       , construct_object_string       , one));
@@ -591,7 +591,7 @@ void test_parse_array ( char *name )
 {
 
     // Formatting
-    log_info("Scenario: %s\n", name);
+    log_scenario("%s\n", name);
     
     print_test(name, "[]"                                  , test_parse_json("test cases/parse/pass/array/array_empty.json"            , construct_array_empty            , one));
     print_test(name, "[null]"                              , test_parse_json("test cases/parse/pass/array/array_null.json"             , construct_array_null             , one));
@@ -624,7 +624,7 @@ void test_serial_null ( char *name )
 {
 
     // Formatting
-    log_info("Scenario: %s\n", name);
+    log_scenario("%s\n", name);
 
     // Test serializing a null value
     print_test(name, "null", test_serial_json("test cases/serial/TESTER_null.json", "test cases/parse/pass/null.json", construct_null, one));
@@ -640,7 +640,7 @@ int test_serial_bool ( char *name )
 {
 
     // Formatting
-    log_info("Scenario: %s\n", name);
+    log_scenario("%s\n", name);
 
     print_test(name, "false", test_serial_json("test cases/serial/bool/TESTER_bool_false.json", "test cases/parse/pass/bool/bool_false.json", construct_bool_false, one));
     print_test(name, "true" , test_serial_json("test cases/serial/bool/TESTER_bool_true.json" , "test cases/parse/pass/bool/bool_true.json" , construct_bool_true , one));
@@ -656,7 +656,7 @@ int test_serial_int ( char *name )
 {
 
     // Formatting
-    log_info("Scenario: %s\n", name);
+    log_scenario("%s\n", name);
 
     print_test(name, "-1"    , test_serial_json("test cases/serial/int/TESTER_int_-1.json" , "test cases/parse/pass/int/int_-1.json" , construct_int_minus_one, one));
     print_test(name, "0"     , test_serial_json("test cases/serial/int/TESTER_int_0.json"  , "test cases/parse/pass/int/int_0.json"  , construct_int_zero     , one));
@@ -674,7 +674,7 @@ int test_serial_float ( char *name )
 {
 
     // Formatting
-    log_info("Scenario: %s\n", name);
+    log_scenario("%s\n", name);
 
     log_warning(
         "TODO: While the floating point serializer does work, the formatting is poor.\n"\
@@ -698,7 +698,7 @@ int test_serial_string ( char *name )
 {
 
     // Formatting
-    log_info("Scenario: %s\n", name);
+    log_scenario("%s\n", name);
     
     print_test(name, "\"\""       , test_serial_json("test cases/serial/string/TESTER_string_empty.json"          , "test cases/parse/pass/string/string_empty.json"          , construct_string_empty          , one));
     print_test(name, "\"a\""      , test_serial_json("test cases/serial/string/TESTER_string_a.json"              , "test cases/parse/pass/string/string_a.json"              , construct_string_a              , one));
@@ -724,7 +724,7 @@ int test_serial_object ( char *name )
 {
 
     // Formatting
-    log_info("Scenario: %s\n", name);
+    log_scenario("%s\n", name);
     
     print_test(name, "{}"                                               , test_serial_json("test cases/serial/object/TESTER_object_empty.json"        , "test cases/parse/pass/object/object_empty.json"        , construct_object_empty        , one));
     print_test(name, "{\"abc\":\"def\"}"                                , test_serial_json("test cases/serial/object/TESTER_object_string.json"       , "test cases/parse/pass/object/object_string.json"       , construct_object_string       , one));
@@ -751,7 +751,7 @@ int test_serial_array ( char *name )
 {
 
     // Formatting
-    log_info("Scenario: %s\n", name);
+    log_scenario("%s\n", name);
     
     print_test(name, "[]"                                  , test_serial_json("test cases/serial/array/TESTER_array_empty.json"            , "test cases/parse/pass/array/array_empty.json"            , construct_array_empty            , one));
     print_test(name, "[null]"                              , test_serial_json("test cases/serial/array/TESTER_array_null.json"             , "test cases/parse/pass/array/array_null.json"             , construct_array_null             , one));
