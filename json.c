@@ -470,6 +470,31 @@ int json_value_parse ( char *text, char **return_pointer, json_value **const pp_
     // Initialized data
     json_value *p_value = JSON_REALLOC(0, sizeof(json_value));
 
+    if ( return_pointer == (void *) 0 ) 
+    {
+
+        // Initialized data
+        size_t len = strlen(text);
+
+        // Grow the allocation
+        p_value = JSON_REALLOC(0, sizeof(json_value) + len + 1);
+
+        // Error check
+        if ( p_value == (void *) 0 ) goto no_mem;
+
+        // Initialize data
+        memset(p_value, 0, sizeof(json_value) + len + 1);
+
+        // Store the length
+        p_value->len = len;
+
+        // Copy the json text
+        strncpy(p_value->_text, text, len);
+
+        // Update the text pointer
+        text = p_value->_text;
+    }
+
     // Parse whitespace
     (void) json_whitespace_parse(text, &text);
 
@@ -1685,7 +1710,7 @@ void json_value_free ( json_value *p_value )
     }
 
     // Free the value
-    if ( JSON_REALLOC(p_value, 0) ) goto failed_to_free;
+    p_value = JSON_REALLOC(p_value, 0);
     
     // Done
     return;

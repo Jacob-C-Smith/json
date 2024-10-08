@@ -73,7 +73,9 @@ enum json_value_type_e
 // Structures
 struct json_value_s
 {
-    union {
+    enum json_value_type_e type;
+    union
+    {
         char             *string;
         signed long long  integer;
         double            number;
@@ -81,7 +83,8 @@ struct json_value_s
         array            *list;
         bool              boolean;
     };
-    enum json_value_type_e type;  // Type
+    size_t len;
+    char _text[];
 };
 
 // Type definitions
