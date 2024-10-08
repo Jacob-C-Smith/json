@@ -784,21 +784,21 @@ result_t load_json ( json_value **pp_value, char *test_file, char **free_me )
 {
 
     // Initialized data
-    size_t    file_len = 0;
-    char     *file_buf = 0;
+    size_t    file_len = load_file(test_file, 0, false);
+    char     *file_buf = JSON_REALLOC(0, file_len + 1);
     result_t  r        = 0; 
     
+    // Initialize data
+    memset(file_buf, 0, file_len + 1);
+
     // Load the file
-    {
-        file_len = load_file(test_file, 0, false);
-        file_buf = calloc(file_len+1, sizeof(char));
-        load_file(test_file, file_buf, false);
-    }
+    load_file(test_file, file_buf, false);
 
     // Parse JSON
     r = (result_t) json_value_parse(file_buf, 0, pp_value);
 
-    *free_me = file_buf;
+    // Release memory
+    file_buf = JSON_REALLOC(file_buf, 0);
 
     // Success
     return r;
@@ -2745,8 +2745,6 @@ bool test_parse_json ( char *test_file, int(*expected_value_constructor) (json_v
     // Free the json value
     if ( p_return_value ) json_value_free(p_return_value);
     if ( p_expected_value ) json_value_free(p_expected_value);
-    if ( free_me )
-        free(free_me);
 
     // Success
     return (result == expected && value_eq);

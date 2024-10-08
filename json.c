@@ -468,15 +468,27 @@ int json_value_parse ( char *text, char **return_pointer, json_value **const pp_
     if ( pp_value == (void *) 0 ) goto no_value;
 
     // Initialized data
-    json_value *p_value = JSON_REALLOC(0, sizeof(json_value));
+    json_value *p_value = (void *) 0;
 
-    if ( return_pointer == (void *) 0 ) 
+    if ( return_pointer  ) 
+    {
+
+        // Allocate memory
+        p_value = JSON_REALLOC(0, sizeof(json_value));
+        
+        // Error check
+        if ( p_value == (void *) 0 ) goto no_mem;
+
+        // Initialize data
+        memset(p_value, 0, sizeof(json_value));
+    }
+    else
     {
 
         // Initialized data
         size_t len = strlen(text);
 
-        // Grow the allocation
+        // Allocate memory
         p_value = JSON_REALLOC(0, sizeof(json_value) + len + 1);
 
         // Error check
@@ -570,11 +582,8 @@ int json_value_parse ( char *text, char **return_pointer, json_value **const pp_
             if ( strncmp(text, "true", 4) ) goto failed_to_parse_keyword;
 
             // Store a true value
-            *p_value = (json_value)
-            {
-                .type = JSON_VALUE_BOOLEAN,
-                .boolean = true
-            };
+            p_value->type = JSON_VALUE_BOOLEAN;
+            p_value->boolean = true;
 
             // Skip the cursor
             text += 4;
@@ -589,11 +598,9 @@ int json_value_parse ( char *text, char **return_pointer, json_value **const pp_
             if ( strncmp(text, "false", 5) ) goto failed_to_parse_keyword;
 
             // Store a true value
-            *p_value = (json_value)
-            {
-                .type = JSON_VALUE_BOOLEAN,
-                .boolean = false
-            };
+            p_value->type = JSON_VALUE_BOOLEAN;
+            p_value->boolean = false;
+            
 
             // Skip the cursor
             text+=5;
@@ -608,16 +615,13 @@ int json_value_parse ( char *text, char **return_pointer, json_value **const pp_
             if ( strncmp(text, "null" , 4) ) goto failed_to_parse_keyword;
         
             // Free the JSON value
-            if ( JSON_REALLOC(p_value, 0) ) goto failed_to_free;
+            p_value = JSON_REALLOC(p_value, 0);
             
             // Skip the cursor
             text += 4;
 
-            // p_value = nullptr
-            p_value = 0;
-        
             // Done
-            break;
+            goto done;
 
         // Parse a number
         default:
@@ -663,11 +667,8 @@ int json_value_parse ( char *text, char **return_pointer, json_value **const pp_
             errno = 0;
 
             // Store a number value
-            *p_value = (json_value)
-            {
-                .type = JSON_VALUE_NUMBER,
-                .number = strtod(text, NULL)
-            };
+            p_value->type = JSON_VALUE_NUMBER;
+            p_value->number = strtod(text, NULL);
 
             // Bounds check
             if ( errno == ERANGE )
@@ -689,11 +690,8 @@ int json_value_parse ( char *text, char **return_pointer, json_value **const pp_
             errno = 0;
 
             // Set the type of the value
-            *p_value = (json_value)
-            {
-                .type = JSON_VALUE_INTEGER,
-                .integer = strtoll(text, NULL, 10)
-            };
+            p_value->type = JSON_VALUE_INTEGER;
+            p_value->integer = strtoll(text, NULL, 10);
 
             // Bounds check
             if ( errno == ERANGE )
@@ -723,8 +721,10 @@ int json_value_parse ( char *text, char **return_pointer, json_value **const pp_
     // Parse whitespace
     (void) json_whitespace_parse(text, &text);
 
+    done:
+    
     // Write the return value
-    if ( pp_value ) *pp_value = p_value;
+    *pp_value = p_value;
 
     // Update the cursor
     if ( return_pointer ) *return_pointer = text;
