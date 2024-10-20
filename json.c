@@ -589,8 +589,8 @@ int json_value_parse ( char *text, char **return_pointer, json_value **const pp_
             text += 4;
 
             // Done
-            break;
-        
+            goto done;
+
         // This branch parses the 'false' keyword
         case 'f':
             
@@ -601,18 +601,17 @@ int json_value_parse ( char *text, char **return_pointer, json_value **const pp_
             p_value->type = JSON_VALUE_BOOLEAN;
             p_value->boolean = false;
             
-
             // Skip the cursor
-            text+=5;
+            text += 5;
             
             // Done
-            break;
+            goto done;
         
         // This branch parses the 'null' keyword
         case 'n':
 
             // Error check
-            if ( strncmp(text, "null" , 4) ) goto failed_to_parse_keyword;
+            if ( strncmp(text, "null", 4) ) goto failed_to_parse_keyword;
         
             // Free the JSON value
             p_value = JSON_REALLOC(p_value, 0);
@@ -718,11 +717,11 @@ int json_value_parse ( char *text, char **return_pointer, json_value **const pp_
         text += n ? 1 : 0;
     }
 
+    done:
+    
     // Parse whitespace
     (void) json_whitespace_parse(text, &text);
 
-    done:
-    
     // Write the return value
     *pp_value = p_value;
 
