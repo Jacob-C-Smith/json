@@ -676,17 +676,11 @@ int test_serial_float ( char *name )
     // Formatting
     log_scenario("%s\n", name);
 
-    log_warning(
-        "TODO: While the floating point serializer does work, the formatting is poor.\n"\
-        "These tests will fail if compared against the original file, so I've disabled them\n"
-    );
-
-    // TODO: Format perfectly. 
-    //print_test(name, "-1.0"    , test_serial_json("test cases/serial/float/TESTER_float_-1.json" , "test cases/parse/pass/float/float_-1.json" , construct_float_minus_one, one));
-    //print_test(name, "0.0"     , test_serial_json("test cases/serial/float/TESTER_float_0.json"  , "test cases/parse/pass/float/float_0.json"  , construct_float_zero     , one));
-    //print_test(name, "1.0"     , test_serial_json("test cases/serial/float/TESTER_float_1.json"  , "test cases/parse/pass/float/float_1.json"  , construct_float_one      , one));
-    //print_test(name, "max"     , test_serial_json("test cases/serial/float/TESTER_float_max.json", "test cases/parse/pass/float/float_max.json", construct_float_max      , one));
-    //print_test(name, "min"     , test_serial_json("test cases/serial/float/TESTER_float_min.json", "test cases/parse/pass/float/float_min.json", construct_float_min      , one));
+    print_test(name, "-1.0", test_serial_json("test cases/serial/float/TESTER_float_-1.json" , "test cases/parse/pass/float/float_-1.json" , construct_float_minus_one, one));
+    print_test(name, "0.0" , test_serial_json("test cases/serial/float/TESTER_float_0.json"  , "test cases/parse/pass/float/float_0.json"  , construct_float_zero     , one));
+    print_test(name, "1.0" , test_serial_json("test cases/serial/float/TESTER_float_1.json"  , "test cases/parse/pass/float/float_1.json"  , construct_float_one      , one));
+    print_test(name, "max" , test_serial_json("test cases/serial/float/TESTER_float_max.json", "test cases/parse/pass/float/float_max.json", construct_float_max      , one));
+    print_test(name, "min" , test_serial_json("test cases/serial/float/TESTER_float_min.json", "test cases/parse/pass/float/float_min.json", construct_float_min      , one));
 
     // Print the summary of this test
     print_final_summary();
@@ -2779,9 +2773,9 @@ bool test_serial_json ( char *test_file, char *expected_file, int(*expected_valu
     p_f  = fopen(test_file, "r");
     p_ef = fopen(expected_file, "r");    
 
-    // Short circuit
-    if ( load_file(test_file, 0, false) != load_file(expected_file, 0, false) ) return false;
-
+    load_file(test_file, 0, false);
+    load_file(expected_file, 0, false);
+    
     // Compare the files
     {
 

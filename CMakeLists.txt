@@ -111,16 +111,16 @@ target_link_libraries(json_example json array dict sync)
 add_executable (json_test "json_test.c")
 add_dependencies(json_test json array dict sync log)
 target_include_directories(json_test PUBLIC ${JSON_INCLUDE_DIR} ${LOG_INCLUDE_DIR} ${ARRAY_INCLUDE_DIR} ${CRYPTO_INCLUDE_DIR} ${DICT_INCLUDE_DIR} ${SYNC_INCLUDE_DIR})
-target_link_libraries(json_test json array dict sync log)
+target_link_libraries(json_test json array dict sync log m)
 
 # Add source to this project's library
 add_library (json SHARED "json.c")
 add_dependencies(json array dict sync)
 target_include_directories(json PUBLIC ${JSON_INCLUDE_DIR} ${ARRAY_INCLUDE_DIR} ${CRYPTO_INCLUDE_DIR} ${DICT_INCLUDE_DIR} ${SYNC_INCLUDE_DIR})
-target_link_libraries(json PUBLIC array dict sync)
+target_link_libraries(json PUBLIC array dict sync m)
 
 # Add source to this project's tester library
 add_library (json_test_lib SHARED "json_test.c")
 add_dependencies(json_test_lib json array dict sync log)
 target_include_directories(json_test_lib PUBLIC ${JSON_INCLUDE_DIR} ${LOG_INCLUDE_DIR} ${ARRAY_INCLUDE_DIR} ${CRYPTO_INCLUDE_DIR} ${DICT_INCLUDE_DIR} ${SYNC_INCLUDE_DIR})
-target_link_libraries(json_test_lib PUBLIC json array dict sync log)
+target_link_libraries(json_test_lib PUBLIC json array dict sync log m)

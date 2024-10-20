@@ -41,6 +41,28 @@ void json_init ( void )
     return;
 }
 
+int double_precision ( double value )
+{
+
+    // Initialized data
+    int    ret           = 18;
+    double rounded_value = 0.0;
+
+    // Test precisions downto 1
+    for (; ret >= 1; ret--)
+    {
+        
+        // Round
+        rounded_value = round(value * pow(10, ret)) / pow(10, ret);
+
+        // Compare
+        if ( rounded_value != value ) break;
+    }
+
+    // Done
+    return ret + 1;
+};
+
 int json_whitespace_parse ( char *pointer, char **return_pointer )
 {
 
@@ -615,6 +637,7 @@ int json_value_parse ( char *text, char **return_pointer, json_value **const pp_
         
             // Free the JSON value
             p_value = JSON_REALLOC(p_value, 0);
+            p_value = (void *) 0;
             
             // Skip the cursor
             text += 4;
@@ -720,7 +743,7 @@ int json_value_parse ( char *text, char **return_pointer, json_value **const pp_
     done:
     
     // Parse whitespace
-    (void) json_whitespace_parse(text, &text);
+    if ( p_value ) (void) json_whitespace_parse(text, &text);
 
     // Write the return value
     *pp_value = p_value;
@@ -808,8 +831,8 @@ int json_value_parse ( char *text, char **return_pointer, json_value **const pp_
 
                     // For some reason, printing this on one line caused a segfault. 
                     // Maybe I should report it?
-                    log_error("[json] Float must be between [%lg, ", -DBL_MAX);
-                    log_error("%lg] in call to function \"%s\"\n",DBL_MAX, __FUNCTION__);
+                    log_error("[json] Float must be between [%.17lg, ", -DBL_MAX);
+                    log_error("%.17lg] in call to function \"%s\"\n",DBL_MAX, __FUNCTION__);
                 #endif
 
 
@@ -866,8 +889,20 @@ int json_value_serialize ( const json_value *const p_value, char *_buffer )
 
             // Print a floating point value
             case JSON_VALUE_NUMBER:
-                written_characters += (size_t) sprintf(&_buffer[written_characters],"%g", p_value->number);
+            {
+            
+                // Initialized data
+                int precision = double_precision(p_value->number);
+
+                // Print the value with the current precision
+                if ( precision > 18 )
+                    written_characters += (size_t) sprintf(&_buffer[written_characters],"%.*le", 16, p_value->number);
+                else
+                    written_characters += (size_t) sprintf(&_buffer[written_characters],"%.*lf", precision, p_value->number);
+                
+                // Done
                 break;
+            }
 
             // Print a string
             case JSON_VALUE_STRING:
@@ -1115,13 +1150,20 @@ int json_value_print ( const json_value *const p_value )
 
         // Floating point
         case JSON_VALUE_NUMBER:
+        {
+            
+            // Initialized data
+            int precision = double_precision(p_value->number);
 
-            // Write the float to standard out
-            printf("%g", p_value->number);
-
+            // Print the value with the current precision
+            if ( precision > 18 )
+                printf("%.*le", 16, p_value->number);
+            else
+                printf("%.*lf", precision, p_value->number);
+            
             // Done
             break;
-
+        }
 
         // String
         case JSON_VALUE_STRING:
@@ -1428,8 +1470,20 @@ int json_value_fprint ( const json_value *const p_value, FILE *p_f )
 
             // Print a floating point value
             case JSON_VALUE_NUMBER:
-                written_characters += fprintf(p_f,"%g", p_value->number);
+            {
+
+                // Initialized data
+                int precision = double_precision(p_value->number);
+
+                // Print the value with the current precision
+                if ( precision > 18 )
+                    written_characters += (size_t) fprintf(p_f, "%.*le", 16, p_value->number);
+                else
+                    written_characters += (size_t) fprintf(p_f, "%.*lf", precision, p_value->number);
+                
+                // Done
                 break;
+            }
 
             // Print a string
             case JSON_VALUE_STRING:
