@@ -275,7 +275,7 @@ int json_string_parse ( char *const pointer, char **return_pointer )
         }
     }
 }
-
+ 
 int json_object_parse ( char *pointer, char **return_pointer, dict **const pp_dict )
 {
     
