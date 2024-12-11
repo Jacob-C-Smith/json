@@ -18,6 +18,7 @@
 #include <float.h>
 #include <errno.h>
 #include <ctype.h>
+#include <math.h>
 
 // sync module
 #include <sync/sync.h>
