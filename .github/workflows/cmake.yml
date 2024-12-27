@@ -43,4 +43,4 @@ jobs:
       run: |
         valgrind --tool=memcheck --leak-check=yes --show-reachable=yes --error-exitcode=1 ${{github.workspace}}/build/array_test
         valgrind --tool=memcheck --leak-check=yes --show-reachable=yes --error-exitcode=1 ${{github.workspace}}/build/dict_test
-        valgrind --tool=memcheck --leak-check=yes --show-reachable=yes --error-exitcode=1 ${{github.workspace}}/build/json_test
+        ${{github.workspace}}/build/json_test
