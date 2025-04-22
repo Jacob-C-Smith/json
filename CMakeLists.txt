@@ -9,15 +9,28 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/build)
 set(CMAKE_PREFIX_PATH ${CMAKE_SOURCE_DIR}/extern/)
 
+# Set compiler warnings
+if(MSVC)
+    # TODO
+else()
+
+    # For clang
+    #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -lrt -std=gnu99 -Wall -Wextra  -Weverything -Wno-declaration-after-statement -Ofast")
+
+    # For GCC
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu99 -Wall -Wextra -O0 -pthread -lpthread")
+    add_compile_definitions(__USE_POSIX199309)
+    add_compile_options(-Wall -Wextra -Wpointer-arith -Wstrict-prototypes -Wformat-security -Wfloat-equal -Wshadow -Wconversion -pthread -lpthread -Wlogical-not-parentheses -Wnull-dereference)
+endif()
+
 # Comment out for Debug mode
 set(IS_DEBUG_BUILD CMAKE_BUILD_TYPE STREQUAL "Debug")
 
-# Set for debug mode
-if (${IS_DEBUG_BUILD})
-    add_compile_definitions(NDEBUG)
-endif ()
+# Build sync with timer
+add_compile_definitions(BUILD_SYNC_WITH_TIMER)
 
-add_compile_options(-gdwarf-4 -Wall -Wextra -Wpointer-arith -Wstrict-prototypes -Wformat-security -Wfloat-equal -Wshadow -Wconversion -Wlogical-not-parentheses -Wnull-dereference)
+# Build sync with mutex
+add_compile_definitions(BUILD_SYNC_WITH_MUTEX)
 
 # Find the hash cache module
 if ( NOT "${HAS_HASH_CACHE}")
