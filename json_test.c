@@ -6,10 +6,14 @@
  * @author Jacob C Smith
  */
 
-#include <log/log.h>
-
 // Header
 #include <json/json_test.h>
+
+// log module
+#include <log/log.h>
+
+// sync module
+#include <sync/sync.h>
 
 // Set reallocator macros
 #ifdef DICT_REALLOC
@@ -2049,9 +2053,6 @@ int construct_array_nulls ( json_value **pp_value )
     array_add(p_value->list, 0);
     array_add(p_value->list, 0);
     array_add(p_value->list, 0);
-
-    size_t i = 0;
-    array_get(p_value->list, 0, &i);
     
     // Return
     *pp_value = p_value;
@@ -2739,6 +2740,8 @@ bool test_parse_json ( char *test_file, int(*expected_value_constructor) (json_v
     // Free the json value
     if ( p_return_value ) json_value_free(p_return_value);
     if ( p_expected_value ) json_value_free(p_expected_value);
+
+    JSON_REALLOC(free_me, 0);
 
     // Success
     return (result == expected && value_eq);
